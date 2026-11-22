@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg font-sans text-base leading-normal text-ink antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-semibold leading-tight;
+  }
+  a {
+    @apply text-accent hover:text-indigo-700;
+  }
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-accent;
+  }
+  kbd {
+    @apply rounded border border-b-2 border-slate-300 bg-surface px-1.5 font-sans text-xs text-muted;
+  }
+  mark {
+    @apply rounded-sm bg-yellow-200 px-px text-ink;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-chip border border-transparent px-4 text-sm font-semibold leading-none no-underline disabled:cursor-not-allowed disabled:border-line disabled:bg-line disabled:text-muted;
+  }
+  .btn-primary {
+    @apply bg-accent text-white hover:bg-indigo-700 hover:text-white;
+  }
+  .btn-secondary {
+    @apply border-slate-300 bg-surface text-ink hover:bg-slate-100 hover:text-ink;
+  }
+  .btn-ghost {
+    @apply bg-transparent text-indigo-700 hover:bg-accent-weak hover:text-indigo-800;
+  }
+  .btn-danger {
+    @apply border-danger bg-surface text-danger hover:bg-red-50 hover:text-red-800;
+  }
+  .icon-btn {
+    @apply inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-chip border-0 bg-transparent text-muted hover:bg-slate-100 hover:text-ink;
+  }
+  .field {
+    @apply min-h-11 w-full rounded-chip border border-slate-500 bg-surface px-3 font-sans text-base text-ink;
+  }
+  textarea.field {
+    @apply resize-y p-3 leading-normal;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-ink;
+  }
+  .panel {
+    @apply rounded-card border border-line bg-surface p-6 shadow-card;
+  }
+  .card {
+    @apply flex flex-col gap-2 rounded-card border border-line bg-surface p-3 shadow-card hover:border-indigo-300;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-chip bg-accent-weak px-2 py-0.5 text-xs font-medium text-indigo-800;
+  }
+  .chip-pref {
+    @apply border border-dashed border-indigo-400 bg-surface;
+  }
+  .chip-lg {
+    @apply px-2.5 py-1 text-sm;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .gap-badge {
+    @apply inline-flex items-center rounded-chip bg-amber-100 px-2 py-0.5 text-xs font-bold tracking-wide text-amber-800;
+  }
+  .dot {
+    @apply inline-block h-2 w-2 flex-none rounded-full;
+  }
+  .pill-tab {
+    @apply inline-flex min-h-11 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-slate-300 bg-surface px-3.5 text-sm font-semibold text-muted;
+  }
+  .pill-tab-on {
+    @apply border-ink bg-ink text-white;
+  }
+  .nav-link {
+    @apply flex min-h-11 items-center gap-3 rounded-chip px-3 text-[0.9375rem] font-medium text-muted no-underline hover:bg-slate-100 hover:text-ink;
+  }
+  .nav-link-active {
+    @apply bg-accent-weak text-indigo-800 hover:bg-accent-weak hover:text-indigo-800;
+  }
+  .spinner {
+    @apply h-[18px] w-[18px] flex-none animate-spin rounded-full border-2 border-indigo-200 border-t-accent motion-reduce:animate-none;
+  }
+}

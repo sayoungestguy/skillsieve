@@ -1,0 +1,18 @@
+# Secrets and local env
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# Build output and deps
+node_modules/
+dist/
+coverage/
+target/
+.venv/
+__pycache__/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
