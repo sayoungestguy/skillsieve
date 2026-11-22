@@ -3,6 +3,33 @@
 You do these steps by hand once. After that, each push to `main` deploys on its own (`.github/workflows/deploy.yml`).
 Everything here is free. Do not pick a paid shape or add a block volume beyond the free 200 GB.
 
+## 0. Rehearse locally first (k3d)
+
+This runs the same image and chart on a local k3s cluster in Docker. It needs Docker Desktop and `brew install k3d`.
+
+```bash
+docker build --build-arg VITE_USE_MOCKS=true -t skillsieve-web:sha-local apps/web
+```
+
+```bash
+k3d cluster create skillsieve --image rancher/k3s:v1.31.4-k3s1 -p "8089:80@loadbalancer" --wait
+```
+
+```bash
+k3d image import skillsieve-web:sha-local -c skillsieve
+```
+
+```bash
+helm upgrade --install skillsieve deploy/helm/skillsieve -n skillsieve --create-namespace --atomic \
+  --set imageRegistry=docker.io/library --set web.image.tag=sha-local --set web.image.pullPolicy=Never
+```
+
+Open <http://skillsieve.localhost:8089>. TLS is off locally. When you're done, delete the cluster:
+
+```bash
+k3d cluster delete skillsieve
+```
+
 ## 1. Create the VM (Oracle Cloud console)
 
 1. **Compute → Instances → Create.** Image: *Canonical Ubuntu 24.04* (aarch64). Shape: *VM.Standard.A1.Flex* with **2 OCPU and 12 GB**. The console must show the "Always Free-eligible" label.
