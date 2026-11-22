@@ -3,7 +3,7 @@
 # Build: docker buildx build --platform linux/arm64,linux/amd64 -t ghcr.io/<owner>/skillsieve-web:sha-xxxx apps/web
 
 # ---- build stage (runs natively on the builder; output is platform-independent) ----
-FROM --platform=$BUILDPLATFORM node:22.12-alpine@sha256:51eff88af6dff26f59316b6e356188ffa2c422bd3c3b76f2556a2e7e89d080bd AS build
+FROM --platform=$BUILDPLATFORM node:26.13-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
