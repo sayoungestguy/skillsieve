@@ -330,7 +330,7 @@ Cluster: ConfigMap for non-secrets, `SealedSecret` for secrets.
 | File | Trigger | Jobs |
 |---|---|---|
 | `ci.yml` | PR + push to `main` | Path-filtered: `web` (lint, typecheck, vitest, build) · `core-api` (Spotless, `mvn verify` with Testcontainers Postgres + ES) · `skills-svc` (ruff, mypy, pytest) · `helm` (lint, `kubeconform`) · `security` (Gitleaks, Trivy fs/config) |
-| `deploy.yml` | push to `main` after CI passes | Build multi-arch images with `docker buildx` (`linux/arm64,linux/amd64`) → push to GHCR tagged `sha-<short>` + `main` → Trivy image scan (fail on fixable HIGH/CRITICAL) → SSH to VM → `helm upgrade --install --atomic --timeout 5m` with `image.tag=sha-<short>` → smoke test `curl -f https://<host>/api/actuator/health` |
+| `deploy.yml` | push to `main` after CI passes | Build multi-arch images with `docker buildx` (`linux/arm64,linux/amd64`) → push to GHCR tagged `sha-<short>` + `main` → Trivy image scan (fail on fixable HIGH/CRITICAL) → SSH to VM → `helm upgrade --install --atomic --timeout 5m` with `image.tag=sha-<short>` → smoke test `curl -f https://<host>/healthz` (switches to `/api/actuator/health` once core-api ships). Chart is packaged as `<chart version>-sha<short>` and pushed to `oci://ghcr.io/<owner>/charts`; prod values are sent to the VM over stdin (`-f -`) |
 | `keepalive.yml` | cron every 3 days | One `SELECT 1` against Supabase to avoid free-plan pause |
 | `codeql.yml` | weekly + PR | CodeQL for Java, Python, JS/TS |
 
@@ -355,11 +355,13 @@ templates/
 Every Deployment: `resources`, `readinessProbe`, `livenessProbe`, `securityContext` (`runAsNonRoot: true`, `readOnlyRootFilesystem: true`, drop ALL capabilities), `automountServiceAccountToken: false`.
 
 ### 9.3 First-time VM setup (`deploy/k3s/bootstrap.sh`)
-1. Ubuntu 24.04 ARM, update, enable unattended-upgrades, UFW: 22 (your IP), 80, 443.
+1. Ubuntu 24.04 ARM, update, enable unattended-upgrades, UFW: 22 (rate-limited, key-only, fail2ban), 80, 443. Traefik redirects HTTP → HTTPS.
 2. Install k3s (`--write-kubeconfig-mode 600`, Traefik enabled).
 3. Install Helm, cert-manager, sealed-secrets controller.
 4. Create ClusterIssuer `letsencrypt-prod`.
-5. Create namespace `skillsieve`, deploy key user for GitHub Actions (SSH, restricted to `helm`/`kubectl`).
+5. Create namespace `skillsieve`, deploy key user for GitHub Actions (SSH forced command allows only `helm`/`kubectl`; kubeconfig uses ServiceAccount `deployer` bound to `admin` in `skillsieve` only).
+
+Manual steps (VM creation, DuckDNS, GitHub secrets/vars, making GHCR packages public): `deploy/k3s/README.md`.
 6. Add DuckDNS cron to keep the IP updated.
 
 ## 10. Security
@@ -371,7 +373,7 @@ Every Deployment: `resources`, `readinessProbe`, `livenessProbe`, `securityConte
 | CSRF | SameSite=Strict + require `X-Requested-With` header on state-changing requests |
 | Authorisation | Every query filters by `user_id`; tests for cross-user access return 404 |
 | Input | Bean Validation / Pydantic; max body 64 KB; job text rendered as plain text (never `dangerouslySetInnerHTML`) |
-| Headers | CSP `default-src 'self'`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` (nginx + Spring) |
+| Headers | CSP `default-src 'self'` (temporary exception: `fonts.googleapis.com` / `fonts.gstatic.com` until Inter is self-hosted), `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` (nginx + Spring) |
 | Secrets | Sealed Secrets; Gitleaks in CI; no secrets in logs |
 | Supply chain | Dependabot, Trivy, CodeQL, pinned base images by digest, non-root containers |
 | LLM | PII redaction before send; no resume text to free tier; prompt-injection: output validated by schema, never executed |

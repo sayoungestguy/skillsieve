@@ -1,0 +1,6 @@
+apiVersion: v2
+name: skillsieve
+description: SkillSieve job-search tracker (web, core-api, skills-svc, Elasticsearch)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

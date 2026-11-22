@@ -1,0 +1,97 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+      helm: ${{ steps.filter.outputs.helm }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            web:
+              - 'apps/web/**'
+              - '.github/workflows/ci.yml'
+            helm:
+              - 'deploy/helm/**'
+              - '.github/workflows/ci.yml'
+
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run coverage
+      - run: npm run build
+
+  helm:
+    needs: changes
+    if: needs.changes.outputs.helm == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.3
+      - name: helm lint
+        run: helm lint deploy/helm/skillsieve --set web.image.tag=sha-ci
+      - name: kubeconform
+        run: |
+          curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz kubeconform
+          for f in values.yaml values-prod.yaml; do
+            helm template ci deploy/helm/skillsieve -f deploy/helm/skillsieve/$f --set web.image.tag=sha-ci \
+              | ./kubeconform -strict -summary -kubernetes-version 1.31.0 -
+          done
+
+  security:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Trivy filesystem (deps + secrets)
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: fs
+          scanners: vuln,secret
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - name: Trivy config (Dockerfiles, Helm)
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: config
+          severity: HIGH,CRITICAL
+          exit-code: '1'

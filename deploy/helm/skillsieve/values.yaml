@@ -1,0 +1,21 @@
+# Defaults for local clusters (k3d/kind). Production overrides live in values-prod.yaml.
+imageRegistry: ghcr.io/OWNER   # set with --set imageRegistry=ghcr.io/<github-owner>
+
+web:
+  enabled: true
+  replicas: 1
+  image:
+    repository: skillsieve-web
+    tag: ""            # required: sha-<short>; never latest
+    pullPolicy: IfNotPresent
+  resources:           # docs/ARCHITECTURE.md §6
+    requests: { cpu: 10m, memory: 32Mi }
+    limits: { cpu: 200m, memory: 64Mi }
+
+ingress:
+  enabled: true
+  className: traefik
+  host: skillsieve.localhost
+  tls:
+    enabled: false
+    clusterIssuer: letsencrypt-prod

@@ -144,7 +144,8 @@ flowchart TB
 - **TLS:** cert-manager ClusterIssuer `letsencrypt-prod`, HTTP-01 challenge.
 - **Secrets:** Sealed Secrets controller; encrypted `SealedSecret` YAML committed to Git.
 - **Storage:** k3s `local-path` provisioner for the Elasticsearch PVC (10 Gi).
-- **Firewall:** Oracle security list opens 22 (your IP only), 80, 443. The k3s API (6443) is not public.
+- **Firewall:** Oracle security list and UFW open 22, 80, 443. SSH is open to all because GitHub-hosted runners have no fixed IPs, so it is key-only, rate-limited (`ufw limit`) and guarded by fail2ban. The deploy key is forced to a `helm`/`kubectl`-only shell with a namespace-scoped ServiceAccount. The k3s API (6443) is not public.
+- **Chart delivery:** CI pushes the Helm chart to GHCR as an OCI artifact; the VM runs `helm upgrade` from `oci://ghcr.io/<owner>/charts/skillsieve`. Images and chart are public GHCR packages, so no pull secret is needed.
 
 ## 6. RAM budget (12 GB node)
 

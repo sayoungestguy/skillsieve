@@ -1,0 +1,4 @@
+ingress:
+  host: skillsieve.duckdns.org   # change to your DuckDNS subdomain
+  tls:
+    enabled: true
