@@ -1,6 +1,10 @@
 apiVersion: v2
 name: skillsieve
-description: SkillSieve job-search tracker (web, core-api, skills-svc, Elasticsearch)
+description: SkillSieve job-search tracker — web, core-api, skills-svc and Elasticsearch on k3s
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 0.2.0
+appVersion: "0.2.0"
+keywords: [job-search, spring-boot, fastapi, elasticsearch, k3s]
+home: https://github.com/OWNER/skillsieve
+sources:
+  - https://github.com/OWNER/skillsieve

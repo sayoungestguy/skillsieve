@@ -1,0 +1,45 @@
+# `helm test <release>`: checks every service answers on its health endpoint from inside the cluster.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Release.Name }}-smoke-test
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/part-of: skillsieve
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: smoke
+      image: {{ .Values.elasticsearch.image }}   # reuses a pulled image that has curl
+      command:
+        - sh
+        - -c
+        - |
+          set -e
+          {{- if .Values.web.enabled }}
+          curl -fsS http://{{ .Release.Name }}-web/healthz
+          {{- end }}
+          {{- if .Values.coreApi.enabled }}
+          curl -fsS http://{{ .Release.Name }}-core-api:8080/api/actuator/health
+          {{- end }}
+          {{- if .Values.skillsSvc.enabled }}
+          curl -fsS http://{{ .Release.Name }}-skills-svc:8000/readyz
+          {{- end }}
+          echo; echo "smoke test passed"
+      resources:
+        requests: { cpu: 10m, memory: 32Mi }
+        limits: { cpu: 100m, memory: 64Mi }
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: [ALL]

@@ -23,6 +23,25 @@ spec:
         runAsUser: 1000      # the image's elasticsearch user
         runAsGroup: 0
         fsGroup: 1000
+      initContainers:
+        # Read-only root FS: ES writes its keystore into config/, so start from a writable copy.
+        - name: config
+          image: {{ .Values.elasticsearch.image }}
+          command: ["sh", "-c", "cp -R /usr/share/elasticsearch/config/. /config/"]
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { cpu: 100m, memory: 64Mi }
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: config
+              mountPath: /config
       containers:
         - name: elasticsearch
           image: {{ .Values.elasticsearch.image }}
@@ -35,6 +54,7 @@ spec:
             - { name: xpack.ml.enabled, value: "false" }
             - { name: node.store.allow_mmap, value: "false" }   # no vm.max_map_count sysctl needed
             - { name: ingest.geoip.downloader.enabled, value: "false" }
+            - { name: ES_TMPDIR, value: /tmp }
             - name: ES_JAVA_OPTS
               value: "-Xms{{ .Values.elasticsearch.heap }} -Xmx{{ .Values.elasticsearch.heap }}"
           readinessProbe:
@@ -50,7 +70,7 @@ spec:
           securityContext:
             runAsNonRoot: true
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false   # ES writes its keystore and temp files under /usr/share
+            readOnlyRootFilesystem: true
             capabilities:
               drop: [ALL]
             seccompProfile:
@@ -58,6 +78,19 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /usr/share/elasticsearch/data
+            - name: config
+              mountPath: /usr/share/elasticsearch/config
+            - name: logs
+              mountPath: /usr/share/elasticsearch/logs
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          emptyDir: { sizeLimit: 16Mi }
+        - name: logs
+          emptyDir: { sizeLimit: 128Mi }
+        - name: tmp
+          emptyDir: { sizeLimit: 256Mi }
   volumeClaimTemplates:
     - metadata:
         name: data

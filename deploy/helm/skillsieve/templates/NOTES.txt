@@ -1,0 +1,18 @@
+SkillSieve {{ .Chart.AppVersion }} is deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+{{- if .Values.ingress.enabled }}
+{{- if .Values.ingress.host }}
+Open: {{ if .Values.ingress.tls.enabled }}https{{ else }}http{{ end }}://{{ .Values.ingress.host }}
+{{- else }}
+Open: http://<any node IP or LAN address>:<ingress port>  (no host rule; values-local.yaml)
+{{- end }}
+{{- end }}
+
+Check it:
+  kubectl -n {{ .Release.Namespace }} get pods
+  helm test {{ .Release.Name }} -n {{ .Release.Namespace }}
+{{- if .Values.elasticsearch.enabled }}
+
+Elasticsearch takes 1–2 minutes to start. core-api builds the search index once it is up;
+until then search and insights are served from Postgres.
+{{- end }}
