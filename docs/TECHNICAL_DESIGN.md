@@ -310,7 +310,7 @@ Rules:
 
 **Privacy guard:** a regex pass removes emails, phone numbers (`+65` and general), and URLs with query strings before the text leaves the cluster. Unit-tested.
 
-**Evaluation (planned, not built yet):** `services/skills-svc/eval/` will hold 20 labelled job posts (`*.txt` + `*.expected.json`). `uv run python -m eval.run` prints precision/recall per post. Target: precision ≥ 0.9, recall ≥ 0.85. Runs manually (it uses quota), not in CI. CI runs the same pipeline against recorded LLM responses (fixtures).
+**Evaluation:** `services/skills-svc/eval/` holds 20 labelled, original job posts (`*.txt` + `*.expected.json`). `uv run python -m eval.run` prints precision/recall per post. Target: precision ≥ 0.9, recall ≥ 0.85. Runs manually (it uses quota), not in CI. CI runs the same pipeline against recorded LLM responses (`eval/recorded/`, enforced by `tests/test_eval.py`). First recorded run (gemini-3.5-flash-lite): precision 1.000, recall 0.893. Details and caveats are in `eval/README.md`.
 
 ## 8. Configuration
 

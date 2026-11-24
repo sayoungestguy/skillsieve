@@ -1,0 +1,68 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Pinecrest Bank",
+    "title": "QA Automation Engineer",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": 3,
+    "skills": [
+      {
+        "name": "Test automation",
+        "importance": "REQUIRED",
+        "evidence": "3+ years in test automation"
+      },
+      {
+        "name": "TypeScript",
+        "importance": "REQUIRED",
+        "evidence": "Writing automated tests in TypeScript"
+      },
+      {
+        "name": "Playwright",
+        "importance": "REQUIRED",
+        "evidence": "Playwright"
+      },
+      {
+        "name": "Java",
+        "importance": "REQUIRED",
+        "evidence": "Java (JUnit, Selenium)"
+      },
+      {
+        "name": "JUnit",
+        "importance": "REQUIRED",
+        "evidence": "JUnit"
+      },
+      {
+        "name": "Selenium",
+        "importance": "REQUIRED",
+        "evidence": "Selenium"
+      },
+      {
+        "name": "REST APIs",
+        "importance": "REQUIRED",
+        "evidence": "Testing REST APIs"
+      },
+      {
+        "name": "CI/CD",
+        "importance": "REQUIRED",
+        "evidence": "CI/CD pipelines"
+      },
+      {
+        "name": "Jenkins",
+        "importance": "REQUIRED",
+        "evidence": "Jenkins"
+      },
+      {
+        "name": "k6",
+        "importance": "PREFERRED",
+        "evidence": "Performance testing with k6"
+      },
+      {
+        "name": "SQL",
+        "importance": "PREFERRED",
+        "evidence": "SQL for test data setup"
+      }
+    ]
+  }
+}

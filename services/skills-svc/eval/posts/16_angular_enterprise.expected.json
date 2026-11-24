@@ -1,0 +1,20 @@
+{
+  "company": "Civic Systems",
+  "title": "Frontend Engineer (Angular)",
+  "seniority": "SENIOR",
+  "min_years": 5,
+  "skills": {
+    "angular": "REQUIRED",
+    "typescript": "REQUIRED",
+    "css": "REQUIRED",
+    "testing": "REQUIRED",
+    "nodejs": "PREFERRED",
+    "azure": "PREFERRED",
+    "cicd": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "RxJS",
+    "NgRx",
+    "Accessibility"
+  ]
+}

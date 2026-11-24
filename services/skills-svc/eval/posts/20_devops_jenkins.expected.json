@@ -1,0 +1,21 @@
+{
+  "company": "Seastar Telco",
+  "title": "DevOps Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": null,
+  "skills": {
+    "cicd": "REQUIRED",
+    "docker": "REQUIRED",
+    "kubernetes": "REQUIRED",
+    "terraform": "REQUIRED",
+    "linux": "REQUIRED",
+    "git": "REQUIRED",
+    "azure": "PREFERRED",
+    "python": "PREFERRED",
+    "elasticsearch": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "Ansible",
+    "OpenShift"
+  ]
+}

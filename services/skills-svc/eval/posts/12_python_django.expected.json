@@ -1,0 +1,19 @@
+{
+  "company": "Kopi Labs",
+  "title": "Python Developer",
+  "seniority": "JUNIOR",
+  "min_years": null,
+  "skills": {
+    "python": "REQUIRED",
+    "django": "REQUIRED",
+    "rest": "REQUIRED",
+    "sql": "REQUIRED",
+    "postgresql": "REQUIRED",
+    "git": "REQUIRED",
+    "redis": "PREFERRED",
+    "docker": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "Celery"
+  ]
+}

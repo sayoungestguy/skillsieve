@@ -1,0 +1,83 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Bluefin Games",
+    "title": "Backend Engineer",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": null,
+    "skills": [
+      {
+        "name": "C#",
+        "importance": "REQUIRED",
+        "evidence": "C#/.NET or Go for game services"
+      },
+      {
+        "name": ".NET",
+        "importance": "REQUIRED",
+        "evidence": "C#/.NET or Go for game services"
+      },
+      {
+        "name": "Go",
+        "importance": "REQUIRED",
+        "evidence": "C#/.NET or Go for game services"
+      },
+      {
+        "name": "Redis",
+        "importance": "REQUIRED",
+        "evidence": "Redis/Memcached"
+      },
+      {
+        "name": "Memcached",
+        "importance": "REQUIRED",
+        "evidence": "Redis/Memcached"
+      },
+      {
+        "name": "MySQL",
+        "importance": "REQUIRED",
+        "evidence": "MySQL/PostgreSQL"
+      },
+      {
+        "name": "PostgreSQL",
+        "importance": "REQUIRED",
+        "evidence": "MySQL/PostgreSQL"
+      },
+      {
+        "name": "Docker",
+        "importance": "REQUIRED",
+        "evidence": "Docker/Kubernetes"
+      },
+      {
+        "name": "Kubernetes",
+        "importance": "REQUIRED",
+        "evidence": "Docker/Kubernetes"
+      },
+      {
+        "name": "AWS",
+        "importance": "REQUIRED",
+        "evidence": "AWS or GCP"
+      },
+      {
+        "name": "GCP",
+        "importance": "REQUIRED",
+        "evidence": "AWS or GCP"
+      },
+      {
+        "name": "Unity",
+        "importance": "PREFERRED",
+        "evidence": "Unity experience"
+      },
+      {
+        "name": "Kafka",
+        "importance": "PREFERRED",
+        "evidence": "Kafka/RabbitMQ"
+      },
+      {
+        "name": "RabbitMQ",
+        "importance": "PREFERRED",
+        "evidence": "Kafka/RabbitMQ"
+      }
+    ]
+  }
+}

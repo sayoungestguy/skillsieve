@@ -1,0 +1,78 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Seastar Telco",
+    "title": "DevOps Engineer",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": null,
+    "skills": [
+      {
+        "name": "Jenkins",
+        "importance": "REQUIRED",
+        "evidence": "Jenkins and GitHub Actions pipelines"
+      },
+      {
+        "name": "GitHub Actions",
+        "importance": "REQUIRED",
+        "evidence": "Jenkins and GitHub Actions pipelines"
+      },
+      {
+        "name": "Docker",
+        "importance": "REQUIRED",
+        "evidence": "Docker, Kubernetes (OpenShift)"
+      },
+      {
+        "name": "Kubernetes",
+        "importance": "REQUIRED",
+        "evidence": "Docker, Kubernetes (OpenShift)"
+      },
+      {
+        "name": "OpenShift",
+        "importance": "REQUIRED",
+        "evidence": "Kubernetes (OpenShift)"
+      },
+      {
+        "name": "Ansible",
+        "importance": "REQUIRED",
+        "evidence": "Ansible and Terraform"
+      },
+      {
+        "name": "Terraform",
+        "importance": "REQUIRED",
+        "evidence": "Ansible and Terraform"
+      },
+      {
+        "name": "Linux",
+        "importance": "REQUIRED",
+        "evidence": "Linux administration (RHEL)"
+      },
+      {
+        "name": "RHEL",
+        "importance": "REQUIRED",
+        "evidence": "Linux administration (RHEL)"
+      },
+      {
+        "name": "Git",
+        "importance": "REQUIRED",
+        "evidence": "Git branching strategies"
+      },
+      {
+        "name": "Azure",
+        "importance": "PREFERRED",
+        "evidence": "Azure certification"
+      },
+      {
+        "name": "Python",
+        "importance": "PREFERRED",
+        "evidence": "Python scripting"
+      },
+      {
+        "name": "Elastic stack",
+        "importance": "PREFERRED",
+        "evidence": "Elastic stack (ELK)"
+      }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "company": "Monsoon Media",
+  "title": "Site Reliability Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": 4,
+  "skills": {
+    "gcp": "REQUIRED",
+    "kubernetes": "REQUIRED",
+    "helm": "REQUIRED",
+    "observability": "REQUIRED",
+    "python": "REQUIRED",
+    "go": "REQUIRED",
+    "terraform": "PREFERRED",
+    "linux": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "Pub/Sub",
+    "Cloud SQL"
+  ]
+}

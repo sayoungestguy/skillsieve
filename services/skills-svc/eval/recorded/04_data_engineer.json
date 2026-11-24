@@ -1,0 +1,43 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Quillmark Analytics",
+    "title": "Data Engineer",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": 3,
+    "skills": [
+      {
+        "name": "Python",
+        "importance": "REQUIRED",
+        "evidence": "Python, SQL, Kafka"
+      },
+      {
+        "name": "SQL",
+        "importance": "REQUIRED",
+        "evidence": "Python, SQL, Kafka"
+      },
+      {
+        "name": "Kafka",
+        "importance": "REQUIRED",
+        "evidence": "Python, SQL, Kafka"
+      },
+      {
+        "name": "Airflow",
+        "importance": "REQUIRED",
+        "evidence": "Experience with Airflow"
+      },
+      {
+        "name": "Elasticsearch",
+        "importance": "PREFERRED",
+        "evidence": "Elasticsearch for search features"
+      },
+      {
+        "name": "Machine learning",
+        "importance": "PREFERRED",
+        "evidence": "Machine learning basics"
+      }
+    ]
+  }
+}

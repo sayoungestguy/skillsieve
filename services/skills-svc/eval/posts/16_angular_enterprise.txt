@@ -1,0 +1,11 @@
+Senior Frontend Engineer — Civic Systems (government projects)
+
+- 5+ years building enterprise frontends with Angular and TypeScript
+- RxJS and NgRx
+- Accessibility (WCAG 2.1 AA)
+- Strong CSS
+- Unit and e2e testing
+
+Nice: Node.js tooling, Azure DevOps pipelines.
+
+Singapore Citizens only (security clearance).

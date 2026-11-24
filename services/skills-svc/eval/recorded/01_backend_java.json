@@ -1,0 +1,88 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Harbourline Logistics",
+    "title": "Backend Engineer",
+    "location": "Singapore",
+    "seniority": "UNKNOWN",
+    "min_years": 3,
+    "skills": [
+      {
+        "name": "Java",
+        "importance": "REQUIRED",
+        "evidence": "Build services in Java 17"
+      },
+      {
+        "name": "Spring Boot",
+        "importance": "REQUIRED",
+        "evidence": "Java 17 with Spring Boot"
+      },
+      {
+        "name": "PostgreSQL",
+        "importance": "REQUIRED",
+        "evidence": "Model shipment data in PostgreSQL"
+      },
+      {
+        "name": "Kafka",
+        "importance": "REQUIRED",
+        "evidence": "stream events through Kafka"
+      },
+      {
+        "name": "Kubernetes",
+        "importance": "REQUIRED",
+        "evidence": "Ship to Kubernetes via our"
+      },
+      {
+        "name": "GitHub Actions",
+        "importance": "REQUIRED",
+        "evidence": "via our GitHub Actions pipelines"
+      },
+      {
+        "name": "Spring",
+        "importance": "REQUIRED",
+        "evidence": "experience with Java and Spring"
+      },
+      {
+        "name": "SQL",
+        "importance": "REQUIRED",
+        "evidence": "Solid SQL and experience"
+      },
+      {
+        "name": "Docker",
+        "importance": "REQUIRED",
+        "evidence": "Comfort with Docker and Linux"
+      },
+      {
+        "name": "Linux",
+        "importance": "REQUIRED",
+        "evidence": "Docker and Linux"
+      },
+      {
+        "name": "Terraform",
+        "importance": "PREFERRED",
+        "evidence": "Terraform, AWS (EKS, S3)"
+      },
+      {
+        "name": "AWS",
+        "importance": "PREFERRED",
+        "evidence": "AWS (EKS, S3)"
+      },
+      {
+        "name": "EKS",
+        "importance": "PREFERRED",
+        "evidence": "AWS (EKS, S3)"
+      },
+      {
+        "name": "S3",
+        "importance": "PREFERRED",
+        "evidence": "AWS (EKS, S3)"
+      },
+      {
+        "name": "Redis",
+        "importance": "PREFERRED",
+        "evidence": "Redis for caching"
+      }
+    ]
+  }
+}

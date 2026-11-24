@@ -1,0 +1,20 @@
+{
+  "company": "Ferrylink",
+  "title": "Android Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": 3,
+  "skills": {
+    "kotlin": "REQUIRED",
+    "rest": "REQUIRED",
+    "grpc": "REQUIRED",
+    "git": "REQUIRED",
+    "go": "PREFERRED",
+    "cicd": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "Jetpack Compose",
+    "Android",
+    "Fastlane",
+    "Bitrise"
+  ]
+}

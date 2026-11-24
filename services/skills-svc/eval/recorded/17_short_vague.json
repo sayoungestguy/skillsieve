@@ -1,0 +1,38 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": null,
+    "title": "Software Engineer",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": null,
+    "skills": [
+      {
+        "name": "TypeScript",
+        "importance": "REQUIRED",
+        "evidence": "currently TypeScript everywhere"
+      },
+      {
+        "name": "React",
+        "importance": "REQUIRED",
+        "evidence": "React + Node"
+      },
+      {
+        "name": "Node.js",
+        "importance": "REQUIRED",
+        "evidence": "React + Node"
+      },
+      {
+        "name": "PostgreSQL",
+        "importance": "REQUIRED",
+        "evidence": "Postgres on AWS"
+      },
+      {
+        "name": "AWS",
+        "importance": "REQUIRED",
+        "evidence": "Postgres on AWS"
+      }
+    ]
+  }
+}

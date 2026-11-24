@@ -1,0 +1,13 @@
+Senior ML Engineer — Lumen Health AI
+
+Help us bring LLM features into clinical note tools.
+
+Requirements
+- 5+ years of software engineering, 2+ in machine learning
+- Python and PyTorch
+- Experience shipping LLM-based features (prompting, RAG, evaluation)
+- FastAPI services running in Docker on Kubernetes
+
+Preferred
+- Experience with healthcare data privacy and secure coding (OWASP)
+- PostgreSQL with pgvector

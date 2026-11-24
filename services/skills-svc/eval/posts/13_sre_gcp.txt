@@ -1,0 +1,14 @@
+Site Reliability Engineer — Monsoon Media
+
+Keep our streaming service up during prime time.
+
+Required
+- 4+ years SRE/DevOps
+- GCP (GKE, Cloud SQL, Pub/Sub)
+- Kubernetes, Helm
+- Observability: Prometheus, Grafana, Loki, on-call experience
+- Scripting in Python or Go
+
+Preferred
+- Terraform
+- Linux kernel tuning

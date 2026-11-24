@@ -1,0 +1,20 @@
+{
+  "company": "Quillmark Analytics",
+  "title": "Data Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": 3,
+  "skills": {
+    "python": "REQUIRED",
+    "kafka": "REQUIRED",
+    "sql": "REQUIRED",
+    "mysql": "REQUIRED",
+    "postgresql": "REQUIRED",
+    "docker": "REQUIRED",
+    "gcp": "REQUIRED",
+    "elasticsearch": "PREFERRED",
+    "machine-learning": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "Airflow"
+  ]
+}

@@ -1,0 +1,13 @@
+Engineering Lead — Saltmarsh Retail
+
+Lead a team of 7 engineers splitting our monolith into microservices.
+
+You bring
+- 8+ years of engineering, 2+ leading teams
+- Strong system design and distributed systems experience
+- Java or Kotlin, Spring Boot, Kafka
+- Mentoring and coaching engineers
+- Clear communication with product and business stakeholders
+
+Bonus
+- Elasticsearch, observability tooling (OpenTelemetry)

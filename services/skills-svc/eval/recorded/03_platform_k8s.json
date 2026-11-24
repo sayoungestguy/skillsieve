@@ -1,0 +1,68 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Northgrid Energy",
+    "title": "Senior Platform Engineer",
+    "location": null,
+    "seniority": "SENIOR",
+    "min_years": 6,
+    "skills": [
+      {
+        "name": "Kubernetes",
+        "importance": "REQUIRED",
+        "evidence": "Deep K8s knowledge"
+      },
+      {
+        "name": "EKS",
+        "importance": "REQUIRED",
+        "evidence": "we run EKS and some bare-metal"
+      },
+      {
+        "name": "Helm",
+        "importance": "REQUIRED",
+        "evidence": "Helm charts and Terraform modules"
+      },
+      {
+        "name": "Terraform",
+        "importance": "REQUIRED",
+        "evidence": "Helm charts and Terraform modules"
+      },
+      {
+        "name": "GitLab CI",
+        "importance": "REQUIRED",
+        "evidence": "CI/CD with GitLab CI"
+      },
+      {
+        "name": "Prometheus",
+        "importance": "REQUIRED",
+        "evidence": "Monitoring with Prometheus and Grafana"
+      },
+      {
+        "name": "Grafana",
+        "importance": "REQUIRED",
+        "evidence": "Monitoring with Prometheus and Grafana"
+      },
+      {
+        "name": "Linux",
+        "importance": "REQUIRED",
+        "evidence": "Strong Linux and bash scripting"
+      },
+      {
+        "name": "Bash",
+        "importance": "REQUIRED",
+        "evidence": "Strong Linux and bash scripting"
+      },
+      {
+        "name": "Go",
+        "importance": "PREFERRED",
+        "evidence": "Go for writing operators"
+      },
+      {
+        "name": "Azure",
+        "importance": "PREFERRED",
+        "evidence": "Azure experience"
+      }
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Granite Insurance",
+    "title": "Software Engineer (.NET)",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": 4,
+    "skills": [
+      {
+        "name": "C#",
+        "importance": "REQUIRED",
+        "evidence": "4+ years with C# and .NET"
+      },
+      {
+        "name": ".NET",
+        "importance": "REQUIRED",
+        "evidence": "4+ years with C# and .NET"
+      },
+      {
+        "name": "Azure",
+        "importance": "REQUIRED",
+        "evidence": "Azure (App Service, Functions, Service Bus)"
+      },
+      {
+        "name": "SQL Server",
+        "importance": "REQUIRED",
+        "evidence": "SQL Server and good SQL"
+      },
+      {
+        "name": "SQL",
+        "importance": "REQUIRED",
+        "evidence": "SQL Server and good SQL"
+      },
+      {
+        "name": "REST APIs",
+        "importance": "REQUIRED",
+        "evidence": "Writing REST APIs and unit tests"
+      },
+      {
+        "name": "unit tests",
+        "importance": "REQUIRED",
+        "evidence": "Writing REST APIs and unit tests"
+      },
+      {
+        "name": "Angular",
+        "importance": "PREFERRED",
+        "evidence": "Angular"
+      },
+      {
+        "name": "Agile",
+        "importance": "PREFERRED",
+        "evidence": "Experience in agile/Scrum teams"
+      },
+      {
+        "name": "Scrum",
+        "importance": "PREFERRED",
+        "evidence": "Experience in agile/Scrum teams"
+      }
+    ]
+  }
+}

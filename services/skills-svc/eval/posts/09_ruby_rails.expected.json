@@ -1,0 +1,21 @@
+{
+  "company": "Brightfold",
+  "title": "Rails Developer",
+  "seniority": "UNKNOWN",
+  "min_years": 2,
+  "skills": {
+    "ruby": "REQUIRED",
+    "postgresql": "REQUIRED",
+    "redis": "REQUIRED",
+    "sql": "REQUIRED",
+    "testing": "REQUIRED",
+    "communication": "REQUIRED",
+    "react": "PREFERRED",
+    "aws": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "Sidekiq",
+    "RSpec",
+    "Heroku"
+  ]
+}

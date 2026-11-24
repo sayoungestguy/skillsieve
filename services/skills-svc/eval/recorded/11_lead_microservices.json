@@ -1,0 +1,43 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Saltmarsh Retail",
+    "title": "Engineering Lead",
+    "location": null,
+    "seniority": "LEAD",
+    "min_years": 8,
+    "skills": [
+      {
+        "name": "Java",
+        "importance": "REQUIRED",
+        "evidence": "Java or Kotlin, Spring Boot, Kafka"
+      },
+      {
+        "name": "Kotlin",
+        "importance": "REQUIRED",
+        "evidence": "Java or Kotlin, Spring Boot, Kafka"
+      },
+      {
+        "name": "Spring Boot",
+        "importance": "REQUIRED",
+        "evidence": "Java or Kotlin, Spring Boot, Kafka"
+      },
+      {
+        "name": "Kafka",
+        "importance": "REQUIRED",
+        "evidence": "Java or Kotlin, Spring Boot, Kafka"
+      },
+      {
+        "name": "Elasticsearch",
+        "importance": "PREFERRED",
+        "evidence": "Elasticsearch, observability tooling (OpenTelemetry)"
+      },
+      {
+        "name": "OpenTelemetry",
+        "importance": "PREFERRED",
+        "evidence": "observability tooling (OpenTelemetry)"
+      }
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Corvid Networks",
+    "title": "Systems Engineer (Rust)",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": 5,
+    "skills": [
+      {
+        "name": "systems programming",
+        "importance": "REQUIRED",
+        "evidence": "5+ years of systems programming"
+      },
+      {
+        "name": "Rust",
+        "importance": "REQUIRED",
+        "evidence": "Production Rust"
+      },
+      {
+        "name": "C",
+        "importance": "REQUIRED",
+        "evidence": "C or C++ also welcome"
+      },
+      {
+        "name": "C++",
+        "importance": "REQUIRED",
+        "evidence": "C++ also welcome"
+      },
+      {
+        "name": "Linux networking internals",
+        "importance": "REQUIRED",
+        "evidence": "Linux networking internals"
+      },
+      {
+        "name": "gRPC",
+        "importance": "REQUIRED",
+        "evidence": "gRPC"
+      },
+      {
+        "name": "Go",
+        "importance": "PREFERRED",
+        "evidence": "Go"
+      },
+      {
+        "name": "Kubernetes",
+        "importance": "PREFERRED",
+        "evidence": "Kubernetes"
+      }
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+Data Engineer — Quillmark Analytics
+
+Build the pipelines behind our retail analytics product.
+
+Responsibilities
+- Write batch and streaming jobs in Python
+- Maintain Kafka topics and consumers
+- Optimise SQL in our MySQL and PostgreSQL warehouses
+- Deploy with Docker on Google Cloud (GCP)
+
+Requirements
+- 3 years of data engineering
+- Python, SQL, Kafka
+- Experience with Airflow
+
+Preferred
+- Elasticsearch for search features
+- Machine learning basics

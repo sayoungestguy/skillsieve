@@ -1,0 +1,19 @@
+{
+  "company": "Granite Insurance",
+  "title": "Software Engineer (.NET)",
+  "seniority": "UNKNOWN",
+  "min_years": 4,
+  "skills": {
+    "csharp": "REQUIRED",
+    "azure": "REQUIRED",
+    "sql": "REQUIRED",
+    "rest": "REQUIRED",
+    "testing": "REQUIRED",
+    "angular": "PREFERRED",
+    "agile": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "SQL Server",
+    "Service Bus"
+  ]
+}

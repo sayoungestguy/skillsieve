@@ -1,0 +1,58 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Kopi Labs",
+    "title": "Python Developer",
+    "location": null,
+    "seniority": "JUNIOR",
+    "min_years": null,
+    "skills": [
+      {
+        "name": "Python",
+        "importance": "REQUIRED",
+        "evidence": "Python, Django and Django REST Framework"
+      },
+      {
+        "name": "Django",
+        "importance": "REQUIRED",
+        "evidence": "Python, Django and Django REST Framework"
+      },
+      {
+        "name": "Django REST Framework",
+        "importance": "REQUIRED",
+        "evidence": "Python, Django and Django REST Framework"
+      },
+      {
+        "name": "SQL",
+        "importance": "REQUIRED",
+        "evidence": "Basic SQL with PostgreSQL"
+      },
+      {
+        "name": "PostgreSQL",
+        "importance": "REQUIRED",
+        "evidence": "Basic SQL with PostgreSQL"
+      },
+      {
+        "name": "Git",
+        "importance": "REQUIRED",
+        "evidence": "Git"
+      },
+      {
+        "name": "Celery",
+        "importance": "PREFERRED",
+        "evidence": "Celery, Redis"
+      },
+      {
+        "name": "Redis",
+        "importance": "PREFERRED",
+        "evidence": "Celery, Redis"
+      },
+      {
+        "name": "Docker",
+        "importance": "PREFERRED",
+        "evidence": "Docker"
+      }
+    ]
+  }
+}

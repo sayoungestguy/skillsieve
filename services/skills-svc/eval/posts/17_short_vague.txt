@@ -1,0 +1,3 @@
+Software Engineer
+
+Early-stage fintech startup looking for a generalist engineer. We use whatever works — currently TypeScript everywhere (React + Node), Postgres on AWS. You should enjoy wearing many hats and talking to customers. Equity available.

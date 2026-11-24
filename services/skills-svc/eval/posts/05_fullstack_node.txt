@@ -1,0 +1,7 @@
+Full-stack Engineer (Tidepool Studio)
+
+Small product studio, big clients. Our stack: Node.js + Express on the backend, Vue 3 on the front, MongoDB, Redis, all on AWS Lambda.
+
+You'll ideally know JavaScript inside out and be happy writing TypeScript. We care about automated tests (Vitest, Playwright) and code review in Git.
+
+Nice: Docker/Podman, experience with Stripe.

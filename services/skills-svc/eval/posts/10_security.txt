@@ -1,0 +1,13 @@
+Application Security Engineer — Ironveil
+
+Ironveil builds payment terminals. You will lead appsec for our cloud services.
+
+Must have
+- 5+ years in application security
+- Threat modelling, OWASP Top 10, secure code review
+- Reading Java and Python code fluently
+- Experience securing AWS and Kubernetes workloads
+
+Good to have
+- Terraform policy-as-code
+- Mentoring engineers on security practices

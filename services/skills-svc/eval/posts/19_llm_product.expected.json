@@ -1,0 +1,19 @@
+{
+  "company": "Atlas Copilot",
+  "title": "AI Product Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": 2,
+  "skills": {
+    "python": "REQUIRED",
+    "typescript": "REQUIRED",
+    "llm": "REQUIRED",
+    "fastapi": "REQUIRED",
+    "react": "REQUIRED",
+    "postgresql": "REQUIRED",
+    "elasticsearch": "PREFERRED",
+    "kubernetes": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "pgvector"
+  ]
+}

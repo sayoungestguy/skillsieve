@@ -1,0 +1,15 @@
+Junior Frontend Developer at Petalwise
+
+Petalwise helps florists run online shops. Join a team of four frontend developers.
+
+Requirements:
+* 1 year building web apps with React and TypeScript
+* Good HTML and CSS skills (we use SCSS)
+* Writing unit tests with Jest
+
+Bonus points:
+* Experience with Node.js
+* Figma
+* Any exposure to GraphQL
+
+Apply with your portfolio.

@@ -1,0 +1,63 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": null,
+    "title": "Senior Frontend Engineer \u2014 Civic Systems",
+    "location": "Singapore",
+    "seniority": "SENIOR",
+    "min_years": 5,
+    "skills": [
+      {
+        "name": "Angular",
+        "importance": "REQUIRED",
+        "evidence": "Angular and TypeScript"
+      },
+      {
+        "name": "TypeScript",
+        "importance": "REQUIRED",
+        "evidence": "Angular and TypeScript"
+      },
+      {
+        "name": "RxJS",
+        "importance": "REQUIRED",
+        "evidence": "RxJS and NgRx"
+      },
+      {
+        "name": "NgRx",
+        "importance": "REQUIRED",
+        "evidence": "RxJS and NgRx"
+      },
+      {
+        "name": "Accessibility",
+        "importance": "REQUIRED",
+        "evidence": "Accessibility (WCAG 2.1 AA)"
+      },
+      {
+        "name": "CSS",
+        "importance": "REQUIRED",
+        "evidence": "Strong CSS"
+      },
+      {
+        "name": "Unit Testing",
+        "importance": "REQUIRED",
+        "evidence": "Unit and e2e testing"
+      },
+      {
+        "name": "e2e Testing",
+        "importance": "REQUIRED",
+        "evidence": "Unit and e2e testing"
+      },
+      {
+        "name": "Node.js",
+        "importance": "PREFERRED",
+        "evidence": "Node.js tooling"
+      },
+      {
+        "name": "Azure DevOps",
+        "importance": "PREFERRED",
+        "evidence": "Azure DevOps pipelines"
+      }
+    ]
+  }
+}

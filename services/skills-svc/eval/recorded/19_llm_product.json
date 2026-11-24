@@ -1,0 +1,78 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Atlas Copilot",
+    "title": "AI Product Engineer",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": 2,
+    "skills": [
+      {
+        "name": "Python",
+        "importance": "REQUIRED",
+        "evidence": "2+ years full-stack (Python + TypeScript)"
+      },
+      {
+        "name": "TypeScript",
+        "importance": "REQUIRED",
+        "evidence": "2+ years full-stack (Python + TypeScript)"
+      },
+      {
+        "name": "OpenAI API",
+        "importance": "REQUIRED",
+        "evidence": "Built features on the OpenAI or Gemini APIs"
+      },
+      {
+        "name": "Gemini API",
+        "importance": "REQUIRED",
+        "evidence": "Built features on the OpenAI or Gemini APIs"
+      },
+      {
+        "name": "Prompt Engineering",
+        "importance": "REQUIRED",
+        "evidence": "prompt engineering and evaluation"
+      },
+      {
+        "name": "Evaluation",
+        "importance": "REQUIRED",
+        "evidence": "prompt engineering and evaluation"
+      },
+      {
+        "name": "FastAPI",
+        "importance": "REQUIRED",
+        "evidence": "FastAPI, React"
+      },
+      {
+        "name": "React",
+        "importance": "REQUIRED",
+        "evidence": "FastAPI, React"
+      },
+      {
+        "name": "PostgreSQL",
+        "importance": "REQUIRED",
+        "evidence": "PostgreSQL"
+      },
+      {
+        "name": "Vector Search",
+        "importance": "PREFERRED",
+        "evidence": "Vector search (Elasticsearch, pgvector)"
+      },
+      {
+        "name": "Elasticsearch",
+        "importance": "PREFERRED",
+        "evidence": "Vector search (Elasticsearch, pgvector)"
+      },
+      {
+        "name": "pgvector",
+        "importance": "PREFERRED",
+        "evidence": "Vector search (Elasticsearch, pgvector)"
+      },
+      {
+        "name": "Kubernetes",
+        "importance": "PREFERRED",
+        "evidence": "Kubernetes"
+      }
+    ]
+  }
+}

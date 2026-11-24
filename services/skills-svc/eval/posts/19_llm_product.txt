@@ -1,0 +1,13 @@
+AI Product Engineer — Atlas Copilot
+
+Ship LLM features end to end: prompts, evals, backend, UI.
+
+Requirements
+- 2+ years full-stack (Python + TypeScript)
+- Built features on the OpenAI or Gemini APIs; prompt engineering and evaluation
+- FastAPI, React
+- PostgreSQL
+
+Nice to have
+- Vector search (Elasticsearch, pgvector)
+- Kubernetes

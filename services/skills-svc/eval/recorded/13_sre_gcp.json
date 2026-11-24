@@ -1,0 +1,88 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Monsoon Media",
+    "title": "Site Reliability Engineer",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": 4,
+    "skills": [
+      {
+        "name": "SRE",
+        "importance": "REQUIRED",
+        "evidence": "4+ years SRE/DevOps"
+      },
+      {
+        "name": "DevOps",
+        "importance": "REQUIRED",
+        "evidence": "4+ years SRE/DevOps"
+      },
+      {
+        "name": "GCP",
+        "importance": "REQUIRED",
+        "evidence": "GCP (GKE, Cloud SQL, Pub/Sub)"
+      },
+      {
+        "name": "GKE",
+        "importance": "REQUIRED",
+        "evidence": "GCP (GKE, Cloud SQL, Pub/Sub)"
+      },
+      {
+        "name": "Cloud SQL",
+        "importance": "REQUIRED",
+        "evidence": "GCP (GKE, Cloud SQL, Pub/Sub)"
+      },
+      {
+        "name": "Pub/Sub",
+        "importance": "REQUIRED",
+        "evidence": "GCP (GKE, Cloud SQL, Pub/Sub)"
+      },
+      {
+        "name": "Kubernetes",
+        "importance": "REQUIRED",
+        "evidence": "Kubernetes, Helm"
+      },
+      {
+        "name": "Helm",
+        "importance": "REQUIRED",
+        "evidence": "Kubernetes, Helm"
+      },
+      {
+        "name": "Prometheus",
+        "importance": "REQUIRED",
+        "evidence": "Observability: Prometheus, Grafana, Loki"
+      },
+      {
+        "name": "Grafana",
+        "importance": "REQUIRED",
+        "evidence": "Observability: Prometheus, Grafana, Loki"
+      },
+      {
+        "name": "Loki",
+        "importance": "REQUIRED",
+        "evidence": "Observability: Prometheus, Grafana, Loki"
+      },
+      {
+        "name": "Python",
+        "importance": "REQUIRED",
+        "evidence": "Scripting in Python or Go"
+      },
+      {
+        "name": "Go",
+        "importance": "REQUIRED",
+        "evidence": "Scripting in Python or Go"
+      },
+      {
+        "name": "Terraform",
+        "importance": "PREFERRED",
+        "evidence": "Terraform"
+      },
+      {
+        "name": "Linux",
+        "importance": "PREFERRED",
+        "evidence": "Linux kernel tuning"
+      }
+    ]
+  }
+}

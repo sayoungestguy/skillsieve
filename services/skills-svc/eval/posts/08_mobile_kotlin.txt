@@ -1,0 +1,13 @@
+Android Engineer at Ferrylink
+
+Build the app 200k commuters use every day.
+
+Requirements
+- Kotlin and Jetpack Compose
+- 3+ years of Android development
+- Consuming REST and gRPC APIs
+- Git and code review
+
+Nice to have
+- Some backend experience with Go
+- CI/CD for mobile (Fastlane, Bitrise)

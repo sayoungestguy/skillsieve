@@ -1,0 +1,20 @@
+{
+  "company": "Pinecrest Bank",
+  "title": "QA Automation Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": 3,
+  "skills": {
+    "testing": "REQUIRED",
+    "typescript": "REQUIRED",
+    "java": "REQUIRED",
+    "rest": "REQUIRED",
+    "cicd": "REQUIRED",
+    "agile": "REQUIRED",
+    "sql": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "Playwright",
+    "Selenium",
+    "k6"
+  ]
+}

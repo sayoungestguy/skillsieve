@@ -1,0 +1,17 @@
+{
+  "company": "Corvid Networks",
+  "title": "Systems Engineer (Rust)",
+  "seniority": "UNKNOWN",
+  "min_years": 5,
+  "skills": {
+    "rust": "REQUIRED",
+    "linux": "REQUIRED",
+    "grpc": "REQUIRED",
+    "go": "PREFERRED",
+    "kubernetes": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "C",
+    "C++"
+  ]
+}

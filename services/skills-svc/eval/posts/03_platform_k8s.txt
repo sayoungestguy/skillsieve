@@ -1,0 +1,17 @@
+Senior Platform Engineer, Northgrid Energy
+
+You will own the internal developer platform for 40 engineers.
+
+Must have:
+- 6+ years in infrastructure or SRE roles
+- Deep K8s knowledge (we run EKS and some bare-metal clusters)
+- Helm charts and Terraform modules
+- CI/CD with GitLab CI
+- Monitoring with Prometheus and Grafana
+- Strong Linux and bash scripting
+
+Good to have:
+- Go for writing operators
+- Azure experience
+
+Email careers@northgrid.example or call +65 6123 4567 with questions.

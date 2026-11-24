@@ -1,0 +1,21 @@
+{
+  "company": "Lumen Health AI",
+  "title": "ML Engineer",
+  "seniority": "SENIOR",
+  "min_years": 5,
+  "skills": {
+    "machine-learning": "REQUIRED",
+    "python": "REQUIRED",
+    "llm": "REQUIRED",
+    "fastapi": "REQUIRED",
+    "docker": "REQUIRED",
+    "kubernetes": "REQUIRED",
+    "security": "PREFERRED",
+    "postgresql": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "PyTorch",
+    "RAG",
+    "pgvector"
+  ]
+}

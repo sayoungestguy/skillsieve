@@ -1,0 +1,83 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Tidepool Studio",
+    "title": "Full-stack Engineer",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": null,
+    "skills": [
+      {
+        "name": "Node.js",
+        "importance": "REQUIRED",
+        "evidence": "Node.js + Express on the backend"
+      },
+      {
+        "name": "Express",
+        "importance": "REQUIRED",
+        "evidence": "Node.js + Express on the backend"
+      },
+      {
+        "name": "Vue.js",
+        "importance": "REQUIRED",
+        "evidence": "Vue 3 on the front"
+      },
+      {
+        "name": "MongoDB",
+        "importance": "REQUIRED",
+        "evidence": "MongoDB, Redis, all on AWS Lambda"
+      },
+      {
+        "name": "Redis",
+        "importance": "REQUIRED",
+        "evidence": "MongoDB, Redis, all on AWS Lambda"
+      },
+      {
+        "name": "AWS Lambda",
+        "importance": "REQUIRED",
+        "evidence": "all on AWS Lambda"
+      },
+      {
+        "name": "JavaScript",
+        "importance": "REQUIRED",
+        "evidence": "know JavaScript inside out"
+      },
+      {
+        "name": "TypeScript",
+        "importance": "REQUIRED",
+        "evidence": "happy writing TypeScript"
+      },
+      {
+        "name": "Vitest",
+        "importance": "REQUIRED",
+        "evidence": "automated tests (Vitest, Playwright)"
+      },
+      {
+        "name": "Playwright",
+        "importance": "REQUIRED",
+        "evidence": "automated tests (Vitest, Playwright)"
+      },
+      {
+        "name": "Git",
+        "importance": "REQUIRED",
+        "evidence": "code review in Git"
+      },
+      {
+        "name": "Docker",
+        "importance": "PREFERRED",
+        "evidence": "Docker/Podman"
+      },
+      {
+        "name": "Podman",
+        "importance": "PREFERRED",
+        "evidence": "Docker/Podman"
+      },
+      {
+        "name": "Stripe",
+        "importance": "PREFERRED",
+        "evidence": "experience with Stripe"
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+Software Engineer (.NET) — Granite Insurance
+
+We are rebuilding our claims system.
+
+You have:
+- 4+ years with C# and .NET
+- Azure (App Service, Functions, Service Bus)
+- SQL Server and good SQL
+- Writing REST APIs and unit tests
+
+Nice to have:
+- Angular
+- Experience in agile/Scrum teams

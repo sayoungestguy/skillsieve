@@ -1,0 +1,58 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Ironveil",
+    "title": "Application Security Engineer",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": 5,
+    "skills": [
+      {
+        "name": "Application Security",
+        "importance": "REQUIRED",
+        "evidence": "5+ years in application security"
+      },
+      {
+        "name": "Threat Modeling",
+        "importance": "REQUIRED",
+        "evidence": "Threat modelling, OWASP Top 10"
+      },
+      {
+        "name": "OWASP Top 10",
+        "importance": "REQUIRED",
+        "evidence": "Threat modelling, OWASP Top 10"
+      },
+      {
+        "name": "Secure Code Review",
+        "importance": "REQUIRED",
+        "evidence": "secure code review"
+      },
+      {
+        "name": "Java",
+        "importance": "REQUIRED",
+        "evidence": "Reading Java and Python code fluently"
+      },
+      {
+        "name": "Python",
+        "importance": "REQUIRED",
+        "evidence": "Reading Java and Python code fluently"
+      },
+      {
+        "name": "AWS",
+        "importance": "REQUIRED",
+        "evidence": "Experience securing AWS and Kubernetes workloads"
+      },
+      {
+        "name": "Kubernetes",
+        "importance": "REQUIRED",
+        "evidence": "Experience securing AWS and Kubernetes workloads"
+      },
+      {
+        "name": "Terraform",
+        "importance": "PREFERRED",
+        "evidence": "Terraform policy-as-code"
+      }
+    ]
+  }
+}

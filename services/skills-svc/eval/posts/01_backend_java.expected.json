@@ -1,0 +1,22 @@
+{
+  "company": "Harbourline Logistics",
+  "title": "Backend Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": 3,
+  "skills": {
+    "java": "REQUIRED",
+    "spring-boot": "REQUIRED",
+    "rest": "REQUIRED",
+    "postgresql": "REQUIRED",
+    "kafka": "REQUIRED",
+    "kubernetes": "REQUIRED",
+    "cicd": "REQUIRED",
+    "sql": "REQUIRED",
+    "docker": "REQUIRED",
+    "linux": "REQUIRED",
+    "terraform": "PREFERRED",
+    "aws": "PREFERRED",
+    "redis": "PREFERRED"
+  },
+  "unmapped_examples": []
+}

@@ -101,7 +101,7 @@
 - slug: elasticsearch
   name: Elasticsearch
   category: DATABASE
-  aliases: [elastic, opensearch, elk]
+  aliases: [elastic, elastic stack, opensearch, elk]
 - slug: kafka
   name: Kafka
   category: DATABASE
@@ -109,7 +109,7 @@
 - slug: aws
   name: AWS
   category: CLOUD
-  aliases: [amazon web services, ec2, s3, lambda]
+  aliases: [amazon web services, ec2, s3, lambda, aws lambda]
 - slug: gcp
   name: Google Cloud
   category: CLOUD
@@ -137,23 +137,23 @@
 - slug: cicd
   name: CI/CD
   category: DEVOPS
-  aliases: [ci/cd, continuous integration, github actions, jenkins, gitlab ci]
+  aliases: [ci/cd, continuous integration, github actions, jenkins, gitlab ci, azure devops]
 - slug: linux
   name: Linux
   category: DEVOPS
-  aliases: [unix, bash]
+  aliases: [unix, bash, rhel]
 - slug: observability
   name: Observability
   category: DEVOPS
-  aliases: [monitoring, prometheus, grafana, opentelemetry]
+  aliases: [monitoring, prometheus, grafana, loki, opentelemetry]
 - slug: llm
   name: LLMs
   category: AI
-  aliases: [large language models, genai, generative ai, openai, prompt engineering]
+  aliases: [large language models, genai, generative ai, openai, openai api, gemini api, prompt engineering, prompting, rag]
 - slug: machine-learning
   name: Machine Learning
   category: AI
-  aliases: [ml]
+  aliases: [ml, pytorch, tensorflow]
 - slug: rest
   name: REST APIs
   category: PRACTICE
@@ -169,11 +169,11 @@
 - slug: testing
   name: Automated Testing
   category: PRACTICE
-  aliases: [unit testing, tdd, junit, pytest, jest]
+  aliases: [unit testing, unit tests, tdd, junit, pytest, jest, vitest, playwright, selenium, rspec, e2e testing, test automation]
 - slug: security
   name: Application Security
   category: PRACTICE
-  aliases: [appsec, owasp, secure coding]
+  aliases: [appsec, owasp, owasp top 10, secure coding, secure code review, threat modeling, threat modelling]
 - slug: agile
   name: Agile
   category: PRACTICE

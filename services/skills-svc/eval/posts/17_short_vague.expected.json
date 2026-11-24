@@ -1,0 +1,14 @@
+{
+  "company": null,
+  "title": "Software Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": null,
+  "skills": {
+    "typescript": "REQUIRED",
+    "react": "REQUIRED",
+    "nodejs": "REQUIRED",
+    "postgresql": "REQUIRED",
+    "aws": "REQUIRED"
+  },
+  "unmapped_examples": []
+}

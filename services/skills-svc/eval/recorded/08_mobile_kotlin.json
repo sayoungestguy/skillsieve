@@ -1,0 +1,58 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Ferrylink",
+    "title": "Android Engineer",
+    "location": null,
+    "seniority": "UNKNOWN",
+    "min_years": 3,
+    "skills": [
+      {
+        "name": "Kotlin",
+        "importance": "REQUIRED",
+        "evidence": "Kotlin and Jetpack Compose"
+      },
+      {
+        "name": "Jetpack Compose",
+        "importance": "REQUIRED",
+        "evidence": "Kotlin and Jetpack Compose"
+      },
+      {
+        "name": "Android",
+        "importance": "REQUIRED",
+        "evidence": "3+ years of Android development"
+      },
+      {
+        "name": "REST",
+        "importance": "REQUIRED",
+        "evidence": "Consuming REST and gRPC APIs"
+      },
+      {
+        "name": "gRPC",
+        "importance": "REQUIRED",
+        "evidence": "Consuming REST and gRPC APIs"
+      },
+      {
+        "name": "Git",
+        "importance": "REQUIRED",
+        "evidence": "Git and code review"
+      },
+      {
+        "name": "Go",
+        "importance": "PREFERRED",
+        "evidence": "Some backend experience with Go"
+      },
+      {
+        "name": "Fastlane",
+        "importance": "PREFERRED",
+        "evidence": "Fastlane, Bitrise"
+      },
+      {
+        "name": "Bitrise",
+        "importance": "PREFERRED",
+        "evidence": "Fastlane, Bitrise"
+      }
+    ]
+  }
+}

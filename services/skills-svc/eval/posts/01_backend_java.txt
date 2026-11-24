@@ -1,0 +1,17 @@
+Backend Engineer — Harbourline Logistics (Singapore, hybrid)
+
+We move containers across 14 ports and our tracking platform needs another backend engineer.
+
+What you'll do
+- Build services in Java 17 with Spring Boot and expose REST APIs to our partners.
+- Model shipment data in PostgreSQL and stream events through Kafka.
+- Ship to Kubernetes via our GitHub Actions pipelines.
+
+You have
+- 3+ years of backend experience with Java and Spring.
+- Solid SQL and experience with relational databases.
+- Comfort with Docker and Linux.
+
+Nice to have
+- Terraform, AWS (EKS, S3).
+- Redis for caching.

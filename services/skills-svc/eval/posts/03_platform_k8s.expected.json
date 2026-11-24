@@ -1,0 +1,18 @@
+{
+  "company": "Northgrid Energy",
+  "title": "Senior Platform Engineer",
+  "seniority": "SENIOR",
+  "min_years": 6,
+  "skills": {
+    "kubernetes": "REQUIRED",
+    "aws": "REQUIRED",
+    "helm": "REQUIRED",
+    "terraform": "REQUIRED",
+    "cicd": "REQUIRED",
+    "observability": "REQUIRED",
+    "linux": "REQUIRED",
+    "go": "PREFERRED",
+    "azure": "PREFERRED"
+  },
+  "unmapped_examples": []
+}

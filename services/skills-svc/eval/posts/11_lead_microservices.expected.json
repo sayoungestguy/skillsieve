@@ -1,0 +1,19 @@
+{
+  "company": "Saltmarsh Retail",
+  "title": "Engineering Lead",
+  "seniority": "LEAD",
+  "min_years": 8,
+  "skills": {
+    "microservices": "REQUIRED",
+    "system-design": "REQUIRED",
+    "java": "REQUIRED",
+    "kotlin": "REQUIRED",
+    "spring-boot": "REQUIRED",
+    "kafka": "REQUIRED",
+    "mentoring": "REQUIRED",
+    "communication": "REQUIRED",
+    "elasticsearch": "PREFERRED",
+    "observability": "PREFERRED"
+  },
+  "unmapped_examples": []
+}

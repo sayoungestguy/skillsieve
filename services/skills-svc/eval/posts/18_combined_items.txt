@@ -1,0 +1,12 @@
+Backend Engineer — Bluefin Games
+
+Requirements
+- C#/.NET or Go for game services
+- Redis/Memcached
+- MySQL/PostgreSQL
+- Docker/Kubernetes
+- AWS or GCP
+
+Plus
+- Unity experience
+- Kafka/RabbitMQ

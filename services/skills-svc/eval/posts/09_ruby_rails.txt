@@ -1,0 +1,11 @@
+Rails Developer — Brightfold (remote within SG/MY)
+
+Our invoicing SaaS runs on Ruby on Rails with PostgreSQL and Redis/Sidekiq.
+
+What we need:
+- 2+ years with Rails
+- Comfortable with SQL and query tuning
+- Writes tests (RSpec)
+- Clear written communication — we're async-first
+
+Plus: React for our dashboard, Heroku or AWS.

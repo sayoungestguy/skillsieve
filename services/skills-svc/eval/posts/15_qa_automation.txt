@@ -1,0 +1,12 @@
+QA Automation Engineer — Pinecrest Bank
+
+Requirements
+- 3+ years in test automation
+- Writing automated tests in TypeScript (Playwright) or Java (JUnit, Selenium)
+- Testing REST APIs
+- CI/CD pipelines in Jenkins
+- Agile ways of working
+
+Preferred
+- Performance testing with k6
+- SQL for test data setup

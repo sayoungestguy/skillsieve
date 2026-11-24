@@ -1,0 +1,18 @@
+{
+  "company": "Ironveil",
+  "title": "Application Security Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": 5,
+  "skills": {
+    "security": "REQUIRED",
+    "java": "REQUIRED",
+    "python": "REQUIRED",
+    "aws": "REQUIRED",
+    "kubernetes": "REQUIRED",
+    "terraform": "PREFERRED",
+    "mentoring": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "Threat modelling"
+  ]
+}

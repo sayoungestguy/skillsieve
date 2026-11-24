@@ -1,0 +1,58 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Petalwise",
+    "title": "Junior Frontend Developer",
+    "location": null,
+    "seniority": "JUNIOR",
+    "min_years": 1,
+    "skills": [
+      {
+        "name": "React",
+        "importance": "REQUIRED",
+        "evidence": "1 year building web apps with React and TypeScript"
+      },
+      {
+        "name": "TypeScript",
+        "importance": "REQUIRED",
+        "evidence": "1 year building web apps with React and TypeScript"
+      },
+      {
+        "name": "HTML",
+        "importance": "REQUIRED",
+        "evidence": "Good HTML and CSS skills"
+      },
+      {
+        "name": "CSS",
+        "importance": "REQUIRED",
+        "evidence": "Good HTML and CSS skills"
+      },
+      {
+        "name": "SCSS",
+        "importance": "REQUIRED",
+        "evidence": "we use SCSS"
+      },
+      {
+        "name": "Jest",
+        "importance": "REQUIRED",
+        "evidence": "Writing unit tests with Jest"
+      },
+      {
+        "name": "Node.js",
+        "importance": "PREFERRED",
+        "evidence": "Experience with Node.js"
+      },
+      {
+        "name": "Figma",
+        "importance": "PREFERRED",
+        "evidence": "Figma"
+      },
+      {
+        "name": "GraphQL",
+        "importance": "PREFERRED",
+        "evidence": "Any exposure to GraphQL"
+      }
+    ]
+  }
+}

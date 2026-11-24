@@ -1,0 +1,58 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Brightfold",
+    "title": "Rails Developer",
+    "location": "remote within SG/MY",
+    "seniority": "UNKNOWN",
+    "min_years": 2,
+    "skills": [
+      {
+        "name": "Ruby on Rails",
+        "importance": "REQUIRED",
+        "evidence": "2+ years with Rails"
+      },
+      {
+        "name": "PostgreSQL",
+        "importance": "REQUIRED",
+        "evidence": "runs on Ruby on Rails with PostgreSQL"
+      },
+      {
+        "name": "Redis",
+        "importance": "REQUIRED",
+        "evidence": "Redis/Sidekiq"
+      },
+      {
+        "name": "Sidekiq",
+        "importance": "REQUIRED",
+        "evidence": "Redis/Sidekiq"
+      },
+      {
+        "name": "SQL",
+        "importance": "REQUIRED",
+        "evidence": "Comfortable with SQL and query tuning"
+      },
+      {
+        "name": "RSpec",
+        "importance": "REQUIRED",
+        "evidence": "Writes tests (RSpec)"
+      },
+      {
+        "name": "React",
+        "importance": "PREFERRED",
+        "evidence": "React for our dashboard"
+      },
+      {
+        "name": "Heroku",
+        "importance": "PREFERRED",
+        "evidence": "Heroku or AWS"
+      },
+      {
+        "name": "AWS",
+        "importance": "PREFERRED",
+        "evidence": "Heroku or AWS"
+      }
+    ]
+  }
+}

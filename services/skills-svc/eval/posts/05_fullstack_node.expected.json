@@ -1,0 +1,23 @@
+{
+  "company": "Tidepool Studio",
+  "title": "Full-stack Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": null,
+  "skills": {
+    "nodejs": "REQUIRED",
+    "vue": "REQUIRED",
+    "mongodb": "REQUIRED",
+    "redis": "REQUIRED",
+    "aws": "REQUIRED",
+    "javascript": "REQUIRED",
+    "typescript": "REQUIRED",
+    "testing": "REQUIRED",
+    "git": "REQUIRED",
+    "docker": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "Express",
+    "Stripe",
+    "Podman"
+  ]
+}

@@ -1,0 +1,13 @@
+DevOps Engineer — Seastar Telco
+
+Must:
+- Jenkins and GitHub Actions pipelines
+- Docker, Kubernetes (OpenShift)
+- Ansible and Terraform
+- Linux administration (RHEL)
+- Git branching strategies
+
+Good to have:
+- Azure certification
+- Python scripting
+- Elastic stack (ELK)

@@ -1,0 +1,23 @@
+{
+  "company": "Bluefin Games",
+  "title": "Backend Engineer",
+  "seniority": "UNKNOWN",
+  "min_years": null,
+  "skills": {
+    "csharp": "REQUIRED",
+    "go": "REQUIRED",
+    "redis": "REQUIRED",
+    "mysql": "REQUIRED",
+    "postgresql": "REQUIRED",
+    "docker": "REQUIRED",
+    "kubernetes": "REQUIRED",
+    "aws": "REQUIRED",
+    "gcp": "REQUIRED",
+    "kafka": "PREFERRED"
+  },
+  "unmapped_examples": [
+    "Memcached",
+    "Unity",
+    "RabbitMQ"
+  ]
+}

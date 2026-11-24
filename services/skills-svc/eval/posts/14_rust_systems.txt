@@ -1,0 +1,13 @@
+Systems Engineer (Rust) — Corvid Networks
+
+Write the packet-processing engine for our edge routers.
+
+You have:
+- 5+ years of systems programming
+- Production Rust (C or C++ also welcome)
+- Linux networking internals
+- gRPC
+
+It would be great if you also know:
+- Go
+- Kubernetes

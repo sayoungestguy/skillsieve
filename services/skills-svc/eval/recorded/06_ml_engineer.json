@@ -1,0 +1,73 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "output": {
+    "company": "Lumen Health AI",
+    "title": "Senior ML Engineer",
+    "location": null,
+    "seniority": "SENIOR",
+    "min_years": 5,
+    "skills": [
+      {
+        "name": "Python",
+        "importance": "REQUIRED",
+        "evidence": "Python and PyTorch"
+      },
+      {
+        "name": "PyTorch",
+        "importance": "REQUIRED",
+        "evidence": "Python and PyTorch"
+      },
+      {
+        "name": "LLM",
+        "importance": "REQUIRED",
+        "evidence": "Experience shipping LLM-based features"
+      },
+      {
+        "name": "Prompting",
+        "importance": "REQUIRED",
+        "evidence": "prompting, RAG, evaluation"
+      },
+      {
+        "name": "RAG",
+        "importance": "REQUIRED",
+        "evidence": "prompting, RAG, evaluation"
+      },
+      {
+        "name": "Evaluation",
+        "importance": "REQUIRED",
+        "evidence": "prompting, RAG, evaluation"
+      },
+      {
+        "name": "FastAPI",
+        "importance": "REQUIRED",
+        "evidence": "FastAPI services running in Docker"
+      },
+      {
+        "name": "Docker",
+        "importance": "REQUIRED",
+        "evidence": "running in Docker on Kubernetes"
+      },
+      {
+        "name": "Kubernetes",
+        "importance": "REQUIRED",
+        "evidence": "Docker on Kubernetes"
+      },
+      {
+        "name": "OWASP",
+        "importance": "PREFERRED",
+        "evidence": "secure coding (OWASP)"
+      },
+      {
+        "name": "PostgreSQL",
+        "importance": "PREFERRED",
+        "evidence": "PostgreSQL with pgvector"
+      },
+      {
+        "name": "pgvector",
+        "importance": "PREFERRED",
+        "evidence": "PostgreSQL with pgvector"
+      }
+    ]
+  }
+}
