@@ -1,5 +1,5 @@
 # Defaults for local clusters (k3d/kind). Production overrides live in values-prod.yaml.
-imageRegistry: ghcr.io/OWNER   # set with --set imageRegistry=ghcr.io/<github-owner>
+imageRegistry: ghcr.io/sayoungestguy   # GHCR namespace; deploy.yml sets it from the repo owner
 
 web:
   enabled: true

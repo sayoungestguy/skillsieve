@@ -4,8 +4,7 @@
 
 **Sift job posts. Find your gaps. Land the offer.**
 
-<!-- Replace OWNER after the repo is created -->
-![CI](https://github.com/OWNER/skillsieve/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/sayoungestguy/skillsieve/actions/workflows/ci.yml/badge.svg)
 ![Cost](https://img.shields.io/badge/running%20cost-%240-brightgreen)
 ![Images](https://img.shields.io/badge/images-arm64%20%2B%20amd64-blue)
 
@@ -87,7 +86,7 @@ All of it runs on free tiers: **$0 per month**.
 **Needs:** Docker Desktop, plus `brew install k3d helm kubectl` (on WSL2, use your package manager).
 
 ```bash
-git clone https://github.com/OWNER/skillsieve.git && cd skillsieve
+git clone https://github.com/sayoungestguy/skillsieve.git && cd skillsieve
 ```
 
 ```bash

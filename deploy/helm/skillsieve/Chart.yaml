@@ -5,6 +5,6 @@ type: application
 version: 0.2.0
 appVersion: "0.2.0"
 keywords: [job-search, spring-boot, fastapi, elasticsearch, k3s]
-home: https://github.com/OWNER/skillsieve
+home: https://github.com/sayoungestguy/skillsieve
 sources:
-  - https://github.com/OWNER/skillsieve
+  - https://github.com/sayoungestguy/skillsieve

@@ -1,0 +1,5 @@
+# Reviewed false positives (gitleaks fingerprints). Add a reason for every entry.
+# Helm smoke test: an in-cluster health URL (<release>-core-api:8080/...), not a key.
+8d1293f5f423af316e31654bbea6e6a52c77b5f7:deploy/helm/skillsieve/templates/tests/smoke-test.yaml:generic-api-key:32
+# AuthApiIT: a deliberately forged, unsigned JWT used to test that fake tokens get 401.
+dbf4e4e2a86addd5e056f9bbcf1d4f0ab00e84e9:services/core-api/src/test/java/dev/skillsieve/core/auth/AuthApiIT.java:generic-api-key:52
