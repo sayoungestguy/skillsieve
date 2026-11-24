@@ -72,21 +72,21 @@ jobs:
           cache-from: type=gha,scope=skills-svc
           cache-to: type=gha,scope=skills-svc,mode=max
       - name: Trivy image scan (skills-svc)
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ steps.meta.outputs.registry }}/skillsieve-skills-svc:${{ steps.meta.outputs.tag }}
           ignore-unfixed: true
           severity: HIGH,CRITICAL
           exit-code: '1'
       - name: Trivy image scan (web)
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ steps.meta.outputs.registry }}/skillsieve-web:${{ steps.meta.outputs.tag }}
           ignore-unfixed: true
           severity: HIGH,CRITICAL
           exit-code: '1'
       - name: Trivy image scan (core-api)
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ steps.meta.outputs.registry }}/skillsieve-core-api:${{ steps.meta.outputs.tag }}
           ignore-unfixed: true
