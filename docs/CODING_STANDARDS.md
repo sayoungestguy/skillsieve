@@ -105,6 +105,7 @@
 - Run as non-root (`USER 10001`). Read-only root filesystem where possible.
 - Build for `linux/arm64` and `linux/amd64` (`docker buildx`).
 - One process per container. Health check endpoint, not `HEALTHCHECK` shell scripts.
+- Trivy must report 0 fixable HIGH/CRITICAL. Anything unfixable goes in `.trivyignore` with a reason and a review date.
 - `.dockerignore` excludes `.git`, `node_modules`, `target`, `.venv`, `.env*`.
 - JVM flags: `-XX:MaxRAMPercentage=75 -XX:+UseSerialGC` (small heap, single node).
 

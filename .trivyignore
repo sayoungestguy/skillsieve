@@ -1,0 +1,7 @@
+# Findings we cannot fix yet. Each entry needs a reason and a review date (CLAUDE.md DoD: no
+# HIGH/CRITICAL "that we can fix"). Remove the entry when the fix is reachable.
+
+# spring-webmvc 6.2.x (Spring Boot 3.5): the fix ships only in Spring Framework 7.0.9, which needs
+# Spring Boot 4. Tracked as the Boot 4 upgrade; review by 2026-12-31.
+CVE-2026-47884
+CVE-2026-47890

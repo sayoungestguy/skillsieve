@@ -15,7 +15,8 @@ RUN --mount=type=cache,target=/root/.m2 ./mvnw -B -q package \
  && java -Djarmode=tools -jar target/core-api-*.jar extract --layers --launcher --destination /layers
 
 # ---- runtime stage ----
-FROM gcr.io/distroless/java21-debian12:nonroot@sha256:7e37784d94dccbf5ccb195c73b295f5ad00cd266512dfbac12eb9c3c28f8077d
+# Debian 13: the debian12 image still ships unpatched brotli/expat/lcms2 (Trivy, 2026-11-24).
+FROM gcr.io/distroless/java21-debian13:nonroot@sha256:128bd878463537eef7771b50fecf68faace9089f654a2d233f1c4f344e6817d9
 WORKDIR /app
 COPY --from=build /layers/dependencies/ ./
 COPY --from=build /layers/spring-boot-loader/ ./
