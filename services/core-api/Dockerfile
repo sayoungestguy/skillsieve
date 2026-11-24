@@ -3,7 +3,7 @@
 # Build: docker buildx build --platform linux/arm64,linux/amd64 -t ghcr.io/<owner>/skillsieve-core-api:sha-xxxx services/core-api
 
 # ---- build stage ----
-FROM --platform=$BUILDPLATFORM eclipse-temurin:21-jdk-noble@sha256:a09e64f4976df9c4f2029c6abe64fc26f069a342ec9a7f147dce7b1933ebda16 AS build
+FROM --platform=$BUILDPLATFORM eclipse-temurin:25-jdk-noble@sha256:4ddc1a8bdaf283421df5487411aff10b797ccf1e06a339041005114c8f489b5c AS build
 WORKDIR /src
 COPY .mvn .mvn
 COPY mvnw pom.xml spotbugs-exclude.xml ./
