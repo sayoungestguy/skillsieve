@@ -8,6 +8,7 @@ import { STATUS_STYLE } from '@/lib/status';
 import { useInsightSummary, usePostsWithSkill, useSkillInsights } from '../hooks';
 import { BAR_GRID, SkillBarRow } from './SkillBarRow';
 import { SummaryCard } from './SummaryCard';
+import { plural } from '@/lib/format';
 
 const FILTER_STATUSES: Status[] = ['SAVED', 'APPLIED', 'INTERVIEW'];
 const RANGES = [
@@ -137,7 +138,7 @@ export function InsightsPage() {
             <h2 id="top" className="text-lg">
               Top skills{' '}
               <span className="text-sm font-normal text-muted">
-                · based on <span className="tabular-nums">{total}</span> posts
+                · based on <span className="tabular-nums">{total}</span> {plural(total, 'post')}
               </span>
             </h2>
             <span className="flex items-center gap-4 text-xs text-muted">

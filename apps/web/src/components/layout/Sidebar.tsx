@@ -1,5 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import { Icon } from '@/components/ui/Icon';
+import { SignOutButton } from '@/features/auth/components/SignOutButton';
 import { NAV_ITEMS } from './nav';
 
 export function Sidebar() {
@@ -29,6 +30,9 @@ export function Sidebar() {
             <span>{item.label}</span>
           </NavLink>
         ))}
+      </div>
+      <div className="mt-auto border-t border-line pt-4">
+        <SignOutButton showEmail />
       </div>
     </nav>
   );

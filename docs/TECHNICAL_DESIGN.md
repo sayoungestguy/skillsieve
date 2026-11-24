@@ -234,6 +234,8 @@ interface SearchHitDto {              // GET /api/search
 }
 ```
 
+Web auth: `GET /api/me` decides whether the app is signed in (401 → `/login`). The query client treats any later 401 as "session ended". Category values are shown through `formatCategory` (`DEVOPS` → "DevOps").
+
 Until springdoc output exists, the web app hand-writes these types in `apps/web/src/api/types.ts`.
 
 **Implementation notes (core-api):** auth is Spring Security's OAuth2 resource server (Nimbus, HS256) reading the JWT from the `ss_token` cookie (`HttpOnly; Secure; SameSite=Strict; Path=/api`). The `DEMO` role may only `GET`. `PATCH /api/applications/{id}` treats a field sent as `null` (e.g. `nextActionAt`) as "clear" and a missing field as "leave alone". The login rate limit is in memory, keyed by client IP (`server.forward-headers-strategy=native` behind Traefik). Request bodies are capped at 64 KB.
@@ -322,7 +324,7 @@ Rules:
 | `LLM_RPM` / `LLM_RPD` | skills-svc | `4` / `200` | no |
 | `PROMPT_VERSION` | skills-svc | `extract-v1` | no |
 | `COOKIE_SECURE` | core-api | `true` (default). `false` only for plain-HTTP local/LAN clusters | no |
-| `VITE_USE_MOCKS` | web (build-time) | `true` → serve fake data from MSW in the browser, no backend needed | no |
+| `VITE_USE_MOCKS` | web (build-time) | `false` (default) → call core-api. `true` → serve fake data from MSW in the browser, already signed in, no backend needed | no |
 
 Local: Spring profile `local` (`application-local.yml`) points at the compose Postgres on port 55432, generates a throwaway JWT secret and seeds `dev@skillsieve.local` with password `skillsieve-local`. These are dev-only values for a database bound to 127.0.0.1. For the local k3d cluster, `deploy/local/k3d-up.sh` creates the `core-api-secrets` Secret with random values and writes the owner login to the git-ignored `deploy/local/.owner-credentials`.
 Cluster: ConfigMap for non-secrets, `SealedSecret` for secrets.

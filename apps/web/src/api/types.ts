@@ -6,6 +6,18 @@ export type Status = 'SAVED' | 'APPLIED' | 'INTERVIEW' | 'OFFER' | 'REJECTED' | 
 export type Level = 0 | 1 | 2 | 3;
 export type ExtractionStatus = 'PENDING' | 'DONE' | 'FAILED';
 export type Importance = 'REQUIRED' | 'PREFERRED';
+export type Role = 'OWNER' | 'DEMO' | 'USER';
+
+export interface MeDto {
+  id: string;
+  email: string;
+  role: Role;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
 
 export interface JobSkill {
   slug: string;

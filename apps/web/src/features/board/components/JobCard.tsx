@@ -2,7 +2,7 @@ import type { KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { JobSummaryDto, Status } from '@/api/types';
 import { Icon } from '@/components/ui/Icon';
-import { formatDate, isDue } from '@/lib/format';
+import { formatDate, isDue, UNKNOWN_COMPANY, UNTITLED_ROLE } from '@/lib/format';
 import { STATUS_STYLE, adjacentStatus } from '@/lib/status';
 
 interface JobCardProps {
@@ -20,7 +20,7 @@ const DATE_VERB: Record<Status, string> = {
 };
 
 export function JobCard({ job, onMove }: JobCardProps) {
-  const company = job.company ?? 'Unknown company';
+  const company = job.company ?? UNKNOWN_COMPANY;
   const onKeyDown = (e: KeyboardEvent) => {
     if (!e.shiftKey || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
     e.preventDefault();
@@ -40,7 +40,7 @@ export function JobCard({ job, onMove }: JobCardProps) {
           className="flex min-w-0 flex-col text-ink no-underline hover:text-ink hover:underline"
         >
           <span className="font-semibold">{company}</span>
-          <span className="text-sm text-ink">{job.title ?? 'Untitled role'}</span>
+          <span className="text-sm text-ink">{job.title ?? UNTITLED_ROLE}</span>
         </Link>
         <button
           type="button"

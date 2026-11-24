@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import type { JobSummaryDto, Status } from '@/api/types';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { isDue } from '@/lib/format';
+import { isDue, plural } from '@/lib/format';
 import { STATUSES, STATUS_STYLE } from '@/lib/status';
 import { useBoard, useMoveJob } from '../hooks';
 import { BoardColumn } from './BoardColumn';
@@ -29,7 +29,7 @@ export function BoardPage() {
         title="Board"
         subtitle={
           <>
-            <span className="tabular-nums">{jobs.length}</span> jobs
+            <span className="tabular-nums">{jobs.length}</span> {plural(jobs.length, 'job')}
             {dueCount > 0 && (
               <>
                 {' · '}

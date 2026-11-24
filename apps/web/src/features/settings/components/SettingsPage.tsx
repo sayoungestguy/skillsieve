@@ -1,8 +1,11 @@
 import { Icon } from '@/components/ui/Icon';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { SignOutButton } from '@/features/auth/components/SignOutButton';
+import { useMe } from '@/features/auth/hooks';
 
 /** Settings screen. Account, demo mode and export are wired up once core-api has the endpoints. */
 export function SettingsPage() {
+  const { data: me } = useMe();
   return (
     <>
       <PageHeader title="Settings" />
@@ -16,7 +19,14 @@ export function SettingsPage() {
               <label className="label" htmlFor="un">
                 Email
               </label>
-              <input id="un" className="field" type="email" autoComplete="username" />
+              <input
+                id="un"
+                className="field"
+                type="email"
+                autoComplete="username"
+                readOnly
+                value={me?.email ?? ''}
+              />
             </div>
             <div>
               <label className="label" htmlFor="pw">
@@ -38,6 +48,9 @@ export function SettingsPage() {
             <button type="button" className="btn btn-primary">
               Save changes
             </button>
+          </div>
+          <div className="border-t border-line pt-4 lg:hidden">
+            <SignOutButton />
           </div>
         </section>
         <section className="panel flex flex-wrap items-center gap-4" aria-labelledby="dm">

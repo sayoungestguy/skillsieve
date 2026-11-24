@@ -1,4 +1,4 @@
-import { formatDate, hostOf, isDue, todaySgt } from './format';
+import { formatCategory, formatDate, hostOf, isDue, plural, todaySgt } from './format';
 
 const now = new Date('2026-11-22T04:00:00Z'); // 12:00 SGT
 
@@ -23,4 +23,19 @@ describe('isDue', () => {
 
 it('shouldStripWwwFromHost', () => {
   expect(hostOf('https://www.careers.gov.sg/job/1')).toBe('careers.gov.sg');
+});
+
+describe('plural', () => {
+  it('uses the singular only for exactly one', () => {
+    expect(plural(1, 'job')).toBe('job');
+    expect(plural(0, 'job')).toBe('jobs');
+    expect(plural(2, 'post')).toBe('posts');
+  });
+});
+
+describe('formatCategory', () => {
+  it('turns API categories into words', () => {
+    expect(formatCategory('DEVOPS')).toBe('DevOps');
+    expect(formatCategory('SOMETHING_NEW')).toBe('SOMETHING_NEW');
+  });
 });

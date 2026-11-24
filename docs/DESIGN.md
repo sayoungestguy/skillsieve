@@ -97,6 +97,9 @@ Python           ██████░░░░░ 38%            Me: ○ Aware 
 - One search box. Results show company, title, highlighted snippet, status chip.
 - Keyboard shortcut: `/` focuses search on desktop.
 
+### 3.7 Sign in
+Route `/login`. A centred card (max 400 px) on `bg`: the logo and wordmark, an "Sign in" heading, the tagline, then Email and Password fields and a full-width primary button. Errors show in one `role="alert"` box above the fields: "Email or password is wrong." / "Too many attempts. Wait a minute and try again." Every other route is behind the session check. A visitor without a session goes to `/login?next=<path>` and comes back to that path after signing in (same-app paths only). Signing out lives at the bottom of the sidebar, showing the email, and in Settings → Account on mobile. A `401` on any request ends the session in the UI and returns to `/login`.
+
 ## 4. Design tokens
 
 ### 4.1 Colour (light mode only for R1)

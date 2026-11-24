@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { formatCategory } from '@/lib/format';
 import { isGap } from '@/lib/levels';
 import { useSetLevel, useSkills } from '../hooks';
 import { LevelControl } from './LevelControl';
@@ -84,7 +85,8 @@ export function MySkillsPage() {
                   {isGap(s.frequencyPct, s.myLevel) && <span className="gap-badge">GAP</span>}
                 </div>
                 <div className="text-xs text-muted">
-                  {s.category} · in <span className="tabular-nums">{s.frequencyPct}%</span> of posts
+                  {formatCategory(s.category)} · in{' '}
+                  <span className="tabular-nums">{s.frequencyPct}%</span> of posts
                 </div>
               </div>
               <div className="max-w-[200px] flex-[1_1_160px]" aria-hidden="true">

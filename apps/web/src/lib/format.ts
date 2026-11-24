@@ -46,3 +46,28 @@ export function hostOf(url: string): string {
     return url;
   }
 }
+
+const CATEGORY_LABEL: Record<string, string> = {
+  LANGUAGE: 'Language',
+  FRAMEWORK: 'Framework',
+  DATABASE: 'Database',
+  CLOUD: 'Cloud',
+  DEVOPS: 'DevOps',
+  AI: 'AI',
+  PRACTICE: 'Practice',
+  SOFT: 'Soft skill',
+  OTHER: 'Other',
+};
+
+/** API skill categories are UPPER_SNAKE (TECHNICAL_DESIGN §3); show them in plain words. */
+export function formatCategory(category: string): string {
+  return CATEGORY_LABEL[category] ?? category;
+}
+
+/** "1 job", "3 jobs". */
+export function plural(count: number, singular: string, pluralForm = `${singular}s`): string {
+  return count === 1 ? singular : pluralForm;
+}
+
+export const UNKNOWN_COMPANY = 'Unknown company';
+export const UNTITLED_ROLE = 'Untitled role';

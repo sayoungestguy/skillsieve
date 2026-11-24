@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { Icon } from '@/components/ui/Icon';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { formatDate, hostOf } from '@/lib/format';
+import { formatDate, hostOf, UNKNOWN_COMPANY, UNTITLED_ROLE } from '@/lib/format';
 import { useJob } from '../hooks';
 import { HistoryPanel } from './HistoryPanel';
 import { SkillsPanel } from './SkillsPanel';
@@ -28,8 +28,8 @@ export function JobDetailPage() {
       </Link>
       <div className="-mt-3 flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
-          <p className="m-0 font-semibold text-muted">{job.company ?? 'Unknown company'}</p>
-          <h1 className="text-[1.875rem]">{job.title ?? 'Untitled role'}</h1>
+          <p className="m-0 font-semibold text-muted">{job.company ?? UNKNOWN_COMPANY}</p>
+          <h1 className="text-[1.875rem]">{job.title ?? UNTITLED_ROLE}</h1>
           <p className="m-0 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
             {job.location && <span>{job.location}</span>}
             <span>Saved {formatDate(job.createdAt)}</span>

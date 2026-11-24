@@ -4,6 +4,7 @@ import { Icon } from '@/components/ui/Icon';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useSearch } from '../hooks';
+import { plural, UNKNOWN_COMPANY, UNTITLED_ROLE } from '@/lib/format';
 
 const DEBOUNCE_MS = 250;
 
@@ -52,7 +53,8 @@ export function SearchPage() {
       <p className="-mt-2 text-sm text-muted" aria-live="polite">
         {term.trim() ? (
           <>
-            <span className="tabular-nums">{hits.length}</span> results for “{term.trim()}” ·{' '}
+            <span className="tabular-nums">{hits.length}</span> {plural(hits.length, 'result')} for
+            “{term.trim()}” ·{' '}
           </>
         ) : null}
         Press <kbd>/</kbd> anywhere to search
@@ -65,7 +67,8 @@ export function SearchPage() {
                 to={`/jobs/${r.jobId}`}
                 className="font-semibold text-ink no-underline hover:text-ink hover:underline"
               >
-                {r.company} · <span className="font-medium">{r.title}</span>
+                {r.company ?? UNKNOWN_COMPANY} ·{' '}
+                <span className="font-medium">{r.title ?? UNTITLED_ROLE}</span>
               </Link>
               <StatusBadge status={r.status} />
             </div>

@@ -2,15 +2,15 @@
 # Build SkillSieve, load it into a local k3s cluster (k3d) and helm-upgrade it.
 # Works on macOS and on Linux/WSL2. Needs: docker, k3d, helm, kubectl, git, curl, openssl.
 #
-#   deploy/local/k3d-up.sh                    # build + deploy everything
-#   USE_MOCKS=false deploy/local/k3d-up.sh    # web talks to core-api instead of demo data
+#   deploy/local/k3d-up.sh                    # build + deploy everything (web uses core-api)
+#   USE_MOCKS=true deploy/local/k3d-up.sh     # web shows built-in demo data instead
 #   PORT=8089 CLUSTER=skillsieve OWNER_EMAIL=me@example.com deploy/local/k3d-up.sh
 set -euo pipefail
 
 CLUSTER="${CLUSTER:-skillsieve}"
 PORT="${PORT:-8089}"
 PG_PORT="${PG_PORT:-55432}"
-USE_MOCKS="${USE_MOCKS:-true}"
+USE_MOCKS="${USE_MOCKS:-false}"
 OWNER_EMAIL="${OWNER_EMAIL:-owner@skillsieve.local}"
 K3S_IMAGE="rancher/k3s:v1.31.4-k3s1"
 NAMESPACE="skillsieve"

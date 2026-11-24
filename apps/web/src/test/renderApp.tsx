@@ -1,16 +1,14 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 import { MemoryRouter, useLocation, useRoutes, type Location } from 'react-router-dom';
-import { routes } from '@/App';
+import { createQueryClient, routes } from '@/App';
 
 /**
  * Renders the real routes against the MSW-mocked API (integration-style).
  * Uses MemoryRouter instead of a data router: jsdom's AbortSignal breaks data-router navigation.
  */
 export function renderApp(path = '/') {
-  const client = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
+  const client = createQueryClient({ retry: false });
   const location = { current: null as Location | null };
   function Routes() {
     location.current = useLocation();

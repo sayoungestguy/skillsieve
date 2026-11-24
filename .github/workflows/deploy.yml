@@ -42,8 +42,8 @@ jobs:
           context: apps/web
           platforms: linux/arm64,linux/amd64
           push: true
-          # Until core-api ships (Days 3–5) the public site runs on mock data.
-          build-args: VITE_USE_MOCKS=${{ vars.WEB_USE_MOCKS || 'true' }}
+          # Set repo variable WEB_USE_MOCKS=true to ship the demo-data build instead.
+          build-args: VITE_USE_MOCKS=${{ vars.WEB_USE_MOCKS || 'false' }}
           tags: |
             ${{ steps.meta.outputs.registry }}/skillsieve-web:${{ steps.meta.outputs.tag }}
             ${{ steps.meta.outputs.registry }}/skillsieve-web:main

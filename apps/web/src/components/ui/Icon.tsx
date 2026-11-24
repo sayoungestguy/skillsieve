@@ -48,6 +48,7 @@ const PATHS = {
   warning: <path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01" />,
   download: <path d="M12 4v12M6 10l6 6 6-6M5 20h14" />,
   bookmark: <path d="M6 4h12v16l-6-4-6 4z" />,
+  logout: <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10" />,
 } as const;
 
 export type IconName = keyof typeof PATHS;

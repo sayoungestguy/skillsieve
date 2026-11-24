@@ -6,6 +6,8 @@ import type {
   JobDto,
   JobSummaryDto,
   Level,
+  LoginRequest,
+  MeDto,
   Page,
   SearchHitDto,
   SkillDto,
@@ -17,6 +19,13 @@ import type {
 } from './types';
 
 const json = (body: unknown) => JSON.stringify(body);
+
+export const authApi = {
+  login: (body: LoginRequest) =>
+    api<undefined>('/api/auth/login', { method: 'POST', body: json(body) }),
+  logout: () => api<undefined>('/api/auth/logout', { method: 'POST' }),
+  me: () => api<MeDto>('/api/me'),
+};
 
 export const jobsApi = {
   list: (params: { status?: Status; q?: string } = {}) =>

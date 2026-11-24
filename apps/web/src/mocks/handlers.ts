@@ -10,7 +10,7 @@ import type {
 } from '@/api/types';
 import { isGap } from '@/lib/levels';
 import { SKILLS } from './data';
-import { db } from './db';
+import { db, MOCK_USER, MOCK_WRONG_PASSWORD } from './db';
 
 const MIN_TEXT = 200;
 const TOP_SKILLS = 3;
@@ -55,7 +55,25 @@ function skillFrequency(slug: string) {
   return { requiredPct: pct(req), preferredPct: pct(pref), totalPct: pct(req + pref) };
 }
 
+const unauthorized = () =>
+  HttpResponse.json({ title: 'Unauthorized', detail: 'Sign in first.' }, { status: 401 });
+
 export const handlers = [
+  http.post('/api/auth/login', async ({ request }) => {
+    const { password } = (await request.json()) as { password: string };
+    if (password === MOCK_WRONG_PASSWORD)
+      return HttpResponse.json({ title: 'Login failed' }, { status: 401 });
+    db.session = MOCK_USER;
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post('/api/auth/logout', () => {
+    db.session = null;
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.get('/api/me', () => (db.session ? HttpResponse.json(db.session) : unauthorized())),
+
   http.get('/api/jobs', () => HttpResponse.json(page(db.jobs.map(toSummary)))),
 
   http.get('/api/jobs/:id', ({ params }) => {

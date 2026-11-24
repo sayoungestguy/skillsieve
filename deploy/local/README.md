@@ -13,7 +13,7 @@ The script starts Postgres with docker compose on port 55432 (it stands in for S
 | Env var | Default | Meaning |
 |---|---|---|
 | `PORT` | `8089` | Host port mapped to Traefik, bound on all interfaces |
-| `USE_MOCKS` | `true` | Build the web app with MSW demo data. Switch to `false` once the web login page exists. |
+| `USE_MOCKS` | `false` | `true` builds the web app with MSW demo data instead of calling core-api |
 | `OWNER_EMAIL` | `owner@skillsieve.local` | Owner account seeded on the first run |
 | `PG_PORT` | `55432` | Host port for the compose Postgres (55432 avoids clashing with a local Postgres on 5432) |
 | `CLUSTER` | `skillsieve` | k3d cluster name |
@@ -22,7 +22,7 @@ Stop and start without losing anything with `k3d cluster stop skillsieve` and `k
 
 ## core-api and the owner login
 
-On the first run the script creates the Secret `core-api-secrets` in the cluster: a random JWT secret, and the owner email with a random password stored as a BCrypt hash. It writes the plain login to `deploy/local/.owner-credentials`, which is git-ignored with mode 600. The API is at `/api` on the same host and port. Sign in from a terminal like this:
+On the first run the script creates the Secret `core-api-secrets` in the cluster: a random JWT secret, and the owner email with a random password stored as a BCrypt hash. It writes the plain login to `deploy/local/.owner-credentials`, which is git-ignored with mode 600. Open the app and sign in with that email and password. The API is at `/api` on the same host and port. From a terminal:
 
 ```bash
 source deploy/local/.owner-credentials && curl -c /tmp/ss -H 'X-Requested-With: x' -H 'Content-Type: application/json' -d "{\"email\":\"$email\",\"password\":\"$password\"}" http://localhost:8089/api/auth/login
