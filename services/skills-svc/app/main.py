@@ -1,5 +1,7 @@
 """skills-svc: internal API that turns job post text into canonical skills."""
 
+import asyncio
+import contextlib
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -41,6 +43,20 @@ async def open_pool(settings: Settings) -> asyncpg.Pool:
     )
 
 
+async def refresh_taxonomy(service: ExtractionService, pool: asyncpg.Pool, every_s: float) -> None:
+    """Keep aliases current: core-api owns the seed and may migrate after this service starts."""
+    while True:
+        await asyncio.sleep(every_s)
+        try:
+            fresh = await load_taxonomy(pool)
+        except Exception as e:  # keep serving with the old taxonomy
+            log.warning("taxonomy.refresh_failed", error=type(e).__name__)
+            continue
+        if fresh.size != service.taxonomy.size or fresh.aliases != service.taxonomy.aliases:
+            log.info("taxonomy.refreshed", before=service.taxonomy.size, after=fresh.size)
+            service.taxonomy = fresh
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     configure_logging()
@@ -59,7 +75,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         budget_s=settings.llm_budget_s,
     )
     log.info("startup", skills_aliases=taxonomy.size, model=settings.gemini_model)
+    refresher = asyncio.create_task(
+        refresh_taxonomy(app.state.service, pool, settings.taxonomy_refresh_s)
+    )
     yield
+    refresher.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await refresher
     await pool.close()
 
 

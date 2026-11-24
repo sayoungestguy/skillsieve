@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     max_input_chars: int = 12_000
     fuzzy_min_score: float = 92.0
     db_pool_max: int = 3
+    taxonomy_refresh_s: float = Field(
+        default=300.0, description="Reload aliases (core-api's Flyway seed may run after we start)"
+    )
 
 
 @lru_cache

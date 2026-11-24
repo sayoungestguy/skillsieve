@@ -254,6 +254,8 @@ Header `X-Internal-Token` required (shared secret, compared in constant time). N
 
 Errors: `401` bad token · `422` bad body · `429` LLM budget or Gemini rate limit (core-api keeps the job `PENDING`) · `503` no `GEMINI_API_KEY`, Gemini down, or output invalid twice (also `PENDING`). Any other error makes core-api mark the job `FAILED`.
 
+**Taxonomy refresh:** skills-svc reloads `skill_alias` every `TAXONOMY_REFRESH_S` (300 s). core-api applies the seed with Flyway and may start after skills-svc, so new aliases arrive without a restart.
+
 **Cache contents:** `extraction_cache.result_json` stores the **raw LLM output**, not the mapped result. Alias mapping runs again on every read, so adding an alias to `skills.yaml` fixes old posts without spending quota.
 
 **core-api side (R1, ADR-006):** `POST /api/jobs` commits the job, then calls skills-svc *outside* the DB transaction (read timeout `EXTRACTION_TIMEOUT`, default 10 s), then stores the result in a short transaction. Company, title and location fill in only fields the user hasn't set. Saving never fails because of extraction. `JobDto.extractionError` explains a `PENDING` ("try later") or `FAILED` job, and the web app shows **Retry** instead of polling.

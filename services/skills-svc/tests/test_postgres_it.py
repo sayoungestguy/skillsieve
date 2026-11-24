@@ -85,5 +85,33 @@ def test_should_cache_in_postgres_and_map_with_real_taxonomy(
     assert second["unmapped"] == ["Quantum Basket Weaving"]
 
 
+async def test_should_pick_up_new_aliases_without_restart(
+    database_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import asyncio
+
+    from app.main import open_pool, refresh_taxonomy
+    from app.taxonomy.taxonomy import Taxonomy
+    from tests.conftest import FakeLlm, make_service
+
+    await _migrate_once(database_url)
+    monkeypatch.setenv("DATABASE_URL", database_url)
+    get_settings.cache_clear()
+    pool = await open_pool(get_settings())
+    service = make_service(FakeLlm(load_fixture("backend_engineer")))
+    service.taxonomy = Taxonomy({"java": "java"})
+    task = asyncio.create_task(refresh_taxonomy(service, pool, every_s=0.05))
+    try:
+        for _ in range(100):
+            if service.taxonomy.size > 1:
+                break
+            await asyncio.sleep(0.05)
+    finally:
+        task.cancel()
+        await pool.close()
+        get_settings.cache_clear()
+    assert service.taxonomy.resolve("k8s", 92) == "kubernetes"
+
+
 def test_fixture_matches_llm_schema() -> None:
     assert load_fixture("backend_engineer").skills
