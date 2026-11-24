@@ -12,3 +12,12 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
+  - package-ecosystem: maven
+    directory: /services/core-api
+    schedule: { interval: weekly }
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: docker
+    directory: /services/core-api
+    schedule: { interval: weekly }

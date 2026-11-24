@@ -3,6 +3,13 @@ imageRegistry: docker.io/library
 web:
   image:
     pullPolicy: Never   # images are imported into k3d, not pulled
+coreApi:
+  image:
+    pullPolicy: Never
+  env:
+    COOKIE_SECURE: "false"   # plain HTTP on the LAN; see deploy/local/README.md
+    DEMO_MODE: "false"
+
 ingress:
   host: ""
   tls:

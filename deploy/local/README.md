@@ -8,15 +8,27 @@ While the Oracle VM is on hold, SkillSieve runs on a local k3s cluster created b
 deploy/local/k3d-up.sh
 ```
 
-The script creates the cluster the first time it runs. Each run then builds the web image (tagged `sha-<commit>`), imports it into k3d, runs `helm upgrade --install --atomic` and smoke-tests `/healthz`. At the end it prints the local and LAN URLs.
+The script starts Postgres with docker compose on port 55432 (it stands in for Supabase). It creates the cluster the first time it runs. Each run then builds the web image (tagged `sha-<commit>`), imports it into k3d, runs `helm upgrade --install --atomic` and smoke-tests `/healthz`. At the end it prints the local and LAN URLs.
 
 | Env var | Default | Meaning |
 |---|---|---|
 | `PORT` | `8089` | Host port mapped to Traefik, bound on all interfaces |
-| `USE_MOCKS` | `true` | Build the web app with MSW demo data (no backend yet) |
+| `USE_MOCKS` | `true` | Build the web app with MSW demo data. Switch to `false` once the web login page exists. |
+| `OWNER_EMAIL` | `owner@skillsieve.local` | Owner account seeded on the first run |
+| `PG_PORT` | `55432` | Host port for the compose Postgres (55432 avoids clashing with a local Postgres on 5432) |
 | `CLUSTER` | `skillsieve` | k3d cluster name |
 
 Stop and start without losing anything with `k3d cluster stop skillsieve` and `k3d cluster start skillsieve`. Delete everything with `k3d cluster delete skillsieve`.
+
+## core-api and the owner login
+
+On the first run the script creates the Secret `core-api-secrets` in the cluster: a random JWT secret, and the owner email with a random password stored as a BCrypt hash. It writes the plain login to `deploy/local/.owner-credentials`, which is git-ignored with mode 600. The API is at `/api` on the same host and port. Sign in from a terminal like this:
+
+```bash
+source deploy/local/.owner-credentials && curl -c /tmp/ss -H 'X-Requested-With: x' -H 'Content-Type: application/json' -d "{\"email\":\"$email\",\"password\":\"$password\"}" http://localhost:8089/api/auth/login
+```
+
+The owner is only created when that email doesn't exist yet. To start the database from scratch, run `docker compose -f deploy/local/docker-compose.yml down -v` and `kubectl -n skillsieve delete secret core-api-secrets`, then rerun the script. **This deletes all local data.** To use Supabase instead of the local Postgres, see `docs/runbooks/supabase.md`.
 
 ## macOS (current host)
 
@@ -42,4 +54,5 @@ You need Docker Desktop and `brew install k3d helm kubectl`. Other devices on yo
 ## Security notes
 
 - This is plain HTTP for your home LAN only. Don't port-forward 8089 on your router.
-- Once login exists (Days 3–5), the auth cookie is `Secure`, so it only works over HTTPS or `localhost`. Before then, add a LAN HTTPS option (for example `mkcert` with a Traefik TLS secret) or a `values-local` flag that relaxes the cookie for development.
+- `values-local.yaml` sets `COOKIE_SECURE=false` so login works over plain HTTP on the LAN. Production keeps `Secure` cookies behind HTTPS. Adding LAN HTTPS (mkcert + a Traefik TLS secret) would let you turn this back on.
+- On WSL2 with Docker Engine running inside WSL (instead of Docker Desktop), `host.k3d.internal` may not reach a Postgres bound to `127.0.0.1`. If core-api can't connect, bind compose to `0.0.0.0` behind the Windows firewall, or point it at Supabase.

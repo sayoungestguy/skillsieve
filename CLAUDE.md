@@ -75,8 +75,10 @@ cd apps/web && npm ci && npm run dev        # http://localhost:5173
 npm run lint && npm run typecheck && npm test
 
 # Core API
-cd services/core-api && ./mvnw spring-boot:run   # http://localhost:8080
-./mvnw verify                                    # unit + Testcontainers tests + Spotless check
+docker compose -f deploy/local/docker-compose.yml up -d postgres        # Postgres on :55432
+cd services/core-api && ./mvnw spring-boot:run -Dspring-boot.run.profiles=local   # :8080
+./mvnw verify   # Spotless, Error Prone, unit + Testcontainers ITs, SpotBugs, 80% coverage
+python3 scripts/gen_skill_seed.py   # after editing data/taxonomy/skills.yaml
 
 # Skills service
 cd services/skills-svc && uv sync && uv run uvicorn app.main:app --reload --port 8000
@@ -117,6 +119,6 @@ helm template deploy/helm/skillsieve -f deploy/helm/skillsieve/values-prod.yaml
 | Day | Milestone | Status |
 |---|---|---|
 | 1–2 | Oracle VM + k3s + DuckDNS + HTTPS + hello-world deploy via Actions | ◐ chart, CI and bootstrap done; Oracle on hold, self-hosted on k3d (LAN) |
-| 3–5 | Core API + Supabase + web status board | ☐ |
+| 3–5 | Core API + Supabase + web status board | ◐ core-api done (local Postgres, k3d); Supabase project + web login pending |
 | 6–8 | Skills service + Gemini + Elasticsearch gap dashboard | ☐ |
 | 9–10 | Helm chart polish, full pipeline, README, diagram, demo video | ☐ |

@@ -28,7 +28,14 @@ spec:
     - http:
     {{- end }}
         paths:
-          # /api → core-api is added in Days 3–5.
+          {{- if .Values.coreApi.enabled }}
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-core-api
+                port: { name: http }
+          {{- end }}
           - path: /
             pathType: Prefix
             backend:

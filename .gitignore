@@ -16,3 +16,6 @@ __pycache__/
 .DS_Store
 .idea/
 .vscode/
+
+# Local cluster owner login (deploy/local/k3d-up.sh)
+deploy/local/.owner-credentials

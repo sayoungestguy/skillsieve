@@ -1,0 +1,17 @@
+{{- if .Values.coreApi.enabled }}
+{{- $ctx := dict "root" . "component" "core-api" "tag" .Values.coreApi.image.tag }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-core-api
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "skillsieve.selector" $ctx | nindent 4 }}
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+{{- end }}

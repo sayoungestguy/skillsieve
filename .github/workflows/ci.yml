@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       web: ${{ steps.filter.outputs.web }}
+      core-api: ${{ steps.filter.outputs.core-api }}
       helm: ${{ steps.filter.outputs.helm }}
     steps:
       - uses: actions/checkout@v4
@@ -26,6 +27,11 @@ jobs:
           filters: |
             web:
               - 'apps/web/**'
+              - '.github/workflows/ci.yml'
+            core-api:
+              - 'services/core-api/**'
+              - 'data/**'
+              - 'scripts/gen_skill_seed.py'
               - '.github/workflows/ci.yml'
             helm:
               - 'deploy/helm/**'
@@ -52,6 +58,29 @@ jobs:
       - run: npm run coverage
       - run: npm run build
 
+  core-api:
+    needs: changes
+    if: needs.changes.outputs.core-api == 'true'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: services/core-api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Skill seed is up to date with data/taxonomy/skills.yaml
+        run: python scripts/gen_skill_seed.py --check
+        working-directory: .
+      # Spotless, Error Prone, unit + Testcontainers ITs, SpotBugs, JaCoCo 80% gate.
+      - run: ./mvnw -B verify
+
   helm:
     needs: changes
     if: needs.changes.outputs.helm == 'true'
@@ -62,13 +91,14 @@ jobs:
         with:
           version: v3.16.3
       - name: helm lint
-        run: helm lint deploy/helm/skillsieve --set web.image.tag=sha-ci
+        run: helm lint deploy/helm/skillsieve --set web.image.tag=sha-ci --set coreApi.image.tag=sha-ci
       - name: kubeconform
         run: |
           curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz kubeconform
-          for f in values.yaml values-prod.yaml; do
-            helm template ci deploy/helm/skillsieve -f deploy/helm/skillsieve/$f --set web.image.tag=sha-ci \
-              | ./kubeconform -strict -summary -kubernetes-version 1.31.0 -
+          for f in values.yaml values-prod.yaml values-local.yaml; do
+            helm template ci deploy/helm/skillsieve -f deploy/helm/skillsieve/$f \
+              --set web.image.tag=sha-ci --set coreApi.image.tag=sha-ci \
+              | ./kubeconform -strict -summary -kubernetes-version 1.31.0 -skip SealedSecret -
           done
 
   security:

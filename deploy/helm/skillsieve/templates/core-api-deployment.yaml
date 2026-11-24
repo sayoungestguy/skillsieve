@@ -1,0 +1,65 @@
+{{- if .Values.coreApi.enabled }}
+{{- $ctx := dict "root" . "component" "core-api" "tag" .Values.coreApi.image.tag "image" .Values.coreApi.image }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-core-api
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  replicas: {{ .Values.coreApi.replicas }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "skillsieve.selector" $ctx | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "skillsieve.labels" $ctx | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/core-api-configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: core-api
+          image: {{ include "skillsieve.image" $ctx }}
+          imagePullPolicy: {{ .Values.coreApi.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-core-api
+            - secretRef:
+                name: {{ .Values.coreApi.secretName }}
+          startupProbe:          # JVM + Flyway can take a while on 2 ARM cores
+            httpGet: { path: /api/actuator/health/liveness, port: http }
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet: { path: /api/actuator/health/readiness, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /api/actuator/health/liveness, port: http }
+            periodSeconds: 20
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              sleep: { seconds: 5 }   # let Traefik drop the endpoint before shutdown (no shell in distroless)
+          resources:
+            {{- toYaml .Values.coreApi.resources | nindent 12 }}
+          securityContext:
+            {{- include "skillsieve.containerSecurity" . | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+{{- end }}

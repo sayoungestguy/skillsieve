@@ -12,6 +12,27 @@ web:
     requests: { cpu: 10m, memory: 32Mi }
     limits: { cpu: 200m, memory: 64Mi }
 
+coreApi:
+  enabled: true
+  replicas: 1
+  image:
+    repository: skillsieve-core-api
+    tag: ""            # required: sha-<short>
+    pullPolicy: IfNotPresent
+  resources:           # docs/ARCHITECTURE.md §6; JVM heap = 75% of the limit
+    requests: { cpu: 100m, memory: 384Mi }
+    limits: { cpu: "1", memory: 768Mi }
+  # Non-secret settings (TECHNICAL_DESIGN §8).
+  env:
+    COOKIE_SECURE: "true"
+    DEMO_MODE: "false"
+  # Secret with SPRING_DATASOURCE_URL/_USERNAME/_PASSWORD, JWT_SECRET, OWNER_EMAIL,
+  # OWNER_PASSWORD_HASH. Created by sealedSecret below (prod) or by deploy/local/k3d-up.sh (local).
+  secretName: core-api-secrets
+  # Prod: paste `kubeseal` output here (encrypted, safe to commit). Empty = don't render.
+  sealedSecret:
+    encryptedData: {}
+
 ingress:
   enabled: true
   className: traefik

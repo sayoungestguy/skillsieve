@@ -49,10 +49,28 @@ jobs:
             ${{ steps.meta.outputs.registry }}/skillsieve-web:main
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
-      - name: Trivy image scan
+      - name: Build and push core-api (arm64 + amd64)
+        uses: docker/build-push-action@v6
+        with:
+          context: services/core-api
+          platforms: linux/arm64,linux/amd64
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.registry }}/skillsieve-core-api:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.registry }}/skillsieve-core-api:main
+          cache-from: type=gha,scope=core-api
+          cache-to: type=gha,scope=core-api,mode=max
+      - name: Trivy image scan (web)
         uses: aquasecurity/trivy-action@0.29.0
         with:
           image-ref: ${{ steps.meta.outputs.registry }}/skillsieve-web:${{ steps.meta.outputs.tag }}
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - name: Trivy image scan (core-api)
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          image-ref: ${{ steps.meta.outputs.registry }}/skillsieve-core-api:${{ steps.meta.outputs.tag }}
           ignore-unfixed: true
           severity: HIGH,CRITICAL
           exit-code: '1'
@@ -102,12 +120,14 @@ jobs:
           # shellcheck disable=SC2029  # expanding on the runner is intended
           ssh "$VM" "helm upgrade --install skillsieve oci://${REGISTRY}/charts/skillsieve \
             --version ${VERSION} --namespace skillsieve --atomic --timeout 5m -f - \
-            --set imageRegistry=${REGISTRY} --set web.image.tag=${TAG} --set ingress.host=${HOST}" \
+            --set imageRegistry=${REGISTRY} --set web.image.tag=${TAG} --set coreApi.image.tag=${TAG} \
+            --set ingress.host=${HOST}" \
             < deploy/helm/skillsieve/values-prod.yaml
       - name: Smoke test
         run: |
           for _ in $(seq 1 20); do
-            curl -fsS "https://${{ vars.APP_HOST }}/healthz" && exit 0
+            curl -fsS "https://${{ vars.APP_HOST }}/healthz" \
+              && curl -fsS "https://${{ vars.APP_HOST }}/api/actuator/health" && exit 0
             sleep 15
           done
           echo "smoke test failed" >&2; exit 1

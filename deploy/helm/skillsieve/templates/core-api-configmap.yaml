@@ -1,0 +1,12 @@
+{{- if .Values.coreApi.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-core-api
+  labels:
+    {{- include "skillsieve.labels" (dict "root" . "component" "core-api" "tag" .Values.coreApi.image.tag) | nindent 4 }}
+data:
+  {{- range $k, $v := .Values.coreApi.env }}
+  {{ $k }}: {{ $v | quote }}
+  {{- end }}
+{{- end }}
