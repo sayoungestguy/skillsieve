@@ -1,0 +1,21 @@
+# Local dependencies for development. Postgres stands in for Supabase (same major version).
+# Start: docker compose -f deploy/local/docker-compose.yml up -d
+# Elasticsearch is added in Days 6–8.
+name: skillsieve
+services:
+  postgres:
+    image: postgres:16-alpine@sha256:f2f98726820d0342055351c6e9d36e705f5bfffb3dd53ff556325114b08afb6d
+    environment:
+      POSTGRES_DB: skillsieve
+      POSTGRES_USER: skillsieve_api
+      POSTGRES_PASSWORD: skillsieve_api   # local only; never used outside this container
+    ports:
+      - "127.0.0.1:${PG_PORT:-55432}:5432"   # this machine only (55432 avoids a local Postgres on 5432); the k3d cluster reaches it via host.k3d.internal
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skillsieve_api -d skillsieve"]
+      interval: 5s
+      retries: 10
+volumes:
+  pgdata:

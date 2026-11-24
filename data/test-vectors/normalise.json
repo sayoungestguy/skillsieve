@@ -1,0 +1,35 @@
+{
+  "description": "Text normalisation for job_post.text_hash: NFKC, lower-case, collapse whitespace, trim. Shared by core-api (Java) and skills-svc (Python).",
+  "cases": [
+    {
+      "input": "Hello World",
+      "normalised": "hello world",
+      "sha256": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+    },
+    {
+      "input": "  Senior   Engineer\n\n\tJava  ",
+      "normalised": "senior engineer java",
+      "sha256": "3b1501928917ea7805ba0501d0d4f1950d4e375a0bee9c4aefedf63d3cee18a4"
+    },
+    {
+      "input": "ＦＵＬＬＷＩＤＴＨ Ｊａｖａ",
+      "normalised": "fullwidth java",
+      "sha256": "51cb60b22489eed0a4e37e200eb2c6b642200e7af9c560b0dd9a50aeca337775"
+    },
+    {
+      "input": "ﬁle ① café",
+      "normalised": "file 1 café",
+      "sha256": "14fd8cf93099c5222d542fccfc1deb0503da8ec112946ca692af99c83d73112b"
+    },
+    {
+      "input": "Line1\r\nLine2 Line3",
+      "normalised": "line1 line2 line3",
+      "sha256": "22f75635c73c7f4fb766b0b4452228c58724e28e1b9e2562b210220ba5ecc591"
+    },
+    {
+      "input": "",
+      "normalised": "",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

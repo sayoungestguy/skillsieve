@@ -1,0 +1,22 @@
+# Local development: `./mvnw spring-boot:run -Dspring-boot.run.profiles=local`
+# Uses the Postgres from deploy/local/docker-compose.yml. Not for production.
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:55432/skillsieve}
+    username: ${SPRING_DATASOURCE_USERNAME:skillsieve_api}
+    password: ${SPRING_DATASOURCE_PASSWORD:skillsieve_api}
+
+springdoc:
+  api-docs:
+    enabled: true   # http://localhost:8080/v3/api-docs
+
+logging:
+  structured:
+    format:
+      console: ""   # readable logs on your terminal
+
+skillsieve:
+  allow-random-jwt-secret: true   # tokens end on restart; fine for dev
+  cookie-secure: false            # plain http://localhost
+  owner-email: ${OWNER_EMAIL:dev@skillsieve.local}   # k3d uses owner@…; both share the compose DB
+  owner-password: ${OWNER_PASSWORD:skillsieve-local}

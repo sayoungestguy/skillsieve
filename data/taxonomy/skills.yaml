@@ -1,0 +1,192 @@
+# Canonical skill names. Source of truth for the `skill` and `skill_alias` tables.
+# After editing, run: python3 scripts/gen_skill_seed.py
+# Format (kept flat on purpose so the generator needs only the standard library):
+#   - slug: kebab-case id
+#     name: Display name
+#     category: LANGUAGE|FRAMEWORK|DATABASE|CLOUD|DEVOPS|AI|PRACTICE|SOFT|OTHER
+#     aliases: [lower-case, alternatives]
+
+- slug: java
+  name: Java
+  category: LANGUAGE
+  aliases: [java 17, java 21, jdk]
+- slug: python
+  name: Python
+  category: LANGUAGE
+  aliases: [python3, py]
+- slug: typescript
+  name: TypeScript
+  category: LANGUAGE
+  aliases: [ts]
+- slug: javascript
+  name: JavaScript
+  category: LANGUAGE
+  aliases: [js, es6, ecmascript]
+- slug: go
+  name: Go
+  category: LANGUAGE
+  aliases: [golang]
+- slug: kotlin
+  name: Kotlin
+  category: LANGUAGE
+  aliases: []
+- slug: csharp
+  name: C#
+  category: LANGUAGE
+  aliases: [c sharp, .net, dotnet]
+- slug: ruby
+  name: Ruby
+  category: LANGUAGE
+  aliases: [ruby on rails, rails]
+- slug: rust
+  name: Rust
+  category: LANGUAGE
+  aliases: []
+- slug: sql
+  name: SQL
+  category: LANGUAGE
+  aliases: []
+- slug: css
+  name: CSS
+  category: LANGUAGE
+  aliases: [css3, scss, sass]
+- slug: spring-boot
+  name: Spring Boot
+  category: FRAMEWORK
+  aliases: [spring, springboot, spring framework]
+- slug: react
+  name: React
+  category: FRAMEWORK
+  aliases: [reactjs, react.js]
+- slug: vue
+  name: Vue
+  category: FRAMEWORK
+  aliases: [vuejs, vue.js]
+- slug: angular
+  name: Angular
+  category: FRAMEWORK
+  aliases: [angularjs]
+- slug: nodejs
+  name: Node.js
+  category: FRAMEWORK
+  aliases: [node, node js]
+- slug: fastapi
+  name: FastAPI
+  category: FRAMEWORK
+  aliases: []
+- slug: django
+  name: Django
+  category: FRAMEWORK
+  aliases: []
+- slug: grpc
+  name: gRPC
+  category: FRAMEWORK
+  aliases: []
+- slug: postgresql
+  name: PostgreSQL
+  category: DATABASE
+  aliases: [postgres, psql]
+- slug: mysql
+  name: MySQL
+  category: DATABASE
+  aliases: [mariadb]
+- slug: mongodb
+  name: MongoDB
+  category: DATABASE
+  aliases: [mongo]
+- slug: redis
+  name: Redis
+  category: DATABASE
+  aliases: []
+- slug: elasticsearch
+  name: Elasticsearch
+  category: DATABASE
+  aliases: [elastic, opensearch, elk]
+- slug: kafka
+  name: Kafka
+  category: DATABASE
+  aliases: [apache kafka]
+- slug: aws
+  name: AWS
+  category: CLOUD
+  aliases: [amazon web services, ec2, s3, lambda]
+- slug: gcp
+  name: Google Cloud
+  category: CLOUD
+  aliases: [google cloud platform]
+- slug: azure
+  name: Azure
+  category: CLOUD
+  aliases: [microsoft azure]
+- slug: docker
+  name: Docker
+  category: DEVOPS
+  aliases: [containers, containerisation, containerization]
+- slug: kubernetes
+  name: Kubernetes
+  category: DEVOPS
+  aliases: [k8s, eks, gke, aks]
+- slug: terraform
+  name: Terraform
+  category: DEVOPS
+  aliases: [iac, infrastructure as code]
+- slug: helm
+  name: Helm
+  category: DEVOPS
+  aliases: []
+- slug: cicd
+  name: CI/CD
+  category: DEVOPS
+  aliases: [ci/cd, continuous integration, github actions, jenkins, gitlab ci]
+- slug: linux
+  name: Linux
+  category: DEVOPS
+  aliases: [unix, bash]
+- slug: observability
+  name: Observability
+  category: DEVOPS
+  aliases: [monitoring, prometheus, grafana, opentelemetry]
+- slug: llm
+  name: LLMs
+  category: AI
+  aliases: [large language models, genai, generative ai, openai, prompt engineering]
+- slug: machine-learning
+  name: Machine Learning
+  category: AI
+  aliases: [ml]
+- slug: rest
+  name: REST APIs
+  category: PRACTICE
+  aliases: [rest api, restful, http apis]
+- slug: microservices
+  name: Microservices
+  category: PRACTICE
+  aliases: [microservice architecture]
+- slug: system-design
+  name: System Design
+  category: PRACTICE
+  aliases: [distributed systems, architecture]
+- slug: testing
+  name: Automated Testing
+  category: PRACTICE
+  aliases: [unit testing, tdd, junit, pytest, jest]
+- slug: security
+  name: Application Security
+  category: PRACTICE
+  aliases: [appsec, owasp, secure coding]
+- slug: agile
+  name: Agile
+  category: PRACTICE
+  aliases: [scrum, kanban]
+- slug: git
+  name: Git
+  category: PRACTICE
+  aliases: [github, gitlab]
+- slug: communication
+  name: Communication
+  category: SOFT
+  aliases: [stakeholder management]
+- slug: mentoring
+  name: Mentoring
+  category: SOFT
+  aliases: [coaching, leadership]
