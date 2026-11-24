@@ -68,6 +68,12 @@ kubectl -n "$NAMESPACE" patch secret "$SECRET" --type merge \
 EXISTING_KEY="$(kubectl -n "$NAMESPACE" get secret "$SKILLS_SECRET" \
   -o jsonpath='{.data.GEMINI_API_KEY}' 2>/dev/null | base64 -d 2>/dev/null || true)"
 GEMINI_KEY="${GEMINI_API_KEY:-$EXISTING_KEY}"
+case "$GEMINI_KEY" in
+  *[[:space:]]*)
+    echo "GEMINI_API_KEY contains spaces or line breaks. Paste only the key (AI Studio's Copy button)." >&2
+    exit 1
+    ;;
+esac
 kubectl -n "$NAMESPACE" create secret generic "$SKILLS_SECRET" \
   --from-literal=DATABASE_URL="postgresql://skillsieve_api:skillsieve_api@host.k3d.internal:${PG_PORT}/skillsieve" \
   --from-literal=INTERNAL_TOKEN="$INTERNAL_TOKEN" \
