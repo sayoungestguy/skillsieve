@@ -37,6 +37,14 @@ source deploy/local/.owner-credentials && curl -c /tmp/ss -H 'X-Requested-With: 
 
 The owner is only created when that email doesn't exist yet. To start the database from scratch, run `docker compose -f deploy/local/docker-compose.yml down -v` and `kubectl -n skillsieve delete secret core-api-secrets`, then rerun the script. **This deletes all local data.** To use Supabase instead of the local Postgres, see `docs/runbooks/supabase.md`.
 
+## Test accounts
+
+```bash
+python3 deploy/local/seed-test-users.py
+```
+
+This creates `tester@skillsieve.local` (USER) and `demo@skillsieve.local` (DEMO, read-only), each with 6 fictional sample jobs across the board columns and some skill ratings. Passwords are random and go to `deploy/local/.test-users`, which is git-ignored. Re-running it skips existing accounts. Use `--reset` for new passwords and `--no-jobs` for accounts only. The tester's jobs use about 6 Gemini requests; the demo account reuses the cache.
+
 ## macOS (current host)
 
 You need Docker Desktop and `brew install k3d helm kubectl`. Other devices on your Wi-Fi open `http://<mac-ip>:8089`. If macOS asks whether Docker may accept incoming connections, allow it. The site is only reachable while the Mac is awake.
