@@ -84,6 +84,37 @@ public class JobPost {
     updatedAt = now;
   }
 
+  /** Fills fields the user has not set yet, and marks extraction done. */
+  public void applyExtraction(
+      @Nullable String company,
+      @Nullable String title,
+      @Nullable String location,
+      @Nullable String seniority,
+      @Nullable Integer minYears,
+      Instant now) {
+    if (this.company == null) {
+      this.company = company;
+    }
+    if (this.title == null) {
+      this.title = title;
+    }
+    if (this.location == null) {
+      this.location = location;
+    }
+    this.seniority = seniority;
+    this.minYears = minYears == null ? null : minYears.shortValue();
+    this.extractionStatus = ExtractionStatus.DONE;
+    this.extractionError = null;
+    this.updatedAt = now;
+  }
+
+  /** Extraction did not finish: PENDING (try later) or FAILED (will not succeed as is). */
+  public void markExtractionProblem(ExtractionStatus status, String error, Instant now) {
+    this.extractionStatus = status;
+    this.extractionError = error;
+    this.updatedAt = now;
+  }
+
   void requestExtraction(Instant now) {
     extractionStatus = ExtractionStatus.PENDING;
     extractionError = null;
@@ -139,6 +170,15 @@ public class JobPost {
 
   public ExtractionStatus getExtractionStatus() {
     return extractionStatus;
+  }
+
+  @Nullable
+  public String getExtractionError() {
+    return extractionError;
+  }
+
+  public String getTextHash() {
+    return textHash;
   }
 
   public Instant getCreatedAt() {

@@ -104,6 +104,7 @@ export const handlers = [
       seniority: null,
       minYears: null,
       extractionStatus: 'PENDING',
+      extractionError: null,
       skills: [],
       createdAt: new Date().toISOString(),
       application: {

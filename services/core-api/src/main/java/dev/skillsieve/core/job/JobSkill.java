@@ -29,7 +29,17 @@ public class JobSkill {
   @Column(nullable = false)
   private Importance importance;
 
+  @Column(length = 200)
+  private String evidence;
+
   protected JobSkill() {}
+
+  public JobSkill(UUID jobPostId, Skill skill, Importance importance, String evidence) {
+    this.id = new Key(jobPostId, skill.getId());
+    this.skill = skill;
+    this.importance = importance;
+    this.evidence = evidence;
+  }
 
   public UUID getJobPostId() {
     return id.jobPostId;
@@ -56,6 +66,11 @@ public class JobSkill {
     private int skillId;
 
     protected Key() {}
+
+    Key(UUID jobPostId, int skillId) {
+      this.jobPostId = jobPostId;
+      this.skillId = skillId;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -19,3 +19,7 @@ __pycache__/
 
 # Local cluster owner login (deploy/local/k3d-up.sh)
 deploy/local/.owner-credentials
+
+# Python test/coverage output
+.coverage
+.pytest_cache/

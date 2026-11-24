@@ -5,6 +5,7 @@
 #   deploy/local/k3d-up.sh                    # build + deploy everything (web uses core-api)
 #   USE_MOCKS=true deploy/local/k3d-up.sh     # web shows built-in demo data instead
 #   PORT=8089 CLUSTER=skillsieve OWNER_EMAIL=me@example.com deploy/local/k3d-up.sh
+#   GEMINI_API_KEY=… deploy/local/k3d-up.sh  # turn on skill extraction (stored in the cluster only)
 set -euo pipefail
 
 CLUSTER="${CLUSTER:-skillsieve}"
@@ -15,6 +16,7 @@ OWNER_EMAIL="${OWNER_EMAIL:-owner@skillsieve.local}"
 K3S_IMAGE="rancher/k3s:v1.31.4-k3s1"
 NAMESPACE="skillsieve"
 SECRET="core-api-secrets"
+SKILLS_SECRET="skills-svc-secrets"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 CHART="$ROOT/deploy/helm/skillsieve"
 CREDS="$ROOT/deploy/local/.owner-credentials"   # git-ignored
@@ -55,15 +57,36 @@ if ! kubectl -n "$NAMESPACE" get secret "$SECRET" >/dev/null 2>&1; then
   echo "Owner login saved to deploy/local/.owner-credentials (git-ignored)."
 fi
 
+# Shared core-api <-> skills-svc token. Reuse the one already in the cluster if present.
+INTERNAL_TOKEN="$(kubectl -n "$NAMESPACE" get secret "$SKILLS_SECRET" \
+  -o jsonpath='{.data.INTERNAL_TOKEN}' 2>/dev/null | base64 -d 2>/dev/null || true)"
+if [ -z "$INTERNAL_TOKEN" ]; then INTERNAL_TOKEN="$(openssl rand -hex 32)"; fi
+# Older core-api secrets (before skills-svc) lack the token: add it.
+kubectl -n "$NAMESPACE" patch secret "$SECRET" --type merge \
+  -p "{\"stringData\":{\"INTERNAL_TOKEN\":\"$INTERNAL_TOKEN\"}}" >/dev/null
+
+EXISTING_KEY="$(kubectl -n "$NAMESPACE" get secret "$SKILLS_SECRET" \
+  -o jsonpath='{.data.GEMINI_API_KEY}' 2>/dev/null | base64 -d 2>/dev/null || true)"
+GEMINI_KEY="${GEMINI_API_KEY:-$EXISTING_KEY}"
+kubectl -n "$NAMESPACE" create secret generic "$SKILLS_SECRET" \
+  --from-literal=DATABASE_URL="postgresql://skillsieve_api:skillsieve_api@host.k3d.internal:${PG_PORT}/skillsieve" \
+  --from-literal=INTERNAL_TOKEN="$INTERNAL_TOKEN" \
+  --from-literal=GEMINI_API_KEY="$GEMINI_KEY" \
+  --dry-run=client -o yaml | kubectl apply -f - >/dev/null
+if [ -z "$GEMINI_KEY" ]; then
+  echo "Note: no GEMINI_API_KEY set, so skill extraction is off (jobs stay 'pending')."
+fi
+
 log "Building images (tag $TAG, web mocks=$USE_MOCKS)"
 docker build -q --build-arg VITE_USE_MOCKS="$USE_MOCKS" -t "skillsieve-web:$TAG" "$ROOT/apps/web"
 docker build -q -t "skillsieve-core-api:$TAG" "$ROOT/services/core-api"
-k3d image import "skillsieve-web:$TAG" "skillsieve-core-api:$TAG" -c "$CLUSTER"
+docker build -q -t "skillsieve-skills-svc:$TAG" "$ROOT/services/skills-svc"
+k3d image import "skillsieve-web:$TAG" "skillsieve-core-api:$TAG" "skillsieve-skills-svc:$TAG" -c "$CLUSTER"
 
 log "helm upgrade --install"
 helm upgrade --install skillsieve "$CHART" -n "$NAMESPACE" \
   --atomic --timeout 5m -f "$CHART/values-local.yaml" \
-  --set web.image.tag="$TAG" --set coreApi.image.tag="$TAG"
+  --set web.image.tag="$TAG" --set coreApi.image.tag="$TAG" --set skillsSvc.image.tag="$TAG"
 
 log "Smoke test"
 ok=""

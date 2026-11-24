@@ -81,8 +81,8 @@ cd services/core-api && ./mvnw spring-boot:run -Dspring-boot.run.profiles=local 
 python3 scripts/gen_skill_seed.py   # after editing data/taxonomy/skills.yaml
 
 # Skills service
-cd services/skills-svc && uv sync && uv run uvicorn app.main:app --reload --port 8000
-uv run ruff check . && uv run mypy . && uv run pytest
+cd services/skills-svc && cp .env.example .env && uv sync && uv run uvicorn app.main:app --reload --port 8000
+uv run ruff check . && uv run ruff format --check . && uv run mypy app tests && uv run pytest   # Docker needed for the Postgres IT
 
 # Self-hosted cluster (k3d, LAN): build + helm upgrade + smoke test
 deploy/local/k3d-up.sh
@@ -120,5 +120,5 @@ helm template deploy/helm/skillsieve -f deploy/helm/skillsieve/values-prod.yaml
 |---|---|---|
 | 1–2 | Oracle VM + k3s + DuckDNS + HTTPS + hello-world deploy via Actions | ◐ chart, CI and bootstrap done; Oracle on hold, self-hosted on k3d (LAN) |
 | 3–5 | Core API + Supabase + web status board | ◐ core-api + web login on real API (local Postgres, k3d); Supabase project pending |
-| 6–8 | Skills service + Gemini + Elasticsearch gap dashboard | ☐ |
+| 6–8 | Skills service + Gemini + Elasticsearch gap dashboard | ◐ skills-svc + core-api wiring done (needs a Gemini key); Elasticsearch + eval set pending |
 | 9–10 | Helm chart polish, full pipeline, README, diagram, demo video | ☐ |

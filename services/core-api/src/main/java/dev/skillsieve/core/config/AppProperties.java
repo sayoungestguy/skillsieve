@@ -15,6 +15,9 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param ownerPasswordHash BCrypt hash for the seeded owner (OWNER_PASSWORD_HASH)
  * @param ownerPassword local dev only: plain password, hashed at startup
  * @param loginAttemptsPerMinute login rate limit per client IP
+ * @param skillsSvcUrl base URL of skills-svc (SKILLS_SVC_URL); empty = extraction off
+ * @param internalToken shared secret sent as X-Internal-Token (INTERNAL_TOKEN)
+ * @param extractionTimeout how long a save waits for skills-svc (ARCHITECTURE §4.1)
  */
 @ConfigurationProperties("skillsieve")
 public record AppProperties(
@@ -25,4 +28,7 @@ public record AppProperties(
     @DefaultValue("") String ownerEmail,
     @DefaultValue("") String ownerPasswordHash,
     @DefaultValue("") String ownerPassword,
-    @DefaultValue("5") int loginAttemptsPerMinute) {}
+    @DefaultValue("5") int loginAttemptsPerMinute,
+    @DefaultValue("") String skillsSvcUrl,
+    @DefaultValue("") String internalToken,
+    @DefaultValue("10s") Duration extractionTimeout) {}

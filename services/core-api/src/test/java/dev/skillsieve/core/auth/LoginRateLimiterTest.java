@@ -14,7 +14,9 @@ class LoginRateLimiterTest {
 
   @Test
   void shouldBlockSixthAttemptWithinAMinute() {
-    var props = new AppProperties("", false, Duration.ofHours(1), true, "", "", "", 5);
+    var props =
+        new AppProperties(
+            "", false, Duration.ofHours(1), true, "", "", "", 5, "", "", Duration.ofSeconds(10));
     var limiter =
         new LoginRateLimiter(
             props, Clock.fixed(Instant.parse("2026-11-24T00:00:00Z"), ZoneOffset.UTC));

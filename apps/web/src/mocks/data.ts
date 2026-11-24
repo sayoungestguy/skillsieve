@@ -188,6 +188,7 @@ export function buildJobs(now: Date, levels: Record<string, Level>): JobDto[] {
       seniority: 'MID',
       minYears: 2,
       extractionStatus: 'DONE',
+      extractionError: null,
       skills: [
         ...req.map((slug) => ({
           slug,

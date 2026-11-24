@@ -32,4 +32,15 @@ describe('JobDetailPage', () => {
     expect(await screen.findByText('Extracting skills…')).toBeInTheDocument();
     expect(screen.queryByText('Required · 7')).not.toBeInTheDocument();
   });
+
+  it('shouldOfferRetryWhenExtractionIsPendingWithError', async () => {
+    const job = db.jobs.find((j) => j.id === 'j-shopee');
+    if (!job) throw new Error('fixture job missing');
+    job.extractionError = 'Skill extraction is busy or offline. Try again later.';
+    renderApp('/jobs/j-shopee');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Skills pending');
+    expect(screen.queryByText('Extracting skills…')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled();
+  });
 });

@@ -9,4 +9,7 @@ data:
   {{- range $k, $v := .Values.coreApi.env }}
   {{ $k }}: {{ $v | quote }}
   {{- end }}
+  {{- if .Values.skillsSvc.enabled }}
+  SKILLS_SVC_URL: {{ printf "http://%s-skills-svc:8000" .Release.Name | quote }}
+  {{- end }}
 {{- end }}

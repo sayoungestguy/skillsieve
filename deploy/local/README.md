@@ -14,6 +14,7 @@ The script starts Postgres with docker compose on port 55432 (it stands in for S
 |---|---|---|
 | `PORT` | `8089` | Host port mapped to Traefik, bound on all interfaces |
 | `USE_MOCKS` | `false` | `true` builds the web app with MSW demo data instead of calling core-api |
+| `GEMINI_API_KEY` | (none) | Turns on skill extraction. Stored only in the cluster Secret `skills-svc-secrets` and reused on later runs |
 | `OWNER_EMAIL` | `owner@skillsieve.local` | Owner account seeded on the first run |
 | `PG_PORT` | `55432` | Host port for the compose Postgres (55432 avoids clashing with a local Postgres on 5432) |
 | `CLUSTER` | `skillsieve` | k3d cluster name |

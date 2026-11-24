@@ -18,6 +18,7 @@ jobs:
     outputs:
       web: ${{ steps.filter.outputs.web }}
       core-api: ${{ steps.filter.outputs.core-api }}
+      skills-svc: ${{ steps.filter.outputs.skills-svc }}
       helm: ${{ steps.filter.outputs.helm }}
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +33,10 @@ jobs:
               - 'services/core-api/**'
               - 'data/**'
               - 'scripts/gen_skill_seed.py'
+              - '.github/workflows/ci.yml'
+            skills-svc:
+              - 'services/skills-svc/**'
+              - 'services/core-api/src/main/resources/db/migration/**'
               - '.github/workflows/ci.yml'
             helm:
               - 'deploy/helm/**'
@@ -81,6 +86,27 @@ jobs:
       # Spotless, Error Prone, unit + Testcontainers ITs, SpotBugs, JaCoCo 80% gate.
       - run: ./mvnw -B verify
 
+  skills-svc:
+    needs: changes
+    if: needs.changes.outputs.skills-svc == 'true'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: services/skills-svc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: 0.13.9
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy app tests
+      # Unit tests replay recorded LLM fixtures (no network, no quota); integration tests use
+      # Testcontainers Postgres with core-api's migrations. Coverage gate 80%.
+      - run: uv run pytest
+
   helm:
     needs: changes
     if: needs.changes.outputs.helm == 'true'
@@ -91,13 +117,13 @@ jobs:
         with:
           version: v3.16.3
       - name: helm lint
-        run: helm lint deploy/helm/skillsieve --set web.image.tag=sha-ci --set coreApi.image.tag=sha-ci
+        run: helm lint deploy/helm/skillsieve --set web.image.tag=sha-ci --set coreApi.image.tag=sha-ci --set skillsSvc.image.tag=sha-ci
       - name: kubeconform
         run: |
           curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz kubeconform
           for f in values.yaml values-prod.yaml values-local.yaml; do
             helm template ci deploy/helm/skillsieve -f deploy/helm/skillsieve/$f \
-              --set web.image.tag=sha-ci --set coreApi.image.tag=sha-ci \
+              --set web.image.tag=sha-ci --set coreApi.image.tag=sha-ci --set skillsSvc.image.tag=sha-ci \
               | ./kubeconform -strict -summary -kubernetes-version 1.31.0 -skip SealedSecret -
           done
 

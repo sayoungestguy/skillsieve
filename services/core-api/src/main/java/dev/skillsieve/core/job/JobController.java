@@ -3,6 +3,7 @@ package dev.skillsieve.core.job;
 import dev.skillsieve.core.application.Status;
 import dev.skillsieve.core.common.CurrentUser;
 import dev.skillsieve.core.common.PageDto;
+import dev.skillsieve.core.extraction.ExtractionService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.UUID;
@@ -24,15 +25,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class JobController {
 
   private final JobService service;
+  private final ExtractionService extraction;
 
-  public JobController(JobService service) {
+  public JobController(JobService service, ExtractionService extraction) {
     this.service = service;
+    this.extraction = extraction;
   }
 
   @PostMapping
   ResponseEntity<JobDto> create(@Valid @RequestBody CreateJobRequest body, Authentication auth) {
-    JobDto job = service.create(CurrentUser.id(auth), body);
-    return ResponseEntity.created(URI.create("/api/jobs/" + job.id())).body(job);
+    UUID userId = CurrentUser.id(auth);
+    JobDto created = service.create(userId, body);
+    extraction.extract(created.id()); // after commit; never fails the save (ARCHITECTURE §4.1)
+    return ResponseEntity.created(URI.create("/api/jobs/" + created.id()))
+        .body(service.get(userId, created.id()));
   }
 
   @GetMapping
@@ -65,6 +71,7 @@ public class JobController {
   @PostMapping("/{id}/extract")
   ResponseEntity<Void> extract(@PathVariable UUID id, Authentication auth) {
     service.requestExtraction(CurrentUser.id(auth), id);
+    extraction.extract(id);
     return ResponseEntity.accepted().build();
   }
 }

@@ -45,6 +45,8 @@ export interface JobDto {
   seniority: string | null;
   minYears: number | null;
   extractionStatus: ExtractionStatus;
+  /** Set when extraction could not finish; with PENDING it means "try again later". */
+  extractionError: string | null;
   skills: JobSkill[];
   application: ApplicationDto;
   createdAt: string;

@@ -21,3 +21,12 @@ updates:
   - package-ecosystem: docker
     directory: /services/core-api
     schedule: { interval: weekly }
+  - package-ecosystem: uv
+    directory: /services/skills-svc
+    schedule: { interval: weekly }
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: docker
+    directory: /services/skills-svc
+    schedule: { interval: weekly }

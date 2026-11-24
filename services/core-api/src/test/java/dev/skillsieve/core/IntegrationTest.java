@@ -12,12 +12,15 @@ import dev.skillsieve.core.auth.Role;
 import jakarta.servlet.http.Cookie;
 import java.time.Instant;
 import java.util.UUID;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -27,6 +30,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 @SpringBootTest(
     properties = {
       "skillsieve.allow-random-jwt-secret=true",
+      "skillsieve.internal-token=test-internal-token",
+      "skillsieve.extraction-timeout=2s",
       "skillsieve.owner-email=owner@test.local",
       "skillsieve.owner-password=owner-password",
       "skillsieve.login-attempts-per-minute=1000"
@@ -37,8 +42,21 @@ public abstract class IntegrationTest {
   @ServiceConnection
   static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
 
+  /** Stands in for skills-svc. Default answer: 503 (busy), so new jobs stay PENDING. */
+  protected static final SkillsSvcStub SKILLS_SVC = SkillsSvcStub.start();
+
   static {
     POSTGRES.start();
+  }
+
+  @DynamicPropertySource
+  static void skillsSvc(DynamicPropertyRegistry registry) {
+    registry.add("skillsieve.skills-svc-url", SKILLS_SVC::baseUrl);
+  }
+
+  @AfterEach
+  void resetSkillsSvc() {
+    SKILLS_SVC.respond(503, "{\"detail\":\"busy\"}");
   }
 
   protected static final String OWNER = "owner@test.local";

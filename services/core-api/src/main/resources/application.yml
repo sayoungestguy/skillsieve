@@ -62,3 +62,5 @@ skillsieve:
   owner-email: ${OWNER_EMAIL:}
   owner-password-hash: ${OWNER_PASSWORD_HASH:}
   cookie-secure: ${COOKIE_SECURE:true}
+  skills-svc-url: ${SKILLS_SVC_URL:}
+  internal-token: ${INTERNAL_TOKEN:}

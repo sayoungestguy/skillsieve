@@ -11,9 +11,11 @@ export function useJob(id: string) {
   return useQuery({
     queryKey: jobKey(id),
     queryFn: () => jobsApi.get(id),
-    // Poll while skills are still being extracted.
+    // Poll while skills are still being extracted (not when skills-svc said "try later").
     refetchInterval: (q) =>
-      q.state.data?.extractionStatus === 'PENDING' ? PENDING_POLL_MS : false,
+      q.state.data?.extractionStatus === 'PENDING' && !q.state.data.extractionError
+        ? PENDING_POLL_MS
+        : false,
   });
 }
 

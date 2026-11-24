@@ -27,9 +27,29 @@ coreApi:
     COOKIE_SECURE: "true"
     DEMO_MODE: "false"
   # Secret with SPRING_DATASOURCE_URL/_USERNAME/_PASSWORD, JWT_SECRET, OWNER_EMAIL,
-  # OWNER_PASSWORD_HASH. Created by sealedSecret below (prod) or by deploy/local/k3d-up.sh (local).
+  # OWNER_PASSWORD_HASH, INTERNAL_TOKEN (same value as skills-svc). Created by sealedSecret below (prod) or by deploy/local/k3d-up.sh (local).
   secretName: core-api-secrets
   # Prod: paste `kubeseal` output here (encrypted, safe to commit). Empty = don't render.
+  sealedSecret:
+    encryptedData: {}
+
+skillsSvc:
+  enabled: true
+  replicas: 1          # in-process LLM budget assumes one replica (TECHNICAL_DESIGN §7)
+  image:
+    repository: skillsieve-skills-svc
+    tag: ""            # required: sha-<short>
+    pullPolicy: IfNotPresent
+  resources:           # docs/ARCHITECTURE.md §6
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { cpu: 500m, memory: 256Mi }
+  env:
+    GEMINI_MODEL: gemini-3.5-flash-lite
+    PROMPT_VERSION: extract-v1
+    LLM_RPM: "4"
+    LLM_RPD: "200"
+  # Secret with DATABASE_URL, INTERNAL_TOKEN, GEMINI_API_KEY (empty key = extraction off).
+  secretName: skills-svc-secrets
   sealedSecret:
     encryptedData: {}
 

@@ -142,7 +142,7 @@ As a job-seeker, I want to paste a job post's text so that it is saved without r
 |---|---|---|
 | 1–2 | Oracle VM, k3s, DuckDNS, HTTPS, hello-world via GitHub Actions | ☐ |
 | 3–5 | core-api (jobs, applications, status history) + Supabase + web board | ◐ |
-| 6–8 | skills-svc + Gemini + taxonomy + Elasticsearch + gap dashboard | ☐ |
+| 6–8 | skills-svc + Gemini + taxonomy + Elasticsearch + gap dashboard | ◐ |
 | 9–10 | Helm chart polish, Trivy, README, architecture diagram, demo video | ☐ |
 
 ### Release 2 (Days 11–14+)

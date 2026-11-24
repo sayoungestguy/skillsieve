@@ -1,0 +1,12 @@
+{{- if .Values.skillsSvc.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-skills-svc
+  labels:
+    {{- include "skillsieve.labels" (dict "root" . "component" "skills-svc" "tag" .Values.skillsSvc.image.tag) | nindent 4 }}
+data:
+  {{- range $k, $v := .Values.skillsSvc.env }}
+  {{ $k }}: {{ $v | quote }}
+  {{- end }}
+{{- end }}

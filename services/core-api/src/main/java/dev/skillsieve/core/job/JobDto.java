@@ -16,6 +16,7 @@ public record JobDto(
     @Nullable String seniority,
     @Nullable Short minYears,
     ExtractionStatus extractionStatus,
+    @Nullable String extractionError,
     List<JobSkillDto> skills,
     ApplicationDto application,
     Instant createdAt) {

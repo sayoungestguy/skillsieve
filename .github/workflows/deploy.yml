@@ -60,6 +60,24 @@ jobs:
             ${{ steps.meta.outputs.registry }}/skillsieve-core-api:main
           cache-from: type=gha,scope=core-api
           cache-to: type=gha,scope=core-api,mode=max
+      - name: Build and push skills-svc (arm64 + amd64)
+        uses: docker/build-push-action@v6
+        with:
+          context: services/skills-svc
+          platforms: linux/arm64,linux/amd64
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.registry }}/skillsieve-skills-svc:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.registry }}/skillsieve-skills-svc:main
+          cache-from: type=gha,scope=skills-svc
+          cache-to: type=gha,scope=skills-svc,mode=max
+      - name: Trivy image scan (skills-svc)
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          image-ref: ${{ steps.meta.outputs.registry }}/skillsieve-skills-svc:${{ steps.meta.outputs.tag }}
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+          exit-code: '1'
       - name: Trivy image scan (web)
         uses: aquasecurity/trivy-action@0.29.0
         with:
@@ -120,7 +138,7 @@ jobs:
           # shellcheck disable=SC2029  # expanding on the runner is intended
           ssh "$VM" "helm upgrade --install skillsieve oci://${REGISTRY}/charts/skillsieve \
             --version ${VERSION} --namespace skillsieve --atomic --timeout 5m -f - \
-            --set imageRegistry=${REGISTRY} --set web.image.tag=${TAG} --set coreApi.image.tag=${TAG} \
+            --set imageRegistry=${REGISTRY} --set web.image.tag=${TAG} --set coreApi.image.tag=${TAG} --set skillsSvc.image.tag=${TAG} \
             --set ingress.host=${HOST}" \
             < deploy/helm/skillsieve/values-prod.yaml
       - name: Smoke test

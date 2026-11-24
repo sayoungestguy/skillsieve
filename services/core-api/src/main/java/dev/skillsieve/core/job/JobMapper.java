@@ -36,6 +36,7 @@ final class JobMapper {
         j.getSeniority(),
         j.getMinYears(),
         j.getExtractionStatus(),
+        j.getExtractionError(),
         skillDtos,
         ApplicationDto.from(app),
         j.getCreatedAt());

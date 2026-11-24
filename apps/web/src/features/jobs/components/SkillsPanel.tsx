@@ -26,14 +26,15 @@ export function SkillsPanel({ job }: { job: JobDto }) {
         )}
       </div>
 
-      {job.extractionStatus === 'PENDING' && (
+      {job.extractionStatus === 'PENDING' && !job.extractionError && (
         <p role="status" className="m-0 flex items-center gap-3 text-sm text-muted">
           <span className="spinner" aria-hidden="true" />
           Extracting skills…
         </p>
       )}
 
-      {job.extractionStatus === 'FAILED' && (
+      {(job.extractionStatus === 'FAILED' ||
+        (job.extractionStatus === 'PENDING' && job.extractionError)) && (
         <div
           role="alert"
           className="flex flex-wrap items-center gap-3 rounded-card border border-amber-200 bg-amber-50 p-4 text-sm"
@@ -41,7 +42,11 @@ export function SkillsPanel({ job }: { job: JobDto }) {
           <span className="flex text-warning">
             <Icon name="warning" />
           </span>
-          <p className="m-0 flex-1">Skills could not be extracted. Try again in a few minutes.</p>
+          <p className="m-0 flex-1">
+            {job.extractionStatus === 'PENDING'
+              ? 'Skills pending. The extractor is busy or offline, so try again later.'
+              : 'Skills could not be extracted. Try again in a few minutes.'}
+          </p>
           <button
             type="button"
             className="btn btn-secondary"

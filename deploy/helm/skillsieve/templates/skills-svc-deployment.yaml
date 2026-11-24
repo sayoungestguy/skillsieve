@@ -1,0 +1,61 @@
+{{- if .Values.skillsSvc.enabled }}
+{{- $ctx := dict "root" . "component" "skills-svc" "tag" .Values.skillsSvc.image.tag "image" .Values.skillsSvc.image }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-skills-svc
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  replicas: {{ .Values.skillsSvc.replicas }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "skillsieve.selector" $ctx | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "skillsieve.labels" $ctx | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/skills-svc-configmap.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: skills-svc
+          image: {{ include "skillsieve.image" $ctx }}
+          imagePullPolicy: {{ .Values.skillsSvc.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-skills-svc
+            - secretRef:
+                name: {{ .Values.skillsSvc.secretName }}
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          lifecycle:
+            preStop:
+              sleep: { seconds: 5 }
+          resources:
+            {{- toYaml .Values.skillsSvc.resources | nindent 12 }}
+          securityContext:
+            {{- include "skillsieve.containerSecurity" . | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 16Mi
+{{- end }}

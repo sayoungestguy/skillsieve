@@ -10,6 +10,10 @@ coreApi:
     COOKIE_SECURE: "false"   # plain HTTP on the LAN; see deploy/local/README.md
     DEMO_MODE: "false"
 
+skillsSvc:
+  image:
+    pullPolicy: Never
+
 ingress:
   host: ""
   tls:
