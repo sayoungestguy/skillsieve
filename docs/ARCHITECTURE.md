@@ -2,6 +2,8 @@
 
 > Version 0.1 · Last updated 2026-11-22 22:41 SGT · Status: Draft
 
+> Detailed ER, class, state, sequence and flow diagrams: [DIAGRAMS.md](DIAGRAMS.md).
+
 ## 1. Overview
 
 SkillSieve is a small set of services on a single-node **k3s** cluster (Oracle Always Free ARM VM).
