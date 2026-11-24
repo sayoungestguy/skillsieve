@@ -1,0 +1,58 @@
+[project]
+name = "skills-svc"
+version = "0.1.0"
+description = "SkillSieve skill extraction: job post text -> canonical skills via Gemini, cached by text hash"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi==0.165.0",
+  "uvicorn[standard]==0.54.0",
+  "pydantic==2.14.4",
+  "pydantic-settings==2.16.3",
+  "google-genai==3.6.1",
+  "asyncpg==0.32.0",
+  "rapidfuzz==3.14.6",
+  "structlog==26.1.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest==9.2.0",
+  "pytest-asyncio==1.5.0",
+  "pytest-cov==7.1.0",
+  "httpx==0.28.1",
+  "ruff==0.17.6",
+  "mypy==2.4.1",
+  "asyncpg-stubs==0.32.0",
+  "testcontainers[postgres]==4.15.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "S", "SIM", "RUF", "ASYNC", "PT"]
+ignore = ["S101"]   # assert is fine in tests
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["testcontainers.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+testpaths = ["tests"]
+addopts = "--cov=app --cov-report=term-missing --cov-fail-under=80"
+markers = ["integration: needs Docker (Testcontainers Postgres)"]

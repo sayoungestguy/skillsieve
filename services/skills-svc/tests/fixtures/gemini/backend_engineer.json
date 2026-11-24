@@ -1,0 +1,21 @@
+{
+  "company": "Northwind Labs",
+  "title": "Backend Engineer",
+  "location": "Singapore",
+  "seniority": "MID",
+  "min_years": 3,
+  "skills": [
+    { "name": "Java 21", "importance": "REQUIRED", "evidence": "design and run Java 21 and Spring Boot services" },
+    { "name": "Spring Boot", "importance": "REQUIRED", "evidence": "Java 21 and Spring Boot services" },
+    { "name": "K8s", "importance": "REQUIRED", "evidence": "services on Kubernetes" },
+    { "name": "Postgres", "importance": "REQUIRED", "evidence": "model data in PostgreSQL" },
+    { "name": "Kafka", "importance": "REQUIRED", "evidence": "publish events to Kafka" },
+    { "name": "Docker", "importance": "REQUIRED", "evidence": "hands-on Docker and CI/CD experience" },
+    { "name": "CI/CD", "importance": "REQUIRED", "evidence": "hands-on Docker and CI/CD experience" },
+    { "name": "Terraform", "importance": "PREFERRED", "evidence": "Nice to have: Terraform" },
+    { "name": "AWS", "importance": "PREFERRED", "evidence": "Terraform, AWS, and Elasticsearch" },
+    { "name": "Kubernetes", "importance": "PREFERRED", "evidence": "Kubernetes experience is a plus" },
+    { "name": "Elasticsearch", "importance": "PREFERRED", "evidence": "AWS, and Elasticsearch" },
+    { "name": "Quantum Basket Weaving", "importance": "PREFERRED", "evidence": null }
+  ]
+}
