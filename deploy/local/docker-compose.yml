@@ -1,6 +1,6 @@
 # Local dependencies for development. Postgres stands in for Supabase (same major version).
 # Start: docker compose -f deploy/local/docker-compose.yml up -d
-# Elasticsearch is added in Days 6–8.
+# Elasticsearch: for core-api via spring-boot:run, start it too and set ES_URL=http://localhost:59200.
 name: skillsieve
 services:
   postgres:
@@ -17,5 +17,18 @@ services:
       test: ["CMD-SHELL", "pg_isready -U skillsieve_api -d skillsieve"]
       interval: 5s
       retries: 10
+  elasticsearch:
+    image: elasticsearch:8.18.8@sha256:e5b3511e96ee1c58e9027d9d06185be4e627074717b40f6145e860b39c851d6d
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"   # local only, bound to 127.0.0.1
+      xpack.ml.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "127.0.0.1:${ES_PORT:-59200}:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    profiles: [search]   # only with: docker compose --profile search up -d
 volumes:
   pgdata:
+  esdata:

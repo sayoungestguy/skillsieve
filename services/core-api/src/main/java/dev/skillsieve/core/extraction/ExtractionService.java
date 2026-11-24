@@ -5,6 +5,7 @@ import dev.skillsieve.core.job.JobPost;
 import dev.skillsieve.core.job.JobPostRepository;
 import dev.skillsieve.core.job.JobSkill;
 import dev.skillsieve.core.job.JobSkillRepository;
+import dev.skillsieve.core.search.JobChangedEvent;
 import dev.skillsieve.core.skill.Skill;
 import dev.skillsieve.core.skill.SkillRepository;
 import java.time.Clock;
@@ -16,6 +17,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -40,6 +42,7 @@ public class ExtractionService {
   private final JobSkillRepository jobSkills;
   private final SkillRepository skills;
   private final TransactionTemplate tx;
+  private final ApplicationEventPublisher changes;
   private final Clock clock;
 
   public ExtractionService(
@@ -48,12 +51,14 @@ public class ExtractionService {
       JobSkillRepository jobSkills,
       SkillRepository skills,
       TransactionTemplate tx,
+      ApplicationEventPublisher changes,
       Clock clock) {
     this.client = client;
     this.jobs = jobs;
     this.jobSkills = jobSkills;
     this.skills = skills;
     this.tx = tx;
+    this.changes = changes;
     this.clock = clock;
   }
 
@@ -122,6 +127,7 @@ public class ExtractionService {
                           r.seniority(),
                           r.minYears(),
                           clock.instant());
+                      changes.publishEvent(JobChangedEvent.changed(jobId));
                       log.info(
                           "extraction.done jobId={} skills={} unmapped={} cached={}",
                           jobId,

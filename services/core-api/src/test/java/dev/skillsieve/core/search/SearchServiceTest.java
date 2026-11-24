@@ -8,7 +8,7 @@ class SearchServiceTest {
 
   @Test
   void shouldSplitSnippetAroundCaseInsensitiveMatch() {
-    var s = SearchService.snippet("We use Kubernetes daily", "kubernetes");
+    var s = PostgresSearch.snippet("We use Kubernetes daily", "kubernetes");
 
     assertThat(s.before()).isEqualTo("We use ");
     assertThat(s.match()).isEqualTo("Kubernetes");
@@ -17,9 +17,18 @@ class SearchServiceTest {
 
   @Test
   void shouldReturnPreviewWhenMatchIsOnlyInTitle() {
-    var s = SearchService.snippet("Body text", "acme");
+    var s = PostgresSearch.snippet("Body text", "acme");
 
     assertThat(s.before()).isEqualTo("Body text");
     assertThat(s.match()).isEmpty();
+  }
+
+  @Test
+  void shouldSplitElasticsearchHighlightIntoPlainText() {
+    var s = SearchService.split("we publish \u0002Kafka\u0003 events and \u0002Kafka\u0003 again");
+
+    assertThat(s.before()).isEqualTo("we publish ");
+    assertThat(s.match()).isEqualTo("Kafka");
+    assertThat(s.after()).isEqualTo(" events and Kafka again");
   }
 }

@@ -32,7 +32,7 @@ if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then TAG="$TAG-dirty-$(date +%
 log() { printf '\n==> %s\n' "$*"; }
 
 log "Postgres (docker compose, port $PG_PORT) — stands in for Supabase"
-PG_PORT="$PG_PORT" docker compose -f "$ROOT/deploy/local/docker-compose.yml" up -d --wait
+PG_PORT="$PG_PORT" docker compose -f "$ROOT/deploy/local/docker-compose.yml" up -d --wait postgres
 
 if ! k3d cluster list "$CLUSTER" >/dev/null 2>&1; then
   log "Creating k3d cluster '$CLUSTER' (port $PORT on all interfaces -> Traefik :80)"

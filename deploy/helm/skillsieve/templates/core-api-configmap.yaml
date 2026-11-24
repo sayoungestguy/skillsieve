@@ -9,6 +9,9 @@ data:
   {{- range $k, $v := .Values.coreApi.env }}
   {{ $k }}: {{ $v | quote }}
   {{- end }}
+  {{- if .Values.elasticsearch.enabled }}
+  ES_URL: {{ printf "http://%s-elasticsearch:9200" .Release.Name | quote }}
+  {{- end }}
   {{- if .Values.skillsSvc.enabled }}
   SKILLS_SVC_URL: {{ printf "http://%s-skills-svc:8000" .Release.Name | quote }}
   {{- end }}

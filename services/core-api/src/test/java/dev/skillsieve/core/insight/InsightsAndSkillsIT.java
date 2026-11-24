@@ -1,5 +1,6 @@
 package dev.skillsieve.core.insight;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,21 +15,24 @@ import jakarta.servlet.http.Cookie;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 class InsightsAndSkillsIT extends IntegrationTest {
 
-  @Autowired private JdbcTemplate jdbc;
-
-  /** Stands in for skills-svc (Days 6–8), which will write job_skill rows. */
-  private void tag(String jobId, String slug, String importance) {
-    jdbc.update(
-        "INSERT INTO skillsieve.job_skill (job_post_id, skill_id, importance) "
-            + "SELECT ?::uuid, id, ? FROM skillsieve.skill WHERE slug = ?",
-        jobId,
-        importance,
-        slug);
+  /** A skills-svc answer with the given (slug, importance) pairs. */
+  private static String extracted(String... slugImportance) {
+    StringBuilder skills = new StringBuilder();
+    for (int i = 0; i < slugImportance.length; i += 2) {
+      skills
+          .append(i == 0 ? "" : ",")
+          .append(
+              "{\"slug\":\"%s\",\"raw\":\"x\",\"importance\":\"%s\"}"
+                  .formatted(slugImportance[i], slugImportance[i + 1]));
+    }
+    return """
+        {"company":null,"title":null,"location":null,"seniority":"UNKNOWN","minYears":null,
+         "skills":[%s],"unmapped":[],"model":"m","promptVersion":"extract-v1","cached":false}
+        """
+        .formatted(skills);
   }
 
   private JsonNode create(Cookie user, String marker) throws Exception {
@@ -43,11 +47,11 @@ class InsightsAndSkillsIT extends IntegrationTest {
   @Test
   void shouldComputeSummaryGapsAndSkillLevels() throws Exception {
     Cookie user = newUser(Role.USER);
+    SKILLS_SVC.respond(200, extracted("kubernetes", "REQUIRED", "java", "REQUIRED"));
     JsonNode a = create(user, "A-" + UUID.randomUUID());
+    SKILLS_SVC.respond(200, extracted("kubernetes", "PREFERRED"));
     JsonNode b = create(user, "B-" + UUID.randomUUID());
-    tag(a.get("id").asText(), "kubernetes", "REQUIRED");
-    tag(b.get("id").asText(), "kubernetes", "PREFERRED");
-    tag(a.get("id").asText(), "java", "REQUIRED");
+    assertThat(b.get("skills")).hasSize(1);
     mvc.perform(
             ajax(patch("/api/applications/" + a.at("/application/id").asText()), user)
                 .content("{\"status\":\"INTERVIEW\",\"version\":0}"))

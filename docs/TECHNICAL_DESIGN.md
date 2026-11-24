@@ -132,7 +132,7 @@ CREATE INDEX idx_status_event_app      ON status_event(application_id, changed_a
 
 ## 4. Elasticsearch
 
-Index `job-posts` (alias `job-posts-current` → `job-posts-v1`, so we can reindex without downtime).
+Index alias `job-posts-current` points at a concrete index `job-posts-v1-<UTC timestamp>`. A reindex builds a new one and swaps the alias atomically, with no downtime. The mapping lives in `services/core-api/src/main/resources/es/job-posts-mapping.json` (strict). Documents hold skill **slugs**.
 
 ```json
 {
@@ -171,9 +171,9 @@ Gap query (simplified):
 ```
 `frequencyPct = bucket.doc_count / hits.total × 100`.
 
-**Interim (Days 3–5):** until Elasticsearch lands in Days 6–8, `GET /api/insights/skills` aggregates `job_skill` in Postgres and `GET /api/search` uses `ILIKE`. Both keep the API shapes below, so the web app doesn't change when ES takes over. `POST /api/admin/reindex` arrives with ES.
+**Availability and fallback:** core-api checks for the alias at startup and every 15 s until it exists, building the index from Postgres when it's missing. Until the index is ready, nothing is written to ES: a write to the bare alias name would make ES auto-create an unmapped index. Search (multi_match on company^3, title^3, body, skills.all^2, with a body highlight split into before/match/after) and the skill-gap aggregation use ES when it's ready. If ES is off (`ES_URL` empty) or a call fails, they answer from Postgres (`ILIKE` / SQL aggregation) with the same API shape. The summary card always comes from Postgres.
 
-**Sync rule:** core-api re-indexes a job document after every change to the job, its status, or its skills (in the same service method, after the DB transaction commits — `@TransactionalEventListener(AFTER_COMMIT)`). If ES is down, the event goes to an `es_outbox` table (R2) / is logged and fixed by `POST /api/admin/reindex` (R1).
+**Sync rule:** core-api re-indexes a job document after every change to the job, its status, or its skills (in the same service method, after the DB transaction commits — `@TransactionalEventListener(AFTER_COMMIT)`). If ES is down, the event goes to an `es_outbox` table (R2) / is logged and fixed by `POST /api/admin/reindex` (R1). The R1 implementation is `JobChangedEvent`, published by job, application and extraction changes and handled by `JobIndexListener` with `refresh=wait_for`, so a change is searchable when the request returns.
 
 ## 5. API contract — core-api (`/api`, JSON)
 
@@ -198,7 +198,7 @@ All errors use **RFC 7807 Problem Details** (`application/problem+json`):
 | GET | `/api/insights/skills` | `status?, from?, to?, limit=20` | `SkillInsightDto[]` | See §4 |
 | GET | `/api/insights/summary` | — | `{total, applied, interviews, offers, interviewRate}` | |
 | GET | `/api/search` | `q, page, size` | `Page<SearchHitDto>` | Highlighted snippets |
-| POST | `/api/admin/reindex` | — | 202 | OWNER only |
+| POST | `/api/admin/reindex` | — | 202 `{indexed}` · 409 when ES is off | OWNER only |
 
 Key DTOs (Java `record`s, TypeScript types generated from OpenAPI with `openapi-typescript`):
 
@@ -320,7 +320,7 @@ Rules:
 | `SPRING_DATASOURCE_USERNAME` / `_PASSWORD` | core-api | `skillsieve_api` | yes |
 | `JWT_SECRET` | core-api | 64 random bytes, base64 | yes |
 | `OWNER_EMAIL` / `OWNER_PASSWORD_HASH` | core-api | seed owner on first start | yes |
-| `ES_URL` | core-api | `http://elasticsearch:9200` | no |
+| `ES_URL` | core-api | `http://<release>-elasticsearch:9200` (Helm sets it). Empty = Postgres fallback | no |
 | `SKILLS_SVC_URL` | core-api | `http://skills-svc:8000` | no |
 | `INTERNAL_TOKEN` | both | random 32 bytes | yes |
 | `DEMO_MODE` | core-api | `true` → DEMO role read-only | no |

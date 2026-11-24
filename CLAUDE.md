@@ -120,5 +120,5 @@ helm template deploy/helm/skillsieve -f deploy/helm/skillsieve/values-prod.yaml
 |---|---|---|
 | 1–2 | Oracle VM + k3s + DuckDNS + HTTPS + hello-world deploy via Actions | ◐ chart, CI and bootstrap done; Oracle on hold, self-hosted on k3d (LAN) |
 | 3–5 | Core API + Supabase + web status board | ◐ core-api + web login on real API (local Postgres, k3d); Supabase project pending |
-| 6–8 | Skills service + Gemini + Elasticsearch gap dashboard | ◐ skills-svc + core-api wiring done (needs a Gemini key); Elasticsearch + eval set pending |
+| 6–8 | Skills service + Gemini + Elasticsearch gap dashboard | ◐ skills-svc, Gemini, Elasticsearch search + gap aggregation done on k3d; eval set pending |
 | 9–10 | Helm chart polish, full pipeline, README, diagram, demo video | ☐ |

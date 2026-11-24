@@ -1,10 +1,16 @@
 package dev.skillsieve.core.insight;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import dev.skillsieve.core.application.Status;
+import dev.skillsieve.core.search.JobIndex;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.lang.Nullable;
@@ -12,8 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Board stats and the skill-gap table, computed in Postgres. Elasticsearch takes over the skill
- * aggregation in Days 6–8 (TECHNICAL_DESIGN §4); the response shape stays the same.
+ * Board stats (Postgres) and the skill-gap table: Elasticsearch aggregations when available
+ * (TECHNICAL_DESIGN §4), otherwise the same numbers from Postgres.
  */
 @Service
 public class InsightService {
@@ -58,10 +64,17 @@ public class InsightService {
       LIMIT :limit
       """;
 
-  private final NamedParameterJdbcTemplate jdbc;
+  private static final Logger log = LoggerFactory.getLogger(InsightService.class);
 
-  public InsightService(NamedParameterJdbcTemplate jdbc) {
+  private final NamedParameterJdbcTemplate jdbc;
+  private final ObjectProvider<ElasticsearchClient> es;
+  private final JobIndex index;
+
+  public InsightService(
+      NamedParameterJdbcTemplate jdbc, ObjectProvider<ElasticsearchClient> es, JobIndex index) {
     this.jdbc = jdbc;
+    this.es = es;
+    this.index = index;
   }
 
   @Transactional(readOnly = true)
@@ -81,8 +94,25 @@ public class InsightService {
         });
   }
 
-  @Transactional(readOnly = true)
   public List<SkillInsightDto> skills(
+      UUID userId,
+      @Nullable Status status,
+      @Nullable Instant from,
+      @Nullable Instant to,
+      int limit) {
+    ElasticsearchClient client = es.getIfAvailable();
+    if (client != null && index.ready()) {
+      try {
+        return EsSkillInsights.query(client, jdbc, userId, status, from, to, limit);
+      } catch (IOException | RuntimeException e) {
+        log.warn("insights.es failed, using Postgres: {}", e.getMessage());
+      }
+    }
+    return skillsFromPostgres(userId, status, from, to, limit);
+  }
+
+  @Transactional(readOnly = true)
+  List<SkillInsightDto> skillsFromPostgres(
       UUID userId,
       @Nullable Status status,
       @Nullable Instant from,

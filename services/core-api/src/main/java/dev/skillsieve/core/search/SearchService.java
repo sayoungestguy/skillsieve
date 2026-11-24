@@ -1,82 +1,134 @@
 package dev.skillsieve.core.search;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import dev.skillsieve.core.application.Status;
 import dev.skillsieve.core.common.PageDto;
+import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Interim full-text search with Postgres ILIKE. Replaced by Elasticsearch in Days 6–8
- * (TECHNICAL_DESIGN §4) behind the same API.
+ * Full-text search over my saved posts (TECHNICAL_DESIGN §4). Elasticsearch when available; if it
+ * is off or fails, Postgres answers instead so search keeps working.
  */
 @Service
 public class SearchService {
 
-  static final int BEFORE = 60;
-  static final int AFTER = 80;
-  static final int NO_MATCH_PREVIEW = 140;
+  /** Control characters as highlight tags: never present in pasted text, easy to split on. */
+  static final String PRE = "\u0002";
+
+  static final String POST = "\u0003";
+  static final int FRAGMENT_CHARS = 180;
   static final int MAX_SIZE = 50;
+  private static final Logger log = LoggerFactory.getLogger(SearchService.class);
 
-  private static final String WHERE =
-      """
-      FROM job_post j JOIN application a ON a.job_post_id = j.id
-      WHERE j.user_id = :userId
-        AND (lower(coalesce(j.company,'')) LIKE :q OR lower(coalesce(j.title,'')) LIKE :q
-             OR lower(j.raw_text) LIKE :q)
-      """;
+  private final ObjectProvider<ElasticsearchClient> es;
+  private final PostgresSearch fallback;
+  private final ObjectProvider<JobIndex> index;
 
-  private final NamedParameterJdbcTemplate jdbc;
-
-  public SearchService(NamedParameterJdbcTemplate jdbc) {
-    this.jdbc = jdbc;
+  public SearchService(
+      ObjectProvider<ElasticsearchClient> es,
+      PostgresSearch fallback,
+      ObjectProvider<JobIndex> index) {
+    this.es = es;
+    this.fallback = fallback;
+    this.index = index;
   }
 
-  @Transactional(readOnly = true)
   public PageDto<SearchHitDto> search(UUID userId, String query, int page, int size) {
     String term = query.strip();
     int pageSize = Math.clamp(size, 1, MAX_SIZE);
-    if (term.isEmpty()) {
-      return new PageDto<>(List.of(), 0, 0, pageSize);
+    ElasticsearchClient client = es.getIfAvailable();
+    JobIndex jobIndex = index.getIfAvailable();
+    if (term.isEmpty() || client == null || jobIndex == null || !jobIndex.ready()) {
+      return fallback.search(userId, query, page, size);
     }
-    String needle = term.toLowerCase(Locale.ROOT);
-    var params =
-        new MapSqlParameterSource()
-            .addValue("userId", userId)
-            .addValue("q", "%" + needle.replaceAll("[\\\\%_]", "") + "%")
-            .addValue("limit", pageSize)
-            .addValue("offset", (long) Math.max(page, 0) * pageSize);
-    Long total = jdbc.queryForObject("SELECT count(*) " + WHERE, params, Long.class);
-    List<SearchHitDto> hits =
-        jdbc.query(
-            "SELECT j.id, j.company, j.title, j.raw_text, a.status "
-                + WHERE
-                + " ORDER BY j.created_at DESC LIMIT :limit OFFSET :offset",
-            params,
-            (rs, i) ->
-                new SearchHitDto(
-                    rs.getObject("id", UUID.class),
-                    rs.getString("company"),
-                    rs.getString("title"),
-                    Status.valueOf(rs.getString("status")),
-                    snippet(rs.getString("raw_text"), needle)));
-    return new PageDto<>(hits, total == null ? 0 : total, Math.max(page, 0), pageSize);
+    try {
+      return searchEs(client, userId, term, Math.max(page, 0), pageSize);
+    } catch (IOException | RuntimeException e) {
+      log.warn("search.es failed, using Postgres: {}", e.getMessage());
+      return fallback.search(userId, query, page, size);
+    }
   }
 
-  static SearchHitDto.Snippet snippet(String text, String needle) {
-    int at = text.toLowerCase(Locale.ROOT).indexOf(needle);
-    if (at < 0) {
-      return new SearchHitDto.Snippet(
-          text.substring(0, Math.min(text.length(), NO_MATCH_PREVIEW)), "", "");
+  @SuppressWarnings("unchecked")
+  private static PageDto<SearchHitDto> searchEs(
+      ElasticsearchClient client, UUID userId, String term, int page, int size) throws IOException {
+    SearchResponse<Map> res =
+        client.search(
+            s ->
+                s.index(JobIndex.ALIAS)
+                    .from(page * size)
+                    .size(size)
+                    .trackTotalHits(t -> t.enabled(true))
+                    .query(
+                        q ->
+                            q.bool(
+                                b ->
+                                    b.filter(
+                                            f ->
+                                                f.term(
+                                                    t ->
+                                                        t.field("userId").value(userId.toString())))
+                                        .must(
+                                            m ->
+                                                m.multiMatch(
+                                                    mm ->
+                                                        mm.query(term)
+                                                            .type(TextQueryType.BestFields)
+                                                            .fields(
+                                                                "company^3",
+                                                                "title^3",
+                                                                "body",
+                                                                "skills.all^2")))))
+                    .highlight(
+                        h ->
+                            h.preTags(PRE)
+                                .postTags(POST)
+                                .fields(
+                                    "body",
+                                    f -> f.fragmentSize(FRAGMENT_CHARS).numberOfFragments(1))),
+            Map.class);
+    List<SearchHitDto> hits = res.hits().hits().stream().map(SearchService::toHit).toList();
+    long total = res.hits().total() == null ? hits.size() : res.hits().total().value();
+    return new PageDto<>(hits, total, page, size);
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static SearchHitDto toHit(Hit<Map> hit) {
+    Map src = hit.source() == null ? Map.of() : hit.source();
+    List<String> fragments = hit.highlight().getOrDefault("body", List.of());
+    String body = String.valueOf(src.getOrDefault("body", ""));
+    return new SearchHitDto(
+        UUID.fromString(String.valueOf(src.get("jobId"))),
+        (String) src.get("company"),
+        (String) src.get("title"),
+        Status.valueOf(String.valueOf(src.get("status"))),
+        fragments.isEmpty() ? PostgresSearch.snippet(body, "\u0000") : split(fragments.get(0)));
+  }
+
+  /** "a ␂Kafka␃ b ␂x␃" → before "a ", match "Kafka", after " b x" (plain text, tags removed). */
+  static SearchHitDto.Snippet split(String fragment) {
+    int start = fragment.indexOf(PRE);
+    int end = fragment.indexOf(POST, start + 1);
+    if (start < 0 || end < 0) {
+      return new SearchHitDto.Snippet(strip(fragment), "", "");
     }
-    int end = Math.min(text.length(), at + needle.length());
     return new SearchHitDto.Snippet(
-        text.substring(Math.max(0, at - BEFORE), at),
-        text.substring(at, end),
-        text.substring(end, Math.min(text.length(), end + AFTER)));
+        strip(fragment.substring(0, start)),
+        fragment.substring(start + 1, end),
+        strip(fragment.substring(end + 1)));
+  }
+
+  private static String strip(String s) {
+    return s.replace(PRE, "").replace(POST, "");
   }
 }

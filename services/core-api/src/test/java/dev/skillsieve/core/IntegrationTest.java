@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 /** Boots the app against a real Postgres 16 (Testcontainers), shared by all *IT classes. */
 @SpringBootTest(
@@ -45,13 +46,21 @@ public abstract class IntegrationTest {
   /** Stands in for skills-svc. Default answer: 503 (busy), so new jobs stay PENDING. */
   protected static final SkillsSvcStub SKILLS_SVC = SkillsSvcStub.start();
 
+  /** Single-node ES 8, same version as the cluster; security off like in-cluster (ADR-004). */
+  protected static final ElasticsearchContainer ELASTICSEARCH =
+      new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:8.18.8")
+          .withEnv("xpack.security.enabled", "false")
+          .withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m");
+
   static {
     POSTGRES.start();
+    ELASTICSEARCH.start();
   }
 
   @DynamicPropertySource
   static void skillsSvc(DynamicPropertyRegistry registry) {
     registry.add("skillsieve.skills-svc-url", SKILLS_SVC::baseUrl);
+    registry.add("skillsieve.es-url", () -> "http://" + ELASTICSEARCH.getHttpHostAddress());
   }
 
   @AfterEach

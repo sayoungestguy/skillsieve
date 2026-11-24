@@ -35,7 +35,8 @@ class ApplicationServiceTest {
 
   @BeforeEach
   void setUp() {
-    service = new ApplicationService(applications, events, Clock.fixed(NOW, ZoneOffset.UTC));
+    service =
+        new ApplicationService(applications, events, e -> {}, Clock.fixed(NOW, ZoneOffset.UTC));
     JobPost job = new JobPost(USER, "text", "hash", null, NOW);
     app = new Application(job, NOW);
   }

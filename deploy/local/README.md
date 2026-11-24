@@ -21,6 +21,12 @@ The script starts Postgres with docker compose on port 55432 (it stands in for S
 
 Stop and start without losing anything with `k3d cluster stop skillsieve` and `k3d cluster start skillsieve`. Delete everything with `k3d cluster delete skillsieve`.
 
+## Elasticsearch
+
+The cluster runs a single-node Elasticsearch 8.18 (`skillsieve-elasticsearch-0`, 1 GB heap, 10 Gi volume). core-api builds the search index from Postgres on its own once ES is up, which takes 1–2 minutes after a fresh deploy. Until then search and insights answer from Postgres. `node.store.allow_mmap=false` is set, so no `vm.max_map_count` change is needed on macOS or WSL2. To rebuild the index, call `POST /api/admin/reindex` as the owner.
+
+For `./mvnw spring-boot:run` outside the cluster: `docker compose -f deploy/local/docker-compose.yml --profile search up -d`, then set `ES_URL=http://localhost:59200`.
+
 ## core-api and the owner login
 
 On the first run the script creates the Secret `core-api-secrets` in the cluster: a random JWT secret, and the owner email with a random password stored as a BCrypt hash. It writes the plain login to `deploy/local/.owner-credentials`, which is git-ignored with mode 600. Open the app and sign in with that email and password. The API is at `/api` on the same host and port. From a terminal:

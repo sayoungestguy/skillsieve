@@ -3,12 +3,14 @@ package dev.skillsieve.core.application;
 import dev.skillsieve.core.application.ApplicationPatch.Field;
 import dev.skillsieve.core.common.NotFoundException;
 import dev.skillsieve.core.common.StaleVersionException;
+import dev.skillsieve.core.search.JobChangedEvent;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +21,17 @@ public class ApplicationService {
 
   private final ApplicationRepository applications;
   private final StatusEventRepository events;
+  private final ApplicationEventPublisher changes;
   private final Clock clock;
 
   public ApplicationService(
-      ApplicationRepository applications, StatusEventRepository events, Clock clock) {
+      ApplicationRepository applications,
+      StatusEventRepository events,
+      ApplicationEventPublisher changes,
+      Clock clock) {
     this.applications = applications;
     this.events = events;
+    this.changes = changes;
     this.clock = clock;
   }
 
@@ -41,6 +48,7 @@ public class ApplicationService {
         && patch.getStatus() != null
         && app.moveTo(patch.getStatus(), now)) {
       events.save(new StatusEvent(app.getId(), before, app.getStatus(), now));
+      changes.publishEvent(JobChangedEvent.changed(app.getJobPost().getId()));
       log.info("application.status id={} from={} to={}", app.getId(), before, app.getStatus());
     }
     if (patch.has(Field.NEXT_ACTION_AT)) {

@@ -64,3 +64,4 @@ skillsieve:
   cookie-secure: ${COOKIE_SECURE:true}
   skills-svc-url: ${SKILLS_SVC_URL:}
   internal-token: ${INTERNAL_TOKEN:}
+  es-url: ${ES_URL:}

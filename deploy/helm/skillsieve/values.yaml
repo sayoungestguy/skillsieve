@@ -53,6 +53,16 @@ skillsSvc:
   sealedSecret:
     encryptedData: {}
 
+elasticsearch:
+  enabled: true
+  image: elasticsearch:8.18.8@sha256:e5b3511e96ee1c58e9027d9d06185be4e627074717b40f6145e860b39c851d6d   # official image (Docker Hub mirror)
+  heap: 1g             # docs/ARCHITECTURE.md §6
+  resources:
+    requests: { cpu: 200m, memory: 1536Mi }
+    limits: { cpu: "1", memory: 2Gi }
+  storage: 10Gi
+  storageClass: local-path   # k3s default provisioner
+
 ingress:
   enabled: true
   className: traefik

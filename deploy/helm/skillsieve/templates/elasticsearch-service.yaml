@@ -1,0 +1,17 @@
+{{- if .Values.elasticsearch.enabled }}
+{{- $ctx := dict "root" . "component" "elasticsearch" "tag" "8.18.8" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-elasticsearch
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "skillsieve.selector" $ctx | nindent 4 }}
+  ports:
+    - name: http
+      port: 9200
+      targetPort: http
+{{- end }}

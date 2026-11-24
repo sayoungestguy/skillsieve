@@ -8,6 +8,7 @@ import dev.skillsieve.core.application.StatusEventRepository;
 import dev.skillsieve.core.common.NotFoundException;
 import dev.skillsieve.core.common.PageDto;
 import dev.skillsieve.core.common.TextNormaliser;
+import dev.skillsieve.core.search.JobChangedEvent;
 import dev.skillsieve.core.skill.UserSkill;
 import dev.skillsieve.core.skill.UserSkillRepository;
 import java.time.Clock;
@@ -19,6 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.lang.Nullable;
@@ -36,6 +38,7 @@ public class JobService {
   private final StatusEventRepository events;
   private final JobSkillRepository jobSkills;
   private final UserSkillRepository userSkills;
+  private final ApplicationEventPublisher changes;
   private final Clock clock;
 
   public JobService(
@@ -44,12 +47,14 @@ public class JobService {
       StatusEventRepository events,
       JobSkillRepository jobSkills,
       UserSkillRepository userSkills,
+      ApplicationEventPublisher changes,
       Clock clock) {
     this.jobs = jobs;
     this.applications = applications;
     this.events = events;
     this.jobSkills = jobSkills;
     this.userSkills = userSkills;
+    this.changes = changes;
     this.clock = clock;
   }
 
@@ -66,6 +71,7 @@ public class JobService {
     JobPost job = jobs.save(new JobPost(userId, req.rawText(), hash, req.sourceUrl(), now));
     Application app = applications.save(new Application(job, now));
     events.save(new StatusEvent(app.getId(), null, Status.SAVED, now));
+    changes.publishEvent(JobChangedEvent.changed(job.getId()));
     log.info("job.saved jobId={}", job.getId());
     return JobMapper.toDto(app, List.of(), Map.of());
   }
@@ -99,12 +105,14 @@ public class JobService {
   public JobDto update(UUID userId, UUID jobId, UpdateJobRequest req) {
     JobPost job = owned(userId, jobId);
     job.edit(req, clock.instant());
+    changes.publishEvent(JobChangedEvent.changed(jobId));
     return toDto(userId, job);
   }
 
   @Transactional
   public void delete(UUID userId, UUID jobId) {
     jobs.delete(owned(userId, jobId));
+    changes.publishEvent(JobChangedEvent.deleted(jobId));
     log.info("job.deleted jobId={}", jobId);
   }
 

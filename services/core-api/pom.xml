@@ -66,9 +66,10 @@
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <!-- Search + skill aggregations (ADR-004). Version managed by Spring Boot, matches ES 8.18. -->
     <dependency>
-      <groupId>io.micrometer</groupId>
-      <artifactId>micrometer-registry-prometheus</artifactId>
+      <groupId>co.elastic.clients</groupId>
+      <artifactId>elasticsearch-java</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springdoc</groupId>
@@ -94,6 +95,11 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>elasticsearch</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

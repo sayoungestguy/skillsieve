@@ -1,0 +1,27 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": { "analyzer": { "en_std": { "type": "standard", "stopwords": "_english_" } } }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "jobId": { "type": "keyword" },
+      "userId": { "type": "keyword" },
+      "company": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
+      "title": { "type": "text", "fields": { "raw": { "type": "keyword" } } },
+      "body": { "type": "text", "analyzer": "en_std" },
+      "status": { "type": "keyword" },
+      "seniority": { "type": "keyword" },
+      "skills": {
+        "properties": {
+          "required": { "type": "keyword" },
+          "preferred": { "type": "keyword" },
+          "all": { "type": "keyword" }
+        }
+      },
+      "createdAt": { "type": "date" }
+    }
+  }
+}

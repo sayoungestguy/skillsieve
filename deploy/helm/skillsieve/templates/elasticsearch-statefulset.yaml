@@ -1,0 +1,70 @@
+{{- if .Values.elasticsearch.enabled }}
+{{- $ctx := dict "root" . "component" "elasticsearch" "tag" "8.18.8" }}
+# Single node, in-cluster only (ClusterIP), security off (ADR-004; NetworkPolicy in R2).
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-elasticsearch
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  serviceName: {{ .Release.Name }}-elasticsearch
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "skillsieve.selector" $ctx | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "skillsieve.labels" $ctx | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsUser: 1000      # the image's elasticsearch user
+        runAsGroup: 0
+        fsGroup: 1000
+      containers:
+        - name: elasticsearch
+          image: {{ .Values.elasticsearch.image }}
+          ports:
+            - name: http
+              containerPort: 9200
+          env:
+            - { name: discovery.type, value: single-node }
+            - { name: xpack.security.enabled, value: "false" }
+            - { name: xpack.ml.enabled, value: "false" }
+            - { name: node.store.allow_mmap, value: "false" }   # no vm.max_map_count sysctl needed
+            - { name: ingest.geoip.downloader.enabled, value: "false" }
+            - name: ES_JAVA_OPTS
+              value: "-Xms{{ .Values.elasticsearch.heap }} -Xmx{{ .Values.elasticsearch.heap }}"
+          readinessProbe:
+            httpGet: { path: "/_cluster/health?wait_for_status=yellow&timeout=1s", port: http }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket: { port: http }
+            initialDelaySeconds: 90
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.elasticsearch.resources | nindent 12 }}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false   # ES writes its keystore and temp files under /usr/share
+            capabilities:
+              drop: [ALL]
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: {{ .Values.elasticsearch.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.elasticsearch.storage }}
+{{- end }}

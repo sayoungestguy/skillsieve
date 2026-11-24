@@ -18,6 +18,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param skillsSvcUrl base URL of skills-svc (SKILLS_SVC_URL); empty = extraction off
  * @param internalToken shared secret sent as X-Internal-Token (INTERNAL_TOKEN)
  * @param extractionTimeout how long a save waits for skills-svc (ARCHITECTURE §4.1)
+ * @param esUrl Elasticsearch base URL (ES_URL); empty = search and insights use Postgres
  */
 @ConfigurationProperties("skillsieve")
 public record AppProperties(
@@ -31,4 +32,5 @@ public record AppProperties(
     @DefaultValue("5") int loginAttemptsPerMinute,
     @DefaultValue("") String skillsSvcUrl,
     @DefaultValue("") String internalToken,
-    @DefaultValue("10s") Duration extractionTimeout) {}
+    @DefaultValue("10s") Duration extractionTimeout,
+    @DefaultValue("") String esUrl) {}
