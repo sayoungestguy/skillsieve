@@ -125,6 +125,8 @@ core-api publishes `job.created` to RabbitMQ → skills-svc consumes, extracts, 
 
 ## 5. Deployment view
 
+> **Current (interim):** self-hosted on a k3d cluster: the MacBook now, a Windows PC with WSL2 later. The app is reachable on the home LAN only, deployed by `deploy/local/k3d-up.sh` with `values-local.yaml`. The Oracle VM target below is on hold (no free A1 capacity in `ap-singapore-1`), so `deploy.yml` is manual-only. See `deploy/local/README.md`.
+
 ```mermaid
 flowchart TB
   dev[Developer push to main] --> gha[GitHub Actions]

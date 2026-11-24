@@ -82,6 +82,9 @@ cd services/core-api && ./mvnw spring-boot:run   # http://localhost:8080
 cd services/skills-svc && uv sync && uv run uvicorn app.main:app --reload --port 8000
 uv run ruff check . && uv run mypy . && uv run pytest
 
+# Self-hosted cluster (k3d, LAN): build + helm upgrade + smoke test
+deploy/local/k3d-up.sh
+
 # Helm
 helm lint deploy/helm/skillsieve
 helm template deploy/helm/skillsieve -f deploy/helm/skillsieve/values-prod.yaml
@@ -113,7 +116,7 @@ helm template deploy/helm/skillsieve -f deploy/helm/skillsieve/values-prod.yaml
 
 | Day | Milestone | Status |
 |---|---|---|
-| 1–2 | Oracle VM + k3s + DuckDNS + HTTPS + hello-world deploy via Actions | ☐ |
+| 1–2 | Oracle VM + k3s + DuckDNS + HTTPS + hello-world deploy via Actions | ◐ chart, CI and bootstrap done; Oracle on hold, self-hosted on k3d (LAN) |
 | 3–5 | Core API + Supabase + web status board | ☐ |
 | 6–8 | Skills service + Gemini + Elasticsearch gap dashboard | ☐ |
 | 9–10 | Helm chart polish, full pipeline, README, diagram, demo video | ☐ |

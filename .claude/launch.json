@@ -18,7 +18,7 @@
     },
     {
       "name": "web-k3d",
-      "url": "http://skillsieve.localhost:8089"
+      "url": "http://localhost:8089"
     }
   ]
 }

@@ -1,11 +1,9 @@
 name: deploy
 
-# Runs after ci succeeds on main. Builds multi-arch images, scans them, then helm-upgrades the VM.
+# Builds multi-arch images, scans them, then helm-upgrades the Oracle VM.
+# ON HOLD while the app is self-hosted (deploy/local/k3d-up.sh): manual trigger only.
+# To re-enable, add back:  workflow_run: { workflows: [ci], types: [completed], branches: [main] }
 on:
-  workflow_run:
-    workflows: [ci]
-    types: [completed]
-    branches: [main]
   workflow_dispatch:
 
 permissions:

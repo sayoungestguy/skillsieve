@@ -1,0 +1,9 @@
+# Self-hosted cluster (k3d on macOS or WSL). Reachable by any hostname/IP on the LAN, plain HTTP.
+imageRegistry: docker.io/library
+web:
+  image:
+    pullPolicy: Never   # images are imported into k3d, not pulled
+ingress:
+  host: ""
+  tls:
+    enabled: false
