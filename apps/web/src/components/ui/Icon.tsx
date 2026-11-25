@@ -1,5 +1,4 @@
 const PATHS = {
-  logo: <path d="M3 5h18l-7 8.5V19l-4 2v-7.5z" />,
   board: (
     <>
       <rect x="3" y="4" width="7" height="16" rx="1.5" />

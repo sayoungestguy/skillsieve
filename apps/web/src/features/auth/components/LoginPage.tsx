@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError } from '@/api/client';
-import { Icon } from '@/components/ui/Icon';
+import { Logo } from '@/components/ui/Logo';
 import { useLogin, useMe } from '../hooks';
 import { loginSchema, type LoginForm } from '../schema';
 
@@ -45,9 +45,7 @@ export function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-bg p-4">
       <div className="flex w-full max-w-[400px] flex-col gap-6">
         <div className="flex items-center justify-center gap-2.5 text-ink">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-white">
-            <Icon name="logo" size={22} />
-          </span>
+          <Logo size={40} />
           <span className="text-2xl font-bold tracking-tight">SkillSieve</span>
         </div>
         <form className="panel flex flex-col gap-4" onSubmit={onSubmit} noValidate>
