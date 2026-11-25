@@ -27,7 +27,7 @@ Packages are **by feature**, not by layer (each feature has its controller, serv
 
 ## 3. Data model (Postgres, schema `skillsieve`)
 
-**Migration ownership:** core-api runs **all** Flyway migrations (`V1__init.sql`, …). skills-svc only reads `skill`/`skill_alias` and reads/writes `extraction_cache`.
+**Migration ownership:** core-api runs **all** Flyway migrations (`V1__init.sql`, …). skills-svc only reads `skill`/`skill_alias`, reads/writes `extraction_cache`, and (R2 worker) reads `job_post.raw_text`/`text_hash` by id.
 
 ```sql
 CREATE SCHEMA IF NOT EXISTS skillsieve;
@@ -115,6 +115,18 @@ CREATE TABLE extraction_cache (
   prompt_version TEXT NOT NULL,
   result_json   JSONB NOT NULL,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- R2 (V2__outbox.sql): transactional outbox, drained to RabbitMQ by OutboxPublisher (§14).
+CREATE TABLE outbox (
+  id            UUID PRIMARY KEY,          -- = message eventId
+  event_type    TEXT NOT NULL,             -- routing key, e.g. job.created
+  aggregate_id  UUID NOT NULL,             -- job_post.id
+  payload       JSONB NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL,
+  sent_at       TIMESTAMPTZ,               -- NULL = not yet confirmed by the broker
+  attempts      INT NOT NULL DEFAULT 0,
+  last_error    TEXT
 );
 
 CREATE INDEX idx_job_post_user_created ON job_post(user_id, created_at DESC);
@@ -323,11 +335,15 @@ Rules:
 | `JWT_SECRET` | core-api | 64 random bytes, base64 | yes |
 | `OWNER_EMAIL` / `OWNER_PASSWORD_HASH` | core-api | seed owner on first start | yes |
 | `ES_URL` | core-api | `http://<release>-elasticsearch:9200` (Helm sets it). Empty = Postgres fallback | no |
+| `EXTRACTION_MODE` | core-api | `sync` (R1, default) or `async` (R2: outbox → RabbitMQ). Helm sets `async` when `rabbitmq.enabled` | no |
+| `SPRING_RABBITMQ_HOST` | core-api | `<release>-rabbitmq` (Helm sets it); async mode only | no |
+| `SPRING_RABBITMQ_USERNAME` / `_PASSWORD` | core-api | same pair as `RABBITMQ_DEFAULT_USER` / `_PASS` in `rabbitmq-secrets` | yes |
 | `SKILLS_SVC_URL` | core-api | `http://skills-svc:8000` | no |
 | `INTERNAL_TOKEN` | both | random 32 bytes | yes |
 | `DEMO_MODE` | core-api | `true` → DEMO role read-only | no |
 | `DATABASE_URL` | skills-svc | `postgresql://…?sslmode=require` | yes |
 | `GEMINI_API_KEY` | skills-svc | from AI Studio | yes |
+| `AMQP_URL` | skills-svc | `amqp://user:pass@<release>-rabbitmq:5672/` (R2). Empty = no queue worker, HTTP API only | yes |
 | `GEMINI_MODEL` | skills-svc | `gemini-3.5-flash-lite` (default) | no |
 | `LLM_BUDGET_S` | skills-svc | `9` (whole extraction incl. retries) | no |
 | `EXTRACTION_TIMEOUT` | core-api | `10s` | no |
@@ -424,12 +440,16 @@ Custom metrics: `skillsieve_llm_calls_total{result}`, `skillsieve_llm_cache_hits
 | Rotate secrets | Re-seal with `kubeseal`, `helm upgrade`, restart pods |
 | Upgrade k3s | `curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL=stable sh -` during a quiet hour; Helm release is unaffected |
 
-## 14. Release 2 changes (planned)
+## 14. Release 2 changes (in progress)
 
 | Change | Detail |
 |---|---|
 | RabbitMQ | Exchange `skillsieve.events` (topic). Queues `skills.extract` (DLQ `skills.extract.dlq`, 3 retries with delay), `core.skills-extracted`. Message: `{eventId, type, jobId, textHash, occurredAt}` (text fetched from DB, not sent in message). Idempotency by `eventId`. |
-| Outbox | `outbox` table in core-api; poller publishes, marks sent → no lost events if broker is down. |
+| Outbox | ☑ `outbox` table (V2). In async mode `JobService` appends `job.created` in the same transaction as the job (create and retry). `OutboxPublisher` polls every 2 s (`FOR UPDATE SKIP LOCKED`, batch 50), publishes with publisher confirms and marks the row sent only after the confirm → at-least-once; stops the batch on the first broker error to keep order. Topology is declared by core-api (`RabbitTopology`): `skills.extract` is a quorum queue dead-lettering to `skills.extract.dlq`. core-api consumes the results (row below). |
+| skills-svc worker | ☑ Runs in the skills-svc process when `AMQP_URL` is set (prefetch 1, so one LLM call at a time). For each `job.created` it reads the text from `job_post` by id and runs the normal cached extraction. **Success** → publishes `job.skills.extracted` `{eventId, type, causationId, jobId, textHash, occurredAt, result}` (`result` = the §6 response). **LLM busy/quota/off** → retry ladder `skills.extract.retry.{1,2,3}` (TTL 30 s, 2 min, 10 min, dead-lettering back via `job.created`); after the third it publishes `job.skills.failed` `{…, retryLater: true, reason}` and rejects to the DLQ. **Unexpected error** → `job.skills.failed` with `retryLater: false`, then DLQ. **Bad JSON** → DLQ only. **Job deleted** → ack and drop. core-api declares `core.skills-extracted` (bound to `job.skills.*`). |
+| Result consumer | ☑ `SkillsResultListener` on `core.skills-extracted`, one transaction per message: insert `eventId` into `processed_event` (V3; a duplicate is skipped), ignore the event if the job is gone or its `text_hash` differs, then store skills (`job.skills.extracted`) or mark the job (`job.skills.failed`: `retryLater` → PENDING + "try again later", else FAILED). Listener retries 3× (1 s backoff), then the message goes to `core.skills-extracted.dlq`; unreadable JSON goes there at once. |
+| Web | ☑ Board and job detail poll while a job is PENDING without an error: every 3 s for ~2 min, then every 30 s for ~15 min, then stop (`features/jobs/polling.ts`). SSE is not needed at this scale. |
+| Local cluster | ☑ `ASYNC=true deploy/local/k3d-up.sh` creates `rabbitmq-secrets`, adds the RabbitMQ login to `core-api-secrets` and `AMQP_URL` to `skills-svc-secrets`, and sets `rabbitmq.enabled=true`. |
 | Chrome extension | MV3, content scripts for LinkedIn/MyCareersFuture, personal access token (hashed in DB) instead of cookie. |
 | Keycloak | Realm `skillsieve`, OIDC auth-code + PKCE for web; core-api becomes a resource server (JWT validation via JWKS). |
 | Resume tailoring | Resume stored encrypted (AES-GCM, key in Secret). Suggestions generated by Ollama on the developer laptop or a small local model; never sent to the free Gemini tier. |

@@ -8,6 +8,8 @@ import dev.skillsieve.core.application.StatusEventRepository;
 import dev.skillsieve.core.common.NotFoundException;
 import dev.skillsieve.core.common.PageDto;
 import dev.skillsieve.core.common.TextNormaliser;
+import dev.skillsieve.core.config.AppProperties;
+import dev.skillsieve.core.messaging.OutboxRepository;
 import dev.skillsieve.core.search.JobChangedEvent;
 import dev.skillsieve.core.skill.UserSkill;
 import dev.skillsieve.core.skill.UserSkillRepository;
@@ -39,6 +41,8 @@ public class JobService {
   private final JobSkillRepository jobSkills;
   private final UserSkillRepository userSkills;
   private final ApplicationEventPublisher changes;
+  private final OutboxRepository outbox;
+  private final boolean asyncExtraction;
   private final Clock clock;
 
   public JobService(
@@ -48,6 +52,8 @@ public class JobService {
       JobSkillRepository jobSkills,
       UserSkillRepository userSkills,
       ApplicationEventPublisher changes,
+      OutboxRepository outbox,
+      AppProperties props,
       Clock clock) {
     this.jobs = jobs;
     this.applications = applications;
@@ -55,6 +61,8 @@ public class JobService {
     this.jobSkills = jobSkills;
     this.userSkills = userSkills;
     this.changes = changes;
+    this.outbox = outbox;
+    this.asyncExtraction = props.asyncExtraction();
     this.clock = clock;
   }
 
@@ -72,6 +80,9 @@ public class JobService {
     Application app = applications.save(new Application(job, now));
     events.save(new StatusEvent(app.getId(), null, Status.SAVED, now));
     changes.publishEvent(JobChangedEvent.changed(job.getId()));
+    if (asyncExtraction) {
+      outbox.appendJobCreated(job.getId(), hash, now); // same transaction as the job (outbox)
+    }
     log.info("job.saved jobId={}", job.getId());
     return JobMapper.toDto(app, List.of(), Map.of());
   }
@@ -116,10 +127,15 @@ public class JobService {
     log.info("job.deleted jobId={}", jobId);
   }
 
-  /** Marks the job for (re-)extraction. skills-svc picks it up from Days 6–8. */
+  /** Marks the job for (re-)extraction; in async mode also queues it for skills-svc. */
   @Transactional
   public void requestExtraction(UUID userId, UUID jobId) {
-    owned(userId, jobId).requestExtraction(clock.instant());
+    JobPost job = owned(userId, jobId);
+    Instant now = clock.instant();
+    job.requestExtraction(now);
+    if (asyncExtraction) {
+      outbox.appendJobCreated(jobId, job.getTextHash(), now);
+    }
     log.info("job.extraction.requested jobId={}", jobId);
   }
 
@@ -149,5 +165,10 @@ public class JobService {
 
   private static String escapeLike(String s) {
     return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+  }
+
+  /** True when skills-svc is reached through the outbox instead of during the request. */
+  public boolean asyncExtraction() {
+    return asyncExtraction;
   }
 }

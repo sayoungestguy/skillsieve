@@ -16,6 +16,9 @@ from app.extraction.ratelimit import LlmBudget
 from app.extraction.service import ExtractionService
 from app.llm.client import DisabledLlmClient, GeminiClient, LlmClient
 from app.logging import configure_logging
+from app.messaging.handler import JobCreatedHandler
+from app.messaging.jobs import JobTextRepository
+from app.messaging.worker import ExtractionWorker, run_until_cancelled
 from app.taxonomy.repository import load_taxonomy
 
 log = structlog.get_logger()
@@ -78,10 +81,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     refresher = asyncio.create_task(
         refresh_taxonomy(app.state.service, pool, settings.taxonomy_refresh_s)
     )
+    tasks = [refresher]
+    if settings.amqp_url is not None and settings.amqp_url.get_secret_value():
+        handler = JobCreatedHandler(app.state.service, JobTextRepository(pool))
+        worker = ExtractionWorker(settings.amqp_url.get_secret_value(), handler)
+        tasks.append(asyncio.create_task(run_until_cancelled(worker)))
+    else:
+        log.info("worker.disabled", reason="AMQP_URL not set")
     yield
-    refresher.cancel()
-    with contextlib.suppress(asyncio.CancelledError):
-        await refresher
+    for task in tasks:
+        task.cancel()
+    for task in tasks:
+        with contextlib.suppress(asyncio.CancelledError):
+            await task
     await pool.close()
 
 

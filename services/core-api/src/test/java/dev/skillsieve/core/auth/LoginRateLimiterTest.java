@@ -27,6 +27,7 @@ class LoginRateLimiterTest {
             "",
             "",
             Duration.ofSeconds(10),
+            AppProperties.ExtractionMode.SYNC,
             "");
     var limiter =
         new LoginRateLimiter(

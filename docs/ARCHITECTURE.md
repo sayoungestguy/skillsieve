@@ -119,7 +119,7 @@ Failure: if skills-svc times out (10 s) or Gemini quota is hit, core-api stores 
 
 ### 4.2 Save a job post (R2, asynchronous)
 
-core-api publishes `job.created` to RabbitMQ → skills-svc consumes, extracts, publishes `job.skills.extracted` → core-api consumes, writes `job_skill`, indexes ES. The UI polls or uses Server-Sent Events.
+core-api publishes `job.created` to RabbitMQ → skills-svc consumes, extracts, publishes `job.skills.extracted` → core-api consumes, writes `job_skill`, indexes ES. The UI polls (3 s, then 30 s, then stops). Enabled with `EXTRACTION_MODE=async` (Helm: `rabbitmq.enabled`); `sync` stays the default. Details: TECHNICAL_DESIGN §14.
 
 ### 4.3 Gap dashboard
 

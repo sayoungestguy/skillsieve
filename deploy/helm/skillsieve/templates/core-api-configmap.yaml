@@ -12,6 +12,10 @@ data:
   {{- if .Values.elasticsearch.enabled }}
   ES_URL: {{ printf "http://%s-elasticsearch:9200" .Release.Name | quote }}
   {{- end }}
+  {{- if .Values.rabbitmq.enabled }}
+  SPRING_RABBITMQ_HOST: {{ printf "%s-rabbitmq" .Release.Name | quote }}
+  EXTRACTION_MODE: "async"
+  {{- end }}
   {{- if .Values.skillsSvc.enabled }}
   SKILLS_SVC_URL: {{ printf "http://%s-skills-svc:8000" .Release.Name | quote }}
   {{- end }}
