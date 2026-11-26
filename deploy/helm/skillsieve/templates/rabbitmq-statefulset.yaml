@@ -23,6 +23,26 @@ spec:
         runAsUser: 100       # the image's rabbitmq user
         runAsGroup: 101
         fsGroup: 101
+        fsGroupChangePolicy: OnRootMismatch   # don't re-chmod the volume on every mount
+      initContainers:
+        # Erlang refuses a cookie that the group can read; fsGroup may have added g+r on a remount.
+        - name: cookie-perms
+          image: {{ .Values.rabbitmq.image }}
+          command: ["sh", "-c", "chmod 600 /var/lib/rabbitmq/.erlang.cookie 2>/dev/null || true"]
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { cpu: 100m, memory: 32Mi }
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/rabbitmq
       containers:
         - name: rabbitmq
           image: {{ .Values.rabbitmq.image }}

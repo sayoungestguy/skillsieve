@@ -40,6 +40,10 @@ PG_PORT="$PG_PORT" docker compose -f "$ROOT/deploy/local/docker-compose.yml" up 
 if ! k3d cluster list "$CLUSTER" >/dev/null 2>&1; then
   log "Creating k3d cluster '$CLUSTER' (port $PORT on all interfaces -> Traefik :80)"
   k3d cluster create "$CLUSTER" --image "$K3S_IMAGE" -p "0.0.0.0:${PORT}:80@loadbalancer" --wait
+elif k3d cluster list "$CLUSTER" --no-headers | awk '{print $2}' | grep -q '^0/'; then
+  # Stopped (e.g. after Docker Desktop restarts): no servers running.
+  log "Starting stopped k3d cluster '$CLUSTER'"
+  k3d cluster start "$CLUSTER" --wait
 fi
 k3d kubeconfig merge "$CLUSTER" --kubeconfig-switch-context >/dev/null
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f - >/dev/null
