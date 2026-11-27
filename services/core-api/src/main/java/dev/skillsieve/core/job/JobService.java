@@ -13,6 +13,8 @@ import dev.skillsieve.core.messaging.OutboxRepository;
 import dev.skillsieve.core.search.JobChangedEvent;
 import dev.skillsieve.core.skill.UserSkill;
 import dev.skillsieve.core.skill.UserSkillRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -43,6 +45,7 @@ public class JobService {
   private final ApplicationEventPublisher changes;
   private final OutboxRepository outbox;
   private final boolean asyncExtraction;
+  private final Counter jobsSaved;
   private final Clock clock;
 
   public JobService(
@@ -54,6 +57,7 @@ public class JobService {
       ApplicationEventPublisher changes,
       OutboxRepository outbox,
       AppProperties props,
+      MeterRegistry meters,
       Clock clock) {
     this.jobs = jobs;
     this.applications = applications;
@@ -63,6 +67,10 @@ public class JobService {
     this.changes = changes;
     this.outbox = outbox;
     this.asyncExtraction = props.asyncExtraction();
+    this.jobsSaved =
+        Counter.builder("skillsieve.jobs.saved")
+            .description("Job posts saved (web or extension)")
+            .register(meters);
     this.clock = clock;
   }
 
@@ -83,6 +91,7 @@ public class JobService {
     if (asyncExtraction) {
       outbox.appendJobCreated(job.getId(), hash, now); // same transaction as the job (outbox)
     }
+    jobsSaved.increment();
     log.info("job.saved jobId={}", job.getId());
     return JobMapper.toDto(app, List.of(), Map.of());
   }

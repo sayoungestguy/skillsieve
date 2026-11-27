@@ -1,0 +1,119 @@
+{{- if .Values.observability.enabled }}
+{{- $ctx := dict "root" . "component" "prometheus" "tag" "v3.5.0" }}
+{{- $p := .Values.observability.prometheus }}
+# Prometheus for this release only: discovers pods in this namespace with prometheus.io/* annotations.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-prometheus
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+---
+# Namespace-scoped read of pods only (no ClusterRole).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-prometheus
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-prometheus
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-prometheus
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Release.Name }}-prometheus
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-prometheus
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "skillsieve.selector" $ctx | nindent 4 }}
+  ports:
+    - name: http
+      port: 9090
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-prometheus
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  serviceName: {{ .Release.Name }}-prometheus
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "skillsieve.selector" $ctx | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "skillsieve.labels" $ctx | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/prometheus-config.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-prometheus
+      securityContext:
+        runAsUser: 65534     # nobody, as the image
+        runAsGroup: 65534
+        fsGroup: 65534
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: prometheus
+          image: {{ $p.image }}
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+            - --storage.tsdb.retention.time={{ $p.retention }}
+            - --storage.tsdb.retention.size={{ $p.retentionSize }}
+          ports:
+            - name: http
+              containerPort: 9090
+          readinessProbe:
+            httpGet: { path: /-/ready, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /-/healthy, port: http }
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            {{- toYaml $p.resources | nindent 12 }}
+          securityContext:
+            {{- include "skillsieve.containerSecurity" . | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+            - name: data
+              mountPath: /prometheus
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-prometheus
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: {{ $p.storageClass }}
+        resources:
+          requests:
+            storage: {{ $p.storage }}
+{{- end }}

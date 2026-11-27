@@ -18,6 +18,9 @@ spec:
         {{- include "skillsieve.labels" $ctx | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/skills-svc-configmap.yaml") . | sha256sum }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: /metrics
     spec:
       automountServiceAccountToken: false
       terminationGracePeriodSeconds: 30

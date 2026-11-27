@@ -1,7 +1,8 @@
 import hmac
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from app.config import Settings, get_settings
 from app.extraction.models import ExtractionResult, ExtractRequest
@@ -30,6 +31,12 @@ def get_service(request: Request) -> ExtractionService:
 @router.get("/healthz")
 async def healthz() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@router.get("/metrics", include_in_schema=False)
+async def metrics() -> Response:
+    """Prometheus scrape. skills-svc has no ingress, so this is in-cluster only."""
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @router.get("/readyz")

@@ -76,6 +76,12 @@ class AuthApiIT extends IntegrationTest {
 
   @Test
   void shouldExposeHealthWithoutLogin() throws Exception {
-    mvc.perform(get("/api/actuator/health")).andExpect(status().isOk());
+    mvc.perform(get("/api/health"))
+        .andExpect(status().isOk())
+        .andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                .json("{\"status\":\"UP\"}", true));
+    mvc.perform(get("/livez")).andExpect(status().isOk());
+    mvc.perform(get("/readyz")).andExpect(status().isOk());
   }
 }

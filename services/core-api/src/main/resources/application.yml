@@ -47,19 +47,33 @@ server:
     include-stacktrace: never
 
 management:
+  server:
+    port: ${MANAGEMENT_PORT:8081}   # in-cluster only: no Service port, no Ingress (Prometheus scrapes the pod)
   endpoints:
     web:
-      base-path: /api/actuator
+      base-path: /actuator
       exposure:
-        include: health,info
-  health:
-    rabbit:
-      enabled: false   # broker outages must not fail probes; the outbox buffers
+        include: health,info,prometheus
   endpoint:
     health:
       probes:
         enabled: true
+        add-additional-paths: true
       show-details: never
+      group:
+        liveness:
+          additional-path: "server:/livez"    # kubelet probes on the app port (pod IP, no ingress)
+        readiness:
+          additional-path: "server:/readyz"
+  health:
+    rabbit:
+      enabled: false   # broker outages must not fail probes; the outbox buffers
+  metrics:
+    tags:
+      application: core-api
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true   # p50/p95 in Grafana via histogram_quantile
 
 logging:
   structured:

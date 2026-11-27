@@ -1,0 +1,42 @@
+{{- if .Values.observability.enabled }}
+{{- $ctx := dict "root" . "component" "prometheus" "tag" "v3.5.0" }}
+{{- $p := .Values.observability.prometheus }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-prometheus
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: {{ $p.scrapeInterval }}
+      evaluation_interval: {{ $p.scrapeInterval }}
+    scrape_configs:
+      - job_name: pods
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: [{{ .Release.Namespace | quote }}]
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: "true"
+          - source_labels: [__meta_kubernetes_pod_phase]
+            action: keep
+            regex: Running
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__meta_kubernetes_pod_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            target_label: __address__
+            regex: (.+);(\d+)
+            replacement: $1:$2
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_component]
+            target_label: service
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+      - job_name: prometheus
+        static_configs:
+          - targets: [localhost:9090]
+{{- end }}

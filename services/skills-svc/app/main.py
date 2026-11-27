@@ -19,6 +19,7 @@ from app.logging import configure_logging
 from app.messaging.handler import JobCreatedHandler
 from app.messaging.jobs import JobTextRepository
 from app.messaging.worker import ExtractionWorker, run_until_cancelled
+from app.metrics import LLM_DAILY_LIMIT, http_metrics
 from app.taxonomy.repository import load_taxonomy
 
 log = structlog.get_logger()
@@ -77,6 +78,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         fuzzy_min_score=settings.fuzzy_min_score,
         budget_s=settings.llm_budget_s,
     )
+    LLM_DAILY_LIMIT.set(settings.llm_rpd)
     log.info("startup", skills_aliases=taxonomy.size, model=settings.gemini_model)
     refresher = asyncio.create_task(
         refresh_taxonomy(app.state.service, pool, settings.taxonomy_refresh_s)
@@ -100,6 +102,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 def create_app() -> FastAPI:
     app = FastAPI(title="skillsieve skills-svc", lifespan=lifespan, docs_url=None, redoc_url=None)
     app.include_router(router)
+    app.middleware("http")(http_metrics)
     return app
 
 

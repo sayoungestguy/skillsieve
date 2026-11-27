@@ -29,7 +29,7 @@ spec:
           curl -fsS http://{{ .Release.Name }}-web/healthz
           {{- end }}
           {{- if .Values.coreApi.enabled }}
-          curl -fsS http://{{ .Release.Name }}-core-api:8080/api/actuator/health
+          curl -fsS http://{{ .Release.Name }}-core-api:8080/api/health
           {{- end }}
           {{- if .Values.skillsSvc.enabled }}
           curl -fsS http://{{ .Release.Name }}-skills-svc:8000/readyz

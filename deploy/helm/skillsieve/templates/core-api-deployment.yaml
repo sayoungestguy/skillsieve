@@ -18,6 +18,9 @@ spec:
         {{- include "skillsieve.labels" $ctx | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/core-api-configmap.yaml") . | sha256sum }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8081"
+        prometheus.io/path: /actuator/prometheus
     spec:
       automountServiceAccountToken: false
       terminationGracePeriodSeconds: 30
@@ -32,20 +35,22 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+            - name: mgmt              # actuator + /actuator/prometheus; not in the Service
+              containerPort: 8081
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-core-api
             - secretRef:
                 name: {{ .Values.coreApi.secretName }}
           startupProbe:          # JVM + Flyway can take a while on 2 ARM cores
-            httpGet: { path: /api/actuator/health/liveness, port: http }
+            httpGet: { path: /livez, port: http }
             periodSeconds: 5
             failureThreshold: 36
           readinessProbe:
-            httpGet: { path: /api/actuator/health/readiness, port: http }
+            httpGet: { path: /readyz, port: http }
             periodSeconds: 10
           livenessProbe:
-            httpGet: { path: /api/actuator/health/liveness, port: http }
+            httpGet: { path: /livez, port: http }
             periodSeconds: 20
             failureThreshold: 3
           lifecycle:

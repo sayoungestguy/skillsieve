@@ -1,6 +1,7 @@
 """Use case: text → (cache | LLM) → canonical skills (TECHNICAL_DESIGN §7)."""
 
 import asyncio
+import time
 from typing import Protocol
 
 import structlog
@@ -9,8 +10,9 @@ from app.extraction.models import ExtractedSkill, ExtractionResult
 from app.extraction.ratelimit import LlmBudget
 from app.extraction.redact import redact
 from app.llm.client import LlmClient
-from app.llm.errors import LlmUnavailableError
+from app.llm.errors import LlmQuotaError, LlmUnavailableError
 from app.llm.schema import LlmExtraction
+from app.metrics import CACHE_HITS, EXTRACTION_SECONDS, LLM_CALLS, LLM_USED_TODAY
 from app.taxonomy.taxonomy import Taxonomy
 
 log = structlog.get_logger()
@@ -50,19 +52,36 @@ class ExtractionService:
         self._budget_s = budget_s
 
     async def extract(self, text_hash: str, text: str) -> ExtractionResult:
+        start = time.perf_counter()
         hit = await self._cache.get(text_hash, self._prompt_version)
         if hit is not None:
             model, raw = hit
             log.info("extract.cache_hit", text_hash=text_hash[:12])
-            return self._map(raw, model, cached=True)
+            CACHE_HITS.inc()
+            result = self._map(raw, model, cached=True)
+            EXTRACTION_SECONDS.labels("true").observe(time.perf_counter() - start)
+            return result
 
-        await self._budget.acquire()
+        try:
+            await self._budget.acquire()
+        except LlmQuotaError:
+            LLM_CALLS.labels("quota").inc()
+            raise
+        LLM_USED_TODAY.set(self._budget.used_today)
         safe_text = redact(text)[: self._max_input_chars]
         try:
             async with asyncio.timeout(self._budget_s):
                 raw = await self._llm.extract(safe_text)
         except TimeoutError as e:
+            LLM_CALLS.labels("error").inc()
             raise LlmUnavailableError("extraction took too long") from e
+        except LlmQuotaError:
+            LLM_CALLS.labels("quota").inc()  # Gemini's own 429
+            raise
+        except Exception:
+            LLM_CALLS.labels("error").inc()
+            raise
+        LLM_CALLS.labels("ok").inc()
         await self._cache.put(text_hash, self._llm.model, self._prompt_version, raw)
         log.info(
             "extract.llm_call",
@@ -71,7 +90,9 @@ class ExtractionService:
             skills=len(raw.skills),
             used_today=self._budget.used_today,
         )
-        return self._map(raw, self._llm.model, cached=False)
+        result = self._map(raw, self._llm.model, cached=False)
+        EXTRACTION_SECONDS.labels("false").observe(time.perf_counter() - start)
+        return result
 
     def _map(self, raw: LlmExtraction, model: str, *, cached: bool) -> ExtractionResult:
         """Alias → slug, fuzzy fallback, de-duplicate (REQUIRED wins)."""

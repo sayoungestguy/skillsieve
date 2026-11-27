@@ -8,6 +8,7 @@ import dev.skillsieve.core.job.JobSkillRepository;
 import dev.skillsieve.core.search.JobChangedEvent;
 import dev.skillsieve.core.skill.Skill;
 import dev.skillsieve.core.skill.SkillRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class ExtractionService {
   private final SkillRepository skills;
   private final TransactionTemplate tx;
   private final ApplicationEventPublisher changes;
+  private final MeterRegistry meters;
   private final Clock clock;
 
   public ExtractionService(
@@ -52,6 +54,7 @@ public class ExtractionService {
       SkillRepository skills,
       TransactionTemplate tx,
       ApplicationEventPublisher changes,
+      MeterRegistry meters,
       Clock clock) {
     this.client = client;
     this.jobs = jobs;
@@ -59,6 +62,7 @@ public class ExtractionService {
     this.skills = skills;
     this.tx = tx;
     this.changes = changes;
+    this.meters = meters;
     this.clock = clock;
   }
 
@@ -129,6 +133,7 @@ public class ExtractionService {
                           r.minYears(),
                           clock.instant());
                       changes.publishEvent(JobChangedEvent.changed(jobId));
+                      count("done");
                       log.info(
                           "extraction.done jobId={} skills={} unmapped={} cached={}",
                           jobId,
@@ -146,7 +151,13 @@ public class ExtractionService {
         retryLater ? RETRY_LATER : REJECTED);
   }
 
+  /** skillsieve_extractions_total{result=done|retry_later|failed}: outcomes stored on jobs. */
+  private void count(String result) {
+    meters.counter("skillsieve.extractions", "result", result).increment();
+  }
+
   private void markProblem(UUID jobId, ExtractionStatus status, String error) {
+    count(status == ExtractionStatus.FAILED ? "failed" : "retry_later");
     tx.executeWithoutResult(
         s ->
             jobs.findById(jobId)

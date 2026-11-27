@@ -7,6 +7,7 @@
 #   PORT=8089 CLUSTER=skillsieve OWNER_EMAIL=me@example.com deploy/local/k3d-up.sh
 #   GEMINI_API_KEY=… deploy/local/k3d-up.sh  # turn on skill extraction (stored in the cluster only)
 #   ASYNC=true deploy/local/k3d-up.sh         # R2: RabbitMQ + queued extraction (ADR-006)
+#   OBSERVABILITY=true deploy/local/k3d-up.sh # R2: Prometheus + Grafana at /grafana
 set -euo pipefail
 
 CLUSTER="${CLUSTER:-skillsieve}"
@@ -14,6 +15,8 @@ PORT="${PORT:-8089}"
 PG_PORT="${PG_PORT:-55432}"
 USE_MOCKS="${USE_MOCKS:-false}"
 ASYNC="${ASYNC:-false}"
+OBSERVABILITY="${OBSERVABILITY:-false}"
+GRAFANA_SECRET="grafana-secrets"
 MQ_SECRET="rabbitmq-secrets"
 OWNER_EMAIL="${OWNER_EMAIL:-owner@skillsieve.local}"
 K3S_IMAGE="rancher/k3s:v1.31.4-k3s1"
@@ -105,6 +108,15 @@ if [ -z "$GEMINI_KEY" ]; then
   echo "Note: no GEMINI_API_KEY set, so skill extraction is off (jobs stay 'pending')."
 fi
 
+if [ "$OBSERVABILITY" = "true" ] && ! kubectl -n "$NAMESPACE" get secret "$GRAFANA_SECRET" >/dev/null 2>&1; then
+  GRAFANA_PASSWORD="$(openssl rand -base64 18 | tr -d '/+=')"
+  kubectl -n "$NAMESPACE" create secret generic "$GRAFANA_SECRET" \
+    --from-literal=GF_SECURITY_ADMIN_USER=admin \
+    --from-literal=GF_SECURITY_ADMIN_PASSWORD="$GRAFANA_PASSWORD" >/dev/null
+  (umask 077; printf 'grafana_user=admin\ngrafana_password=%s\n' "$GRAFANA_PASSWORD" >> "$CREDS")
+  echo "Grafana login added to deploy/local/.owner-credentials (git-ignored)."
+fi
+
 log "Building images (tag $TAG, web mocks=$USE_MOCKS)"
 docker build -q --build-arg VITE_USE_MOCKS="$USE_MOCKS" -t "skillsieve-web:$TAG" "$ROOT/apps/web"
 docker build -q -t "skillsieve-core-api:$TAG" "$ROOT/services/core-api"
@@ -115,22 +127,25 @@ log "helm upgrade --install"
 helm upgrade --install skillsieve "$CHART" -n "$NAMESPACE" \
   --atomic --timeout 5m -f "$CHART/values-local.yaml" \
   --set web.image.tag="$TAG" --set coreApi.image.tag="$TAG" --set skillsSvc.image.tag="$TAG" \
-  --set rabbitmq.enabled="$ASYNC"
+  --set rabbitmq.enabled="$ASYNC" \
+  --set observability.enabled="$OBSERVABILITY" \
+  --set observability.grafana.rootUrl="http://localhost:${PORT}/grafana/"
 
 log "Smoke test"
 ok=""
 for _ in $(seq 1 30); do
   if curl -fsS "http://localhost:${PORT}/healthz" >/dev/null 2>&1 \
-    && curl -fsS "http://localhost:${PORT}/api/actuator/health" >/dev/null 2>&1; then
+    && curl -fsS "http://localhost:${PORT}/api/health" >/dev/null 2>&1; then
     ok=1
     break
   fi
   sleep 3
 done
-[ -n "$ok" ] || { echo "smoke test failed: /healthz or /api/actuator/health" >&2; exit 1; }
+[ -n "$ok" ] || { echo "smoke test failed: /healthz or /api/health" >&2; exit 1; }
 
 case "$(uname -s)" in
   Darwin) LAN_IP="$(ipconfig getifaddr en0 2>/dev/null || true)" ;;
   *)      LAN_IP="$(hostname -I 2>/dev/null | awk '{print $1}')" ;;
 esac
+[ "$OBSERVABILITY" = "true" ] && echo "Grafana: http://localhost:${PORT}/grafana (login in deploy/local/.owner-credentials)"
 log "Up: http://localhost:${PORT}   LAN: http://${LAN_IP:-<this-machine-ip>}:${PORT}   API: /api"
