@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>SkillSieve extension settings</title>
+  </head>
+  <body class="options">
+    <header>
+      <img src="icons/icon-32.png" alt="" width="24" height="24" /><strong
+        >SkillSieve</strong
+      >
+    </header>
+    <form id="form">
+      <label for="apiBase">SkillSieve address</label>
+      <input
+        id="apiBase"
+        type="url"
+        placeholder="https://skillsieve.example.com"
+        required
+      />
+      <label for="token">Extension token</label>
+      <input
+        id="token"
+        type="password"
+        autocomplete="off"
+        placeholder="ssv_…"
+        required
+      />
+      <p class="muted small">
+        Create a token in SkillSieve → Settings → Browser extension.
+      </p>
+      <button type="submit" class="primary">Save and test</button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </form>
+    <script type="module" src="js/options.js"></script>
+  </body>
+</html>

@@ -2,6 +2,8 @@ package dev.skillsieve.core.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import dev.skillsieve.core.auth.AuthCookie;
+import dev.skillsieve.core.token.AccessTokenFilter;
+import dev.skillsieve.core.token.AccessTokenService;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.SecureRandom;
 import java.time.Clock;
@@ -27,12 +29,14 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.util.WebUtils;
 
 /**
- * Stateless JWT-in-cookie auth (ARCHITECTURE §7). DEMO users may only read. CSRF protection is
+ * Stateless JWT-in-cookie auth (ARCHITECTURE §7), plus personal access tokens for the Chrome
+ * extension ({@link AccessTokenFilter}). DEMO users may only read. CSRF protection is
  * SameSite=Strict plus a required X-Requested-With header ({@link ApiRequestGuardFilter}).
  */
 @Configuration
@@ -48,12 +52,15 @@ public class SecurityConfig {
       "{\"title\":\"Forbidden\",\"status\":403,\"detail\":\"You cannot do this.\"}";
 
   @Bean
-  SecurityFilterChain api(HttpSecurity http, AppProperties props) throws Exception {
+  SecurityFilterChain api(HttpSecurity http, AppProperties props, AccessTokenService tokens)
+      throws Exception {
     http.csrf(c -> c.disable())
         .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(b -> b.disable())
         .formLogin(f -> f.disable())
         .addFilterBefore(new ApiRequestGuardFilter(), UsernamePasswordAuthenticationFilter.class)
+        // Extension tokens (ssv_…); runs before the cookie JWT and only for its own header.
+        .addFilterBefore(new AccessTokenFilter(tokens), BearerTokenAuthenticationFilter.class)
         .authorizeHttpRequests(
             a ->
                 a.requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout")

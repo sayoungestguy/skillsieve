@@ -85,6 +85,9 @@ python3 scripts/gen_skill_seed.py   # after editing data/taxonomy/skills.yaml
 cd services/skills-svc && cp .env.example .env && uv sync && uv run uvicorn app.main:app --reload --port 8000
 uv run ruff check . && uv run ruff format --check . && uv run mypy app tests && uv run pytest   # Docker needed for the Postgres IT
 
+# Chrome extension (load extension/dist at chrome://extensions → Load unpacked)
+cd extension && npm ci && npm test && npm run build
+
 # Self-hosted cluster (k3d, LAN): build + helm upgrade + smoke test
 deploy/local/k3d-up.sh
 ASYNC=true deploy/local/k3d-up.sh   # R2: RabbitMQ + queued extraction

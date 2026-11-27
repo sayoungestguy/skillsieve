@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>SkillSieve</title>
+  </head>
+  <body class="popup">
+    <header>
+      <img src="icons/icon-32.png" alt="" width="24" height="24" /><strong
+        >SkillSieve</strong
+      >
+    </header>
+    <section id="setup" hidden>
+      <p>Connect the extension to your SkillSieve first.</p>
+    </section>
+    <section id="ready" hidden>
+      <h1 id="title"></h1>
+      <p id="company" class="muted"></p>
+      <p id="chars" class="muted small"></p>
+      <button id="save" type="button" class="primary">
+        Save to SkillSieve
+      </button>
+    </section>
+    <p id="message" role="status" aria-live="polite"></p>
+    <a id="open" target="_blank" rel="noopener" hidden>Open in SkillSieve</a>
+    <button id="options" type="button" class="link">Settings</button>
+    <script type="module" src="js/popup.js"></script>
+  </body>
+</html>
