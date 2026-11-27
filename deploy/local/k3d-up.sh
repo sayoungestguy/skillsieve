@@ -6,12 +6,15 @@
 #   USE_MOCKS=true deploy/local/k3d-up.sh     # web shows built-in demo data instead
 #   PORT=8089 CLUSTER=skillsieve OWNER_EMAIL=me@example.com deploy/local/k3d-up.sh
 #   GEMINI_API_KEY=… deploy/local/k3d-up.sh  # turn on skill extraction (stored in the cluster only)
+#   ASYNC=true deploy/local/k3d-up.sh         # R2: RabbitMQ + queued extraction (ADR-006)
 set -euo pipefail
 
 CLUSTER="${CLUSTER:-skillsieve}"
 PORT="${PORT:-8089}"
 PG_PORT="${PG_PORT:-55432}"
 USE_MOCKS="${USE_MOCKS:-false}"
+ASYNC="${ASYNC:-false}"
+MQ_SECRET="rabbitmq-secrets"
 OWNER_EMAIL="${OWNER_EMAIL:-owner@skillsieve.local}"
 K3S_IMAGE="rancher/k3s:v1.31.4-k3s1"
 NAMESPACE="skillsieve"
@@ -37,6 +40,10 @@ PG_PORT="$PG_PORT" docker compose -f "$ROOT/deploy/local/docker-compose.yml" up 
 if ! k3d cluster list "$CLUSTER" >/dev/null 2>&1; then
   log "Creating k3d cluster '$CLUSTER' (port $PORT on all interfaces -> Traefik :80)"
   k3d cluster create "$CLUSTER" --image "$K3S_IMAGE" -p "0.0.0.0:${PORT}:80@loadbalancer" --wait
+elif k3d cluster list "$CLUSTER" --no-headers | awk '{print $2}' | grep -q '^0/'; then
+  # Stopped (e.g. after Docker Desktop restarts): no servers running.
+  log "Starting stopped k3d cluster '$CLUSTER'"
+  k3d cluster start "$CLUSTER" --wait
 fi
 k3d kubeconfig merge "$CLUSTER" --kubeconfig-switch-context >/dev/null
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f - >/dev/null
@@ -74,10 +81,25 @@ case "$GEMINI_KEY" in
     exit 1
     ;;
 esac
+# RabbitMQ credentials (R2). Generated once, shared by the broker, core-api and skills-svc.
+MQ_PASS="$(kubectl -n "$NAMESPACE" get secret "$MQ_SECRET" \
+  -o jsonpath='{.data.RABBITMQ_DEFAULT_PASS}' 2>/dev/null | base64 -d 2>/dev/null || true)"
+if [ -z "$MQ_PASS" ]; then MQ_PASS="$(openssl rand -hex 24)"; fi
+AMQP_URL=""
+if [ "$ASYNC" = "true" ]; then
+  kubectl -n "$NAMESPACE" create secret generic "$MQ_SECRET" \
+    --from-literal=RABBITMQ_DEFAULT_USER=skillsieve \
+    --from-literal=RABBITMQ_DEFAULT_PASS="$MQ_PASS" \
+    --dry-run=client -o yaml | kubectl apply -f - >/dev/null
+  kubectl -n "$NAMESPACE" patch secret "$SECRET" --type merge \
+    -p "{\"stringData\":{\"SPRING_RABBITMQ_USERNAME\":\"skillsieve\",\"SPRING_RABBITMQ_PASSWORD\":\"$MQ_PASS\"}}" >/dev/null
+  AMQP_URL="amqp://skillsieve:${MQ_PASS}@skillsieve-rabbitmq:5672/"
+fi
 kubectl -n "$NAMESPACE" create secret generic "$SKILLS_SECRET" \
   --from-literal=DATABASE_URL="postgresql://skillsieve_api:skillsieve_api@host.k3d.internal:${PG_PORT}/skillsieve" \
   --from-literal=INTERNAL_TOKEN="$INTERNAL_TOKEN" \
   --from-literal=GEMINI_API_KEY="$GEMINI_KEY" \
+  --from-literal=AMQP_URL="$AMQP_URL" \
   --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 if [ -z "$GEMINI_KEY" ]; then
   echo "Note: no GEMINI_API_KEY set, so skill extraction is off (jobs stay 'pending')."
@@ -92,7 +114,8 @@ k3d image import "skillsieve-web:$TAG" "skillsieve-core-api:$TAG" "skillsieve-sk
 log "helm upgrade --install"
 helm upgrade --install skillsieve "$CHART" -n "$NAMESPACE" \
   --atomic --timeout 5m -f "$CHART/values-local.yaml" \
-  --set web.image.tag="$TAG" --set coreApi.image.tag="$TAG" --set skillsSvc.image.tag="$TAG"
+  --set web.image.tag="$TAG" --set coreApi.image.tag="$TAG" --set skillsSvc.image.tag="$TAG" \
+  --set rabbitmq.enabled="$ASYNC"
 
 log "Smoke test"
 ok=""

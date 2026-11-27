@@ -94,7 +94,8 @@ public class ExtractionService {
     result.ifPresent(r -> apply(jobId, r));
   }
 
-  private void apply(UUID jobId, ExtractionResultDto r) {
+  /** Stores a result (sync call or queued event). Joins the caller's transaction if any. */
+  public void apply(UUID jobId, ExtractionResultDto r) {
     tx.executeWithoutResult(
         status ->
             jobs.findById(jobId)
@@ -135,6 +136,14 @@ public class ExtractionService {
                           r.unmapped().size(),
                           r.cached());
                     }));
+  }
+
+  /** skills-svc gave up: PENDING with a "try later" note, or FAILED for good. */
+  public void markFailed(UUID jobId, boolean retryLater) {
+    markProblem(
+        jobId,
+        retryLater ? ExtractionStatus.PENDING : ExtractionStatus.FAILED,
+        retryLater ? RETRY_LATER : REJECTED);
   }
 
   private void markProblem(UUID jobId, ExtractionStatus status, String error) {

@@ -48,7 +48,8 @@ skillsSvc:
     PROMPT_VERSION: extract-v1
     LLM_RPM: "4"
     LLM_RPD: "200"
-  # Secret with DATABASE_URL, INTERNAL_TOKEN, GEMINI_API_KEY (empty key = extraction off).
+  # Secret with DATABASE_URL, INTERNAL_TOKEN, GEMINI_API_KEY (empty key = extraction off) and
+  # AMQP_URL (R2, needed when rabbitmq.enabled; empty = no queue worker).
   secretName: skills-svc-secrets
   sealedSecret:
     encryptedData: {}
@@ -62,6 +63,18 @@ elasticsearch:
     limits: { cpu: "1", memory: 2Gi }
   storage: 10Gi
   storageClass: local-path   # k3s default provisioner
+
+rabbitmq:
+  enabled: false       # R2 async extraction (ADR-006); also sets core-api EXTRACTION_MODE=async
+  image: rabbitmq:4.1-alpine@sha256:cd4009416f83d7e5895020cd71b0963f3b8a4dfc3de74bbb6fb3bfe5f81f01e0
+  resources:           # docs/ARCHITECTURE.md §6
+    requests: { cpu: 50m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+  storage: 1Gi
+  storageClass: local-path
+  # Secret with RABBITMQ_DEFAULT_USER / RABBITMQ_DEFAULT_PASS. core-api-secrets must hold the same
+  # pair as SPRING_RABBITMQ_USERNAME / SPRING_RABBITMQ_PASSWORD. Created by deploy/local/k3d-up.sh.
+  secretName: rabbitmq-secrets
 
 ingress:
   enabled: true

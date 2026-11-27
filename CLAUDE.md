@@ -87,6 +87,7 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy app tests && 
 
 # Self-hosted cluster (k3d, LAN): build + helm upgrade + smoke test
 deploy/local/k3d-up.sh
+ASYNC=true deploy/local/k3d-up.sh   # R2: RabbitMQ + queued extraction
 
 # Helm
 helm lint deploy/helm/skillsieve

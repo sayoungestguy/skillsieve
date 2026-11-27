@@ -1,11 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { applicationsApi, jobsApi } from '@/api/endpoints';
 import type { JobSummaryDto, Page, Status } from '@/api/types';
+import { pendingPollInterval } from '@/features/jobs/polling';
 
 export const boardKey = ['jobs', 'board'] as const;
 
 export function useBoard() {
-  return useQuery({ queryKey: boardKey, queryFn: () => jobsApi.list() });
+  return useQuery({
+    queryKey: boardKey,
+    queryFn: () => jobsApi.list(),
+    // Cards show "Extracting skills…" until the queued extraction lands (R2 async).
+    refetchInterval: (q) =>
+      pendingPollInterval(
+        q.state.data?.content.some((j) => j.extractionStatus === 'PENDING') ?? false,
+        q.state.dataUpdateCount,
+      ),
+  });
 }
 
 interface MoveArgs {

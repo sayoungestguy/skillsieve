@@ -36,7 +36,9 @@ public class JobController {
   ResponseEntity<JobDto> create(@Valid @RequestBody CreateJobRequest body, Authentication auth) {
     UUID userId = CurrentUser.id(auth);
     JobDto created = service.create(userId, body);
-    extraction.extract(created.id()); // after commit; never fails the save (ARCHITECTURE §4.1)
+    if (!service.asyncExtraction()) {
+      extraction.extract(created.id()); // after commit; never fails the save (ARCHITECTURE §4.1)
+    } // async: the outbox row committed with the job; skills-svc picks it up (ARCHITECTURE §4.2)
     return ResponseEntity.created(URI.create("/api/jobs/" + created.id()))
         .body(service.get(userId, created.id()));
   }
@@ -71,7 +73,9 @@ public class JobController {
   @PostMapping("/{id}/extract")
   ResponseEntity<Void> extract(@PathVariable UUID id, Authentication auth) {
     service.requestExtraction(CurrentUser.id(auth), id);
-    extraction.extract(id);
+    if (!service.asyncExtraction()) {
+      extraction.extract(id);
+    }
     return ResponseEntity.accepted().build();
   }
 }

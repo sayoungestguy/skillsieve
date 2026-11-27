@@ -1,0 +1,17 @@
+{{- if .Values.rabbitmq.enabled }}
+{{- $ctx := dict "root" . "component" "rabbitmq" "tag" "4.1" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-rabbitmq
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "skillsieve.selector" $ctx | nindent 4 }}
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: amqp
+{{- end }}

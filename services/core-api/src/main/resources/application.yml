@@ -23,6 +23,17 @@ spring:
     create-schemas: true
   jackson:
     default-property-inclusion: always
+  rabbitmq:
+    # SPRING_RABBITMQ_HOST / _USERNAME / _PASSWORD from the environment (only used in async mode).
+    publisher-confirm-type: correlated   # the outbox marks a row sent only after the broker confirms
+    listener:
+      simple:
+        prefetch: 10
+        default-requeue-rejected: false   # after retries a failing result goes to core.skills-extracted.dlq
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1s
   mvc:
     problemdetails:
       enabled: true
@@ -41,6 +52,9 @@ management:
       base-path: /api/actuator
       exposure:
         include: health,info
+  health:
+    rabbit:
+      enabled: false   # broker outages must not fail probes; the outbox buffers
   endpoint:
     health:
       probes:
@@ -64,4 +78,5 @@ skillsieve:
   cookie-secure: ${COOKIE_SECURE:true}
   skills-svc-url: ${SKILLS_SVC_URL:}
   internal-token: ${INTERNAL_TOKEN:}
+  extraction-mode: ${EXTRACTION_MODE:sync}   # async = outbox → RabbitMQ (R2)
   es-url: ${ES_URL:}

@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { applicationsApi, jobsApi } from '@/api/endpoints';
 import type { CreateJobRequest, UpdateApplicationRequest } from '@/api/types';
-
-const PENDING_POLL_MS = 3000;
+import { pendingPollInterval } from './polling';
 
 export const jobKey = (id: string) => ['jobs', 'detail', id] as const;
 export const historyKey = (appId: string) => ['applications', appId, 'history'] as const;
@@ -13,9 +12,10 @@ export function useJob(id: string) {
     queryFn: () => jobsApi.get(id),
     // Poll while skills are still being extracted (not when skills-svc said "try later").
     refetchInterval: (q) =>
-      q.state.data?.extractionStatus === 'PENDING' && !q.state.data.extractionError
-        ? PENDING_POLL_MS
-        : false,
+      pendingPollInterval(
+        q.state.data?.extractionStatus === 'PENDING' && !q.state.data.extractionError,
+        q.state.dataUpdateCount,
+      ),
   });
 }
 

@@ -1,5 +1,6 @@
 # Local dependencies for development. Postgres stands in for Supabase (same major version).
 # Start: docker compose -f deploy/local/docker-compose.yml up -d
+# RabbitMQ (R2 async extraction): --profile async, then EXTRACTION_MODE=async.
 # Elasticsearch: for core-api via spring-boot:run, start it too and set ES_URL=http://localhost:59200.
 name: skillsieve
 services:
@@ -29,6 +30,21 @@ services:
     volumes:
       - esdata:/usr/share/elasticsearch/data
     profiles: [search]   # only with: docker compose --profile search up -d
+  rabbitmq:
+    image: rabbitmq:4.1-alpine@sha256:cd4009416f83d7e5895020cd71b0963f3b8a4dfc3de74bbb6fb3bfe5f81f01e0
+    environment:
+      RABBITMQ_DEFAULT_USER: skillsieve
+      RABBITMQ_DEFAULT_PASS: skillsieve   # local only, bound to 127.0.0.1
+    ports:
+      - "127.0.0.1:${AMQP_PORT:-55672}:5672"
+    volumes:
+      - mqdata:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      retries: 10
+    profiles: [async]   # only with: docker compose --profile async up -d (Release 2, ADR-006)
 volumes:
+  mqdata:
   pgdata:
   esdata:

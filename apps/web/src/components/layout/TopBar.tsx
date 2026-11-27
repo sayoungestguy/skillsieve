@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Logo } from '@/components/ui/Logo';
 import { Icon } from '@/components/ui/Icon';
 
 /** Desktop top bar: global search ("/" to focus) + Add job. */
@@ -32,9 +33,7 @@ export function TopBar() {
         to="/"
         className="flex items-center gap-2 text-ink no-underline hover:text-ink lg:hidden"
       >
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white">
-          <Icon name="logo" size={18} />
-        </span>
+        <Logo size={32} />
         <span className="text-lg font-bold">SkillSieve</span>
       </Link>
       {!onSearchPage && (

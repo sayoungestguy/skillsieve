@@ -18,6 +18,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param skillsSvcUrl base URL of skills-svc (SKILLS_SVC_URL); empty = extraction off
  * @param internalToken shared secret sent as X-Internal-Token (INTERNAL_TOKEN)
  * @param extractionTimeout how long a save waits for skills-svc (ARCHITECTURE §4.1)
+ * @param extractionMode SYNC (R1: call skills-svc during the save) or ASYNC (R2: outbox → RabbitMQ)
  * @param esUrl Elasticsearch base URL (ES_URL); empty = search and insights use Postgres
  */
 @ConfigurationProperties("skillsieve")
@@ -33,4 +34,16 @@ public record AppProperties(
     @DefaultValue("") String skillsSvcUrl,
     @DefaultValue("") String internalToken,
     @DefaultValue("10s") Duration extractionTimeout,
-    @DefaultValue("") String esUrl) {}
+    @DefaultValue("SYNC") ExtractionMode extractionMode,
+    @DefaultValue("") String esUrl) {
+
+  /** How a saved post reaches skills-svc (ADR-006). EXTRACTION_MODE env var. */
+  public enum ExtractionMode {
+    SYNC,
+    ASYNC
+  }
+
+  public boolean asyncExtraction() {
+    return extractionMode == ExtractionMode.ASYNC;
+  }
+}

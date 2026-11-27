@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     max_input_chars: int = 12_000
     fuzzy_min_score: float = 92.0
     db_pool_max: int = 3
+    amqp_url: SecretStr | None = Field(
+        default=None,
+        description="amqp://user:pass@host:5672/ (R2). Empty = no queue worker, HTTP API only",
+    )
     taxonomy_refresh_s: float = Field(
         default=300.0, description="Reload aliases (core-api's Flyway seed may run after we start)"
     )

@@ -1,4 +1,5 @@
 import { Link, NavLink } from 'react-router-dom';
+import { Logo } from '@/components/ui/Logo';
 import { Icon } from '@/components/ui/Icon';
 import { SignOutButton } from '@/features/auth/components/SignOutButton';
 import { NAV_ITEMS } from './nav';
@@ -13,9 +14,7 @@ export function Sidebar() {
         to="/"
         className="flex min-h-11 items-center gap-2.5 px-2 text-ink no-underline hover:text-ink"
       >
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white">
-          <Icon name="logo" size={18} />
-        </span>
+        <Logo size={32} />
         <span className="text-lg font-bold tracking-tight">SkillSieve</span>
       </Link>
       <div className="flex flex-col gap-1">
