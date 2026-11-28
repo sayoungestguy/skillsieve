@@ -494,7 +494,7 @@ Custom metrics (☑): core-api `skillsieve_jobs_saved_total`, `skillsieve_extrac
 | Unit | Vitest + React Testing Library | JUnit 5 + Mockito + AssertJ | pytest |
 | Integration | MSW (mock API) | `@SpringBootTest` + Testcontainers (Postgres 16, Elasticsearch 8) | pytest + Testcontainers Postgres; recorded Gemini fixtures |
 | Contract | Types generated from OpenAPI | OpenAPI diff check in CI | Pydantic schema snapshot test |
-| E2E | Playwright: login → add job → see skills → move to Applied → see insights (runs against docker-compose in CI, nightly) | | |
+| E2E | Playwright (`apps/web/e2e`, `npm run e2e`) against a running stack (default the k3d cluster): sign-in redirect → add job → async extraction → duplicate caught → move to Applied + history → insights gap and rating a skill → search → resume in Settings → sign out. Each run creates a throwaway account in the local Postgres, signs in once (the login limit is 5/min per IP) and deletes the account afterwards; setup refuses an email that already exists. `npm run demo` records the demo video (DEMO.md). Not in CI yet: it needs the full stack | | |
 | Coverage gate | 70% lines | 80% lines (JaCoCo) | 80% lines |
 
 ## 13. Operations

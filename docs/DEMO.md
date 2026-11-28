@@ -1,5 +1,18 @@
 # Demo video script (about 3 minutes)
 
+## Automated recording (Playwright)
+
+The browser part of the demo is recorded by Playwright (`apps/web/e2e/demo.record.ts`): a clean throwaway account, the Release 1 flow below with on-screen captions and a visible pointer, then the Grafana dashboards when observability is on. About 1:40, 1440×900, WebM.
+
+```bash
+ASYNC=true OBSERVABILITY=true deploy/local/k3d-up.sh   # stack with a Gemini key set
+cd apps/web && E2E_EMAIL=alex.demo@skillsieve.local npm run demo
+```
+
+The video is written to `apps/web/e2e/.results/demo.record.ts-SkillSieve-demo-demo/video.webm` (copy it to `docs/demo/`, which is git-ignored). Upload it to GitHub (a release asset, or drag it into the README editor) rather than committing it. It uses the installed Google Chrome (`DEMO_CHANNEL` to change). The account is created at start and deleted at the end; the fixture posts are cached by text hash after the first run, so re-recording costs no Gemini quota. Add the terminal segments below (pods, eval) by hand if you want them.
+
+## Manual script
+
 Record the screen with QuickTime (**File → New Screen Recording**), or OBS, which is free. Use the local cluster (`deploy/local/k3d-up.sh`) with a Gemini key set, at 1440×900 with browser zoom at 100%. Prepare the two posts in §3 beforehand. The fictional posts in `services/skills-svc/eval/posts/` work well.
 
 | Time | Show | Say (short) |

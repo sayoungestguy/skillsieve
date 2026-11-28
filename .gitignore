@@ -24,3 +24,7 @@ deploy/local/.owner-credentials
 .coverage
 .pytest_cache/
 deploy/local/.test-users
+
+# Demo recordings (upload to GitHub instead of committing)
+docs/demo/*.webm
+docs/demo/*.mp4
