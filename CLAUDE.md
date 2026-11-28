@@ -92,6 +92,7 @@ cd extension && npm ci && npm test && npm run build
 deploy/local/k3d-up.sh
 ASYNC=true deploy/local/k3d-up.sh   # R2: RabbitMQ + queued extraction
 OBSERVABILITY=true deploy/local/k3d-up.sh   # R2: Prometheus + Grafana at /grafana
+TAILOR=true deploy/local/k3d-up.sh          # R2: in-cluster Ollama for resume tailoring (~2.5 GB)
 
 # Helm
 helm lint deploy/helm/skillsieve

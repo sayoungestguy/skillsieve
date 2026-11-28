@@ -29,6 +29,13 @@ class Settings(BaseSettings):
         default=None,
         description="amqp://user:pass@host:5672/ (R2). Empty = no queue worker, HTTP API only",
     )
+    ollama_url: str | None = Field(
+        default=None,
+        description="Self-hosted Ollama, e.g. http://skillsieve-ollama:11434 (R2). Empty = "
+        "resume tailoring off (503). Resume text never goes to Gemini.",
+    )
+    ollama_model: str = "qwen2.5:1.5b"
+    tailor_timeout_s: float = Field(default=120.0, description="CPU inference on ARM is slow")
     taxonomy_refresh_s: float = Field(
         default=300.0, description="Reload aliases (core-api's Flyway seed may run after we start)"
     )

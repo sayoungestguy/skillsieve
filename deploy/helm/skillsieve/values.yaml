@@ -76,6 +76,20 @@ rabbitmq:
   # pair as SPRING_RABBITMQ_USERNAME / SPRING_RABBITMQ_PASSWORD. Created by deploy/local/k3d-up.sh.
   secretName: rabbitmq-secrets
 
+ollama:
+  # R2 resume tailoring (FR-12): local model, so resume text never reaches Gemini (CLAUDE.md C5).
+  enabled: false
+  image: ollama/ollama:0.13.0@sha256:d4188c1dfa870386a14e299976aed96daeb83876b69e1a852c9d09ea76463b9f
+  model: qwen2.5:1.5b  # ~1 GB, good JSON output for its size, runs on 2 ARM cores
+  keepAlive: 10m       # unload the model after 10 idle minutes to give the RAM back
+  # Or point skills-svc at an Ollama you run elsewhere (e.g. your laptop) instead of the pod:
+  externalUrl: ""      # e.g. http://host.k3d.internal:11434; ignored when enabled
+  resources:           # docs/ARCHITECTURE.md §6
+    requests: { cpu: 250m, memory: 1536Mi }
+    limits: { cpu: "2", memory: 2560Mi }
+  storage: 4Gi
+  storageClass: local-path
+
 observability:
   # R2 metrics (TECHNICAL_DESIGN §11). Prometheus scrapes pods annotated prometheus.io/scrape.
   enabled: false

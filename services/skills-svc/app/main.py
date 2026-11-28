@@ -20,6 +20,8 @@ from app.messaging.handler import JobCreatedHandler
 from app.messaging.jobs import JobTextRepository
 from app.messaging.worker import ExtractionWorker, run_until_cancelled
 from app.metrics import LLM_DAILY_LIMIT, http_metrics
+from app.tailor.ollama import DisabledTailorLlm, OllamaClient, TailorLlm
+from app.tailor.service import TailorService
 from app.taxonomy.repository import load_taxonomy
 
 log = structlog.get_logger()
@@ -35,6 +37,13 @@ def build_llm(settings: Settings) -> LlmClient:
         settings.prompt_version,
         settings.llm_timeout_s,
     )
+
+
+def build_tailor_llm(settings: Settings) -> TailorLlm:
+    if not settings.ollama_url:
+        log.info("tailor.disabled", reason="OLLAMA_URL not set")
+        return DisabledTailorLlm(settings.ollama_model)
+    return OllamaClient(settings.ollama_url, settings.ollama_model, settings.tailor_timeout_s)
 
 
 async def open_pool(settings: Settings) -> asyncpg.Pool:
@@ -78,6 +87,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         fuzzy_min_score=settings.fuzzy_min_score,
         budget_s=settings.llm_budget_s,
     )
+    app.state.tailor = TailorService(build_tailor_llm(settings))
     LLM_DAILY_LIMIT.set(settings.llm_rpd)
     log.info("startup", skills_aliases=taxonomy.size, model=settings.gemini_model)
     refresher = asyncio.create_task(
