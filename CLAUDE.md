@@ -74,6 +74,8 @@ docker compose -f deploy/local/docker-compose.yml up -d
 # Web
 cd apps/web && npm ci && npm run dev        # http://localhost:5173
 npm run lint && npm run typecheck && npm test
+npm run e2e        # Playwright against the k3d stack (throwaway account per run)
+npm run demo       # records the demo video (docs/DEMO.md)
 
 # Core API
 docker compose -f deploy/local/docker-compose.yml up -d postgres        # Postgres on :55432
@@ -129,4 +131,4 @@ helm template deploy/helm/skillsieve -f deploy/helm/skillsieve/values-prod.yaml
 | 1–2 | Oracle VM + k3s + DuckDNS + HTTPS + hello-world deploy via Actions | ◐ chart, CI and bootstrap done; Oracle on hold, self-hosted on k3d (LAN) |
 | 3–5 | Core API + Supabase + web status board | ◐ core-api + web login on real API (local Postgres, k3d); Supabase project pending |
 | 6–8 | Skills service + Gemini + Elasticsearch gap dashboard | ☑ on k3d (eval: P 1.00 / R 0.89); deploy to a public host pending |
-| 9–10 | Helm chart polish, full pipeline, README, diagram, demo video | ◐ Trivy clean, helm test, README + diagrams done; demo video to record (docs/DEMO.md) |
+| 9–10 | Helm chart polish, full pipeline, README, diagram, demo video | ☑ Trivy clean, helm test, README + diagrams, Playwright e2e, demo video recorded (docs/DEMO.md) |

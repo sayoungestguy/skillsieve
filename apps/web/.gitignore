@@ -3,3 +3,8 @@ dist
 coverage
 .env
 .env.local
+
+# Playwright (e2e/): run account, results, report
+/e2e/.auth/
+/e2e/.results/
+/e2e/.report/

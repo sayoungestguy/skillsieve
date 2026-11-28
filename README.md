@@ -156,5 +156,6 @@ The pipeline is ready but set to manual while the VM is on hold:
 - [x] R1: Platform base (k3s, Helm, CI/CD, security scanning). Running locally; public VM pending.
 - [x] R1: Status board, core API, sign-in
 - [x] R1: Skill extraction, Elasticsearch gap dashboard and search, eval set
-- [ ] R1: Public deploy (Oracle VM + Supabase) and demo video
+- [x] R1: Demo video (recorded with Playwright, `npm run demo`)
+- [ ] R1: Public deploy (Oracle VM + Supabase)
 - [ ] R2: Chrome extension · RabbitMQ async pipeline · observability stack · Keycloak · private resume tailoring
