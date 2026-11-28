@@ -125,6 +125,18 @@ export const handlers = [
 
   http.post('/api/jobs/:id/extract', () => new HttpResponse(null, { status: 202 })),
 
+  http.get('/api/resume', () => (db.resume ? HttpResponse.json(db.resume) : notFound())),
+  http.put('/api/resume', async ({ request }) => {
+    const { text } = (await request.json()) as { text: string };
+    const clean = text.trim();
+    db.resume = { text: clean, charCount: clean.length, updatedAt: new Date().toISOString() };
+    return HttpResponse.json(db.resume);
+  }),
+  http.delete('/api/resume', () => {
+    db.resume = null;
+    return new HttpResponse(null, { status: 204 });
+  }),
+
   http.get('/api/tokens', () => HttpResponse.json(db.tokens)),
   http.post('/api/tokens', async ({ request }) => {
     const { name } = (await request.json()) as { name: string };

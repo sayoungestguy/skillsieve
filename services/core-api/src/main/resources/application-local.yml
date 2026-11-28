@@ -20,3 +20,5 @@ skillsieve:
   cookie-secure: false            # plain http://localhost
   owner-email: ${OWNER_EMAIL:dev@skillsieve.local}   # k3d uses owner@…; both share the compose DB
   owner-password: ${OWNER_PASSWORD:skillsieve-local}
+  resume:
+    key: ${RESUME_KEY:bG9jYWwtZGV2LW9ubHktcmVzdW1lLWtleS0zMmJ5dGU=}   # dev only, not a secret
