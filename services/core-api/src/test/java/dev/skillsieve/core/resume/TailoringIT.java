@@ -233,4 +233,26 @@ class TailoringIT extends IntegrationTest {
         .andExpect(jsonPath("$.status").value("FAILED"))
         .andExpect(jsonPath("$.error").value("This took too long. Try again."));
   }
+
+  @Autowired private TailoringService tailoringService;
+
+  @Test
+  void shouldFailRequestsLeftPendingByARestart() throws Exception {
+    String id = job();
+    saveResume(CV);
+    jdbc.update(
+        "INSERT INTO tailoring (user_id, job_post_id, status, resume_hmac, job_text_hash,"
+            + " requested_at) SELECT r.user_id, j.id, 'PENDING', r.content_hmac, j.text_hash,"
+            + " now() FROM resume r JOIN job_post j ON j.user_id = r.user_id WHERE j.id = ?::uuid",
+        id);
+
+    assertThat(tailoringService.failInterrupted()).isGreaterThanOrEqualTo(1);
+
+    mvc.perform(get("/api/jobs/" + id + "/tailoring").cookie(user))
+        .andExpect(jsonPath("$.status").value("FAILED"))
+        .andExpect(jsonPath("$.error").value(TailoringService.INTERRUPTED));
+    // And the user can ask again straight away.
+    assertThat(request(id).get("status").asText()).isIn("PENDING", "DONE");
+    assertThat(awaitFinished(id).get("status").asText()).isEqualTo("DONE");
+  }
 }

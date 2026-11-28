@@ -35,7 +35,10 @@ class Settings(BaseSettings):
         "resume tailoring off (503). Resume text never goes to Gemini.",
     )
     ollama_model: str = "qwen2.5:1.5b"
-    tailor_timeout_s: float = Field(default=120.0, description="CPU inference on ARM is slow")
+    tailor_timeout_s: float = Field(
+        default=300.0,
+        description="One Ollama call. CPU inference is slow: ~5 tok/s on a busy 2-core pod",
+    )
     taxonomy_refresh_s: float = Field(
         default=300.0, description="Reload aliases (core-api's Flyway seed may run after we start)"
     )

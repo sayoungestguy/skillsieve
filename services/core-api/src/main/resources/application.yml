@@ -101,6 +101,6 @@ skillsieve:
     client-secret: ${OIDC_CLIENT_SECRET:}
     app-url: ${APP_URL:}
   tailor:
-    timeout: ${TAILOR_TIMEOUT:5m}   # one skills-svc /v1/tailor call (local CPU model)
+    timeout: ${TAILOR_TIMEOUT:11m}   # one skills-svc /v1/tailor call (up to 2 model calls of 5 min)
   resume:
     key: ${RESUME_KEY:}   # base64, 32 bytes; empty = resume storage off (R2)
