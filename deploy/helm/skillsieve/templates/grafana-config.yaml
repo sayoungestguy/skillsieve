@@ -18,6 +18,16 @@ data:
         url: http://{{ .Release.Name }}-prometheus:9090
         isDefault: true
         editable: false
+      {{- if .Values.observability.loki.enabled }}
+      - name: Loki
+        uid: loki
+        type: loki
+        access: proxy
+        url: http://{{ .Release.Name }}-loki:3100
+        editable: false
+        jsonData:
+          maxLines: 1000
+      {{- end }}
   dashboards.yaml: |
     apiVersion: 1
     providers:
@@ -29,7 +39,9 @@ data:
         options:
           path: /var/lib/grafana/dashboards
   {{- range $path, $_ := .Files.Glob "dashboards/*.json" }}
+  {{- if or $.Values.observability.loki.enabled (ne (base $path) "skillsieve-logs.json") }}
   {{ base $path }}: |
     {{- $.Files.Get $path | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}
