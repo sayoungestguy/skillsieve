@@ -90,7 +90,7 @@ As a job-seeker, I want to paste a job post's text so that it is saved without r
 
 ### Epic E — Accounts (R1 single user → R2 multi-user)
 - R1: one owner account (username + password, BCrypt hash). Public demo mode shows seeded sample data, read-only.
-- R2: Keycloak login; each user sees only their own data.
+- R2: Keycloak login; each user sees only their own data. ☑ ("Sign in with Keycloak" on the login page; password login stays as a fallback, ADR-009)
 
 ## 5. Functional requirements summary
 

@@ -103,7 +103,7 @@ public class OidcService {
   String finish(String code, OidcFlowCookie.Flow flow) {
     Jwt idToken = validate(exchange(code, flow.verifier()), flow.nonce());
     AppUser user = resolve(idToken);
-    return auth.tokenFor(user);
+    return auth.tokenFor(user, true);
   }
 
   /** Keycloak's end-session URL: logs out of Keycloak, then back to our login page. */

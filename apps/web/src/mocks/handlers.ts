@@ -75,6 +75,8 @@ export const handlers = [
 
   http.get('/api/me', () => (db.session ? HttpResponse.json(db.session) : unauthorized())),
 
+  http.get('/api/auth/config', () => HttpResponse.json(db.authConfig)),
+
   http.get('/api/jobs', () => HttpResponse.json(page(db.jobs.map(toSummary)))),
 
   http.get('/api/jobs/:id', ({ params }) => {

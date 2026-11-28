@@ -20,6 +20,8 @@ public class AuthService {
 
   private static final Logger log = LoggerFactory.getLogger(AuthService.class);
   private static final String ISSUER = "skillsieve-core-api";
+  static final String AMR = "amr";
+  static final String AMR_OIDC = "oidc";
 
   private final AppUserRepository users;
   private final PasswordEncoder passwordEncoder;
@@ -54,22 +56,29 @@ public class AuthService {
   }
 
   @Transactional(readOnly = true)
-  public MeDto me(UUID userId) {
+  public MeDto me(UUID userId, boolean viaKeycloak) {
     AppUser user = users.findById(userId).orElseThrow(InvalidCredentialsException::new);
-    return new MeDto(user.getId(), user.getEmail(), user.getRole());
+    return new MeDto(user.getId(), user.getEmail(), user.getRole(), viaKeycloak);
   }
 
   String tokenFor(AppUser user) {
+    return tokenFor(user, false);
+  }
+
+  /** Session JWT; {@code amr=["oidc"]} marks a Keycloak sign-in (RFC 8176 style). */
+  String tokenFor(AppUser user, boolean viaKeycloak) {
     Instant now = clock.instant();
-    JwtClaimsSet claims =
+    JwtClaimsSet.Builder claims =
         JwtClaimsSet.builder()
             .issuer(ISSUER)
             .subject(user.getId().toString())
             .issuedAt(now)
             .expiresAt(now.plus(props.tokenTtl()))
-            .claim("role", user.getRole().name())
-            .build();
+            .claim("role", user.getRole().name());
+    if (viaKeycloak) {
+      claims.claim(AMR, java.util.List.of(AMR_OIDC));
+    }
     JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
-    return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+    return jwtEncoder.encode(JwtEncoderParameters.from(header, claims.build())).getTokenValue();
   }
 }
