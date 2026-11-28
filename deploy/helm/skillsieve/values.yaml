@@ -76,6 +76,24 @@ rabbitmq:
   # pair as SPRING_RABBITMQ_USERNAME / SPRING_RABBITMQ_PASSWORD. Created by deploy/local/k3d-up.sh.
   secretName: rabbitmq-secrets
 
+keycloak:
+  # R2 multi-user sign-in (FR-13, ADR-009). core-api runs the OIDC code flow; browsers only see
+  # Keycloak's login page at `path`. Off by default: password login keeps working without it.
+  enabled: false
+  image: quay.io/keycloak/keycloak:26.4.5@sha256:653852bfdea2be6e958b9e90a976eff1c6de34edd55f2f679bdc48ef16bc528e
+  path: /auth
+  appUrl: ""           # public URL of the app, e.g. https://skillsieve.duckdns.org (k3d-up sets it)
+  # JDBC URL of the Postgres that holds schema "keycloak" (Supabase in prod; k3d-up sets it).
+  dbUrl: ""
+  sslRequired: external   # "none" only for plain-HTTP LAN clusters (values-local.yaml)
+  registrationAllowed: false   # friends get accounts from the admin console unless set true
+  resources:           # docs/ARCHITECTURE.md §6
+    requests: { cpu: 100m, memory: 512Mi }
+    limits: { cpu: "1", memory: 1Gi }
+  # Secret with KC_DB_USERNAME, KC_DB_PASSWORD, KC_BOOTSTRAP_ADMIN_USERNAME,
+  # KC_BOOTSTRAP_ADMIN_PASSWORD and SKILLSIEVE_OIDC_CLIENT_SECRET. Created by deploy/local/k3d-up.sh.
+  secretName: keycloak-secrets
+
 ollama:
   # R2 resume tailoring (FR-12): local model, so resume text never reaches Gemini (CLAUDE.md C5).
   enabled: false
