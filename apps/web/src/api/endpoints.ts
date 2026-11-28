@@ -2,6 +2,7 @@ import { api, ApiError, toQuery } from './client';
 import type {
   AccessTokenDto,
   ResumeDto,
+  TailoringDto,
   ApplicationDto,
   CreatedTokenDto,
   CreateJobRequest,
@@ -73,6 +74,19 @@ export const resumeApi = {
   },
   save: (text: string) => api<ResumeDto>('/api/resume', { method: 'PUT', body: json({ text }) }),
   remove: () => api<undefined>('/api/resume', { method: 'DELETE' }),
+};
+
+export const tailoringApi = {
+  /** Suggestions for a job, or null when none were requested yet. */
+  get: async (jobId: string) => {
+    try {
+      return await api<TailoringDto>(`/api/jobs/${jobId}/tailoring`);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) return null;
+      throw err;
+    }
+  },
+  request: (jobId: string) => api<TailoringDto>(`/api/jobs/${jobId}/tailoring`, { method: 'POST' }),
 };
 
 export const tokensApi = {

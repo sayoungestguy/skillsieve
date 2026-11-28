@@ -4,6 +4,7 @@ import dev.skillsieve.core.auth.InvalidCredentialsException;
 import dev.skillsieve.core.auth.TooManyLoginAttemptsException;
 import dev.skillsieve.core.job.DuplicateJobException;
 import dev.skillsieve.core.resume.ResumeDisabledException;
+import dev.skillsieve.core.resume.TailoringConflictException;
 import dev.skillsieve.core.token.TooManyTokensException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
@@ -39,6 +40,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   ProblemDetail resumeDisabled(ResumeDisabledException e) {
     return problem(
         HttpStatus.SERVICE_UNAVAILABLE, "Resume storage off", "The server has no RESUME_KEY set.");
+  }
+
+  @ExceptionHandler(TailoringConflictException.class)
+  ProblemDetail tailoringConflict(TailoringConflictException e) {
+    return problem(HttpStatus.CONFLICT, "Cannot suggest yet", e.getMessage());
   }
 
   @ExceptionHandler(DuplicateJobException.class)
