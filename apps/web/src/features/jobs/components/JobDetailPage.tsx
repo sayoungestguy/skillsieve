@@ -5,6 +5,7 @@ import { formatDate, hostOf, UNKNOWN_COMPANY, UNTITLED_ROLE } from '@/lib/format
 import { useJob } from '../hooks';
 import { HistoryPanel } from './HistoryPanel';
 import { SkillsPanel } from './SkillsPanel';
+import { TailoringPanel } from './TailoringPanel';
 import { TrackingPanel } from './TrackingPanel';
 
 export function JobDetailPage() {
@@ -53,8 +54,9 @@ export function JobDetailPage() {
           <TrackingPanel key={job.application.id} application={job.application} />
           <HistoryPanel applicationId={job.application.id} />
         </div>
-        <div className="min-w-0 flex-[1.4_1_420px]">
+        <div className="flex min-w-0 flex-[1.4_1_420px] flex-col gap-6">
           <SkillsPanel job={job} />
+          <TailoringPanel job={job} />
         </div>
       </div>
     </>

@@ -1,4 +1,12 @@
-import type { AccessTokenDto, ResumeDto, JobDto, Level, MeDto, StatusEventDto } from '@/api/types';
+import type {
+  AccessTokenDto,
+  ResumeDto,
+  TailoringDto,
+  JobDto,
+  Level,
+  MeDto,
+  StatusEventDto,
+} from '@/api/types';
 import { buildJobs, INITIAL_LEVELS, initialHistory } from './data';
 
 /** In-memory store behind the MSW handlers. `reset()` gives each test a clean copy. */
@@ -14,9 +22,11 @@ export const db = {
   history: {} as Record<string, StatusEventDto[]>,
   tokens: [] as AccessTokenDto[],
   resume: null as ResumeDto | null,
+  tailoring: {} as Record<string, TailoringDto>,
   reset(now: Date = new Date()) {
     this.tokens = [];
     this.resume = null;
+    this.tailoring = {};
     this.session = MOCK_USER;
     this.levels = { ...INITIAL_LEVELS };
     this.jobs = buildJobs(now, this.levels);
