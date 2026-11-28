@@ -7,7 +7,7 @@
 #   PORT=8089 CLUSTER=skillsieve OWNER_EMAIL=me@example.com deploy/local/k3d-up.sh
 #   GEMINI_API_KEY=… deploy/local/k3d-up.sh  # turn on skill extraction (stored in the cluster only)
 #   ASYNC=true deploy/local/k3d-up.sh         # R2: RabbitMQ + queued extraction (ADR-006)
-#   OBSERVABILITY=true deploy/local/k3d-up.sh # R2: Prometheus + Grafana at /grafana
+#   OBSERVABILITY=true deploy/local/k3d-up.sh # R2: Prometheus + Loki/Alloy + Grafana at /grafana
 set -euo pipefail
 
 CLUSTER="${CLUSTER:-skillsieve}"

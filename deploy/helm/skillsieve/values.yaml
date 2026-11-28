@@ -98,6 +98,21 @@ observability:
       limits: { cpu: 300m, memory: 256Mi }
     # Secret with GF_SECURITY_ADMIN_USER / GF_SECURITY_ADMIN_PASSWORD. Created by deploy/local/k3d-up.sh.
     secretName: grafana-secrets
+  # R2 logs: Loki stores, Alloy ships (tails pod logs via the Kubernetes API). Needs enabled: true above.
+  loki:
+    enabled: true
+    image: grafana/loki:3.5.5@sha256:31628519045e7f28692a7ae73b4a3fd293dccb425585ed5d16ceea3b5c9592e6
+    retention: 168h      # 7 days, enforced by the compactor
+    resources:
+      requests: { cpu: 50m, memory: 192Mi }
+      limits: { cpu: 500m, memory: 384Mi }
+    storage: 2Gi
+    storageClass: local-path
+  alloy:
+    image: grafana/alloy:v1.10.2@sha256:bcf27f18c4402869af112fb39e35e1db3804a404686f4caa20bdf77814219223
+    resources:
+      requests: { cpu: 20m, memory: 64Mi }
+      limits: { cpu: 200m, memory: 192Mi }
 
 ingress:
   enabled: true
