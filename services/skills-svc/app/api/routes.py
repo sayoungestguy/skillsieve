@@ -8,6 +8,8 @@ from app.config import Settings, get_settings
 from app.extraction.models import ExtractionResult, ExtractRequest
 from app.extraction.service import ExtractionService
 from app.llm.errors import LlmNotConfiguredError, LlmQuotaError, LlmUnavailableError
+from app.tailor.models import TailorRequest, TailorResult
+from app.tailor.service import NoBulletsError, TailorService
 
 router = APIRouter()
 
@@ -62,5 +64,30 @@ async def extract(
         return await service.extract(body.text_hash, body.text)
     except LlmQuotaError as e:
         raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, str(e)) from e
+    except (LlmNotConfiguredError, LlmUnavailableError) as e:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(e)) from e
+
+
+def get_tailor(request: Request) -> TailorService:
+    tailor: TailorService | None = getattr(request.app.state, "tailor", None)
+    if tailor is None:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "not ready")
+    return tailor
+
+
+@router.post(
+    "/v1/tailor",
+    response_model=TailorResult,
+    response_model_by_alias=True,
+    dependencies=[Depends(require_internal_token)],
+)
+async def tailor(
+    body: TailorRequest, service: Annotated[TailorService, Depends(get_tailor)]
+) -> TailorResult:
+    """Resume suggestions from the local Ollama model only (never Gemini, CLAUDE.md C5)."""
+    try:
+        return await service.tailor(body)
+    except NoBulletsError as e:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(e)) from e
     except (LlmNotConfiguredError, LlmUnavailableError) as e:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(e)) from e

@@ -20,6 +20,14 @@ EXTRACTION_SECONDS = Histogram(
 )
 LLM_USED_TODAY = Gauge("skillsieve_llm_calls_today", "LLM calls used in the current quota day")
 LLM_DAILY_LIMIT = Gauge("skillsieve_llm_daily_limit", "Our LLM calls-per-day budget (LLM_RPD)")
+TAILOR_CALLS = Counter(
+    "skillsieve_tailor_calls", "Local-model resume tailoring calls by outcome", ["result"]
+)  # result: ok | error
+TAILOR_SECONDS = Histogram(
+    "skillsieve_tailor_duration_seconds",
+    "Time for one tailoring answer from the local model",
+    buckets=(1, 2, 5, 10, 20, 30, 45, 60, 90, 120),
+)
 HTTP_SECONDS = Histogram(
     "skillsieve_http_request_duration_seconds",
     "skills-svc HTTP latency",

@@ -167,8 +167,9 @@ flowchart TB
 | Prometheus + Grafana (R2, set in values.yaml) | 352 MB | 768 MB |
 | Loki + Alloy (R2, set in values.yaml) | 256 MB | 576 MB |
 | Keycloak (R2) | 512 MB | 1 GB |
-| **R2 total (limits)** | | **≈ 7.3 GB** |
-| Headroom for other portfolio apps | | ≈ 4.7 GB |
+| Ollama `qwen2.5:1.5b` (R2 resume tailoring, `ollama.enabled`; unloads after 10 idle min) | 1.5 GB | 2.5 GB |
+| **R2 total (limits)** | | **≈ 9.7 GB** |
+| Headroom for other portfolio apps | | ≈ 2.3 GB |
 
 Postgres is on Supabase, so it uses no cluster RAM.
 

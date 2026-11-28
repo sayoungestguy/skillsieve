@@ -8,6 +8,7 @@
 #   GEMINI_API_KEY=… deploy/local/k3d-up.sh  # turn on skill extraction (stored in the cluster only)
 #   ASYNC=true deploy/local/k3d-up.sh         # R2: RabbitMQ + queued extraction (ADR-006)
 #   OBSERVABILITY=true deploy/local/k3d-up.sh # R2: Prometheus + Loki/Alloy + Grafana at /grafana
+#   TAILOR=true deploy/local/k3d-up.sh        # R2: in-cluster Ollama for resume tailoring (~2.5 GB RAM)
 set -euo pipefail
 
 CLUSTER="${CLUSTER:-skillsieve}"
@@ -16,6 +17,7 @@ PG_PORT="${PG_PORT:-55432}"
 USE_MOCKS="${USE_MOCKS:-false}"
 ASYNC="${ASYNC:-false}"
 OBSERVABILITY="${OBSERVABILITY:-false}"
+TAILOR="${TAILOR:-false}"
 GRAFANA_SECRET="grafana-secrets"
 MQ_SECRET="rabbitmq-secrets"
 OWNER_EMAIL="${OWNER_EMAIL:-owner@skillsieve.local}"
@@ -130,10 +132,11 @@ k3d image import "skillsieve-web:$TAG" "skillsieve-core-api:$TAG" "skillsieve-sk
 
 log "helm upgrade --install"
 helm upgrade --install skillsieve "$CHART" -n "$NAMESPACE" \
-  --atomic --timeout 5m -f "$CHART/values-local.yaml" \
+  --atomic --timeout 15m -f "$CHART/values-local.yaml" \
   --set web.image.tag="$TAG" --set coreApi.image.tag="$TAG" --set skillsSvc.image.tag="$TAG" \
   --set rabbitmq.enabled="$ASYNC" \
   --set observability.enabled="$OBSERVABILITY" \
+  --set ollama.enabled="$TAILOR" \
   --set observability.grafana.rootUrl="http://localhost:${PORT}/grafana/"
 
 log "Smoke test"
