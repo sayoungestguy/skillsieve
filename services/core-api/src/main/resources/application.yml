@@ -94,3 +94,5 @@ skillsieve:
   internal-token: ${INTERNAL_TOKEN:}
   extraction-mode: ${EXTRACTION_MODE:sync}   # async = outbox → RabbitMQ (R2)
   es-url: ${ES_URL:}
+  resume:
+    key: ${RESUME_KEY:}   # base64, 32 bytes; empty = resume storage off (R2)

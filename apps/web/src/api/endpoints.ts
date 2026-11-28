@@ -1,6 +1,7 @@
-import { api, toQuery } from './client';
+import { api, ApiError, toQuery } from './client';
 import type {
   AccessTokenDto,
+  ResumeDto,
   ApplicationDto,
   CreatedTokenDto,
   CreateJobRequest,
@@ -58,6 +59,20 @@ export const insightsApi = {
 
 export const searchApi = {
   search: (q: string) => api<Page<SearchHitDto>>(`/api/search${toQuery({ q, page: 0, size: 20 })}`),
+};
+
+export const resumeApi = {
+  /** My resume, or null when I have not saved one. */
+  get: async () => {
+    try {
+      return await api<ResumeDto>('/api/resume');
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) return null;
+      throw err;
+    }
+  },
+  save: (text: string) => api<ResumeDto>('/api/resume', { method: 'PUT', body: json({ text }) }),
+  remove: () => api<undefined>('/api/resume', { method: 'DELETE' }),
 };
 
 export const tokensApi = {

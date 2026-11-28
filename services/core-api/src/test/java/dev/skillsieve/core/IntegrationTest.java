@@ -35,7 +35,8 @@ import org.testcontainers.elasticsearch.ElasticsearchContainer;
       "skillsieve.extraction-timeout=2s",
       "skillsieve.owner-email=owner@test.local",
       "skillsieve.owner-password=owner-password",
-      "skillsieve.login-attempts-per-minute=1000"
+      "skillsieve.login-attempts-per-minute=1000",
+      "skillsieve.resume.key=dGVzdC1vbmx5LXJlc3VtZS1rZXktdGhpcnR5LXR3b2I="
     })
 @AutoConfigureMockMvc
 public abstract class IntegrationTest {

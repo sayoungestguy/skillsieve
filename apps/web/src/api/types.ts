@@ -147,3 +147,10 @@ export interface CreatedTokenDto {
   /** Plain token, shown once. */
   token: string;
 }
+
+/** My resume (decrypted for me only; never sent to Gemini). */
+export interface ResumeDto {
+  text: string;
+  charCount: number;
+  updatedAt: string;
+}
