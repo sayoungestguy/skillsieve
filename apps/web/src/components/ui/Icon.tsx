@@ -44,6 +44,7 @@ const PATHS = {
     <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
   ),
   check: <path d="M5 12l5 5L20 7" />,
+  copy: <path d="M9 9h10v10H9zM5 15V5h10" />,
   warning: <path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01" />,
   download: <path d="M12 4v12M6 10l6 6 6-6M5 20h14" />,
   bookmark: <path d="M6 4h12v16l-6-4-6 4z" />,

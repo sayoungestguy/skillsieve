@@ -154,3 +154,24 @@ export interface ResumeDto {
   charCount: number;
   updatedAt: string;
 }
+
+export type TailoringStatus = 'PENDING' | 'DONE' | 'FAILED';
+
+/** One rewritten resume bullet from the local model. */
+export interface SuggestionDto {
+  original: string | null;
+  suggested: string;
+  skills: string[];
+  reason: string;
+}
+
+/** Resume suggestions for one job. `stale` = resume or post changed since they were made. */
+export interface TailoringDto {
+  status: TailoringStatus;
+  stale: boolean;
+  model: string | null;
+  suggestions: SuggestionDto[];
+  error: string | null;
+  requestedAt: string;
+  finishedAt: string | null;
+}

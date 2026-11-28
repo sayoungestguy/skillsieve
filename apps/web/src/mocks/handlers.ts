@@ -6,6 +6,7 @@ import type {
   Level,
   SearchHitDto,
   SkillInsightDto,
+  TailoringDto,
   UpdateApplicationRequest,
 } from '@/api/types';
 import { isGap } from '@/lib/levels';
@@ -135,6 +136,48 @@ export const handlers = [
   http.delete('/api/resume', () => {
     db.resume = null;
     return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.get('/api/jobs/:id/tailoring', ({ params }) => {
+    const t = db.tailoring[params.id as string];
+    if (!t) return notFound();
+    // Finish on the next read, like the background run.
+    if (t.status === 'PENDING') {
+      db.tailoring[params.id as string] = {
+        ...t,
+        status: 'DONE',
+        model: 'mock-local',
+        finishedAt: new Date().toISOString(),
+        suggestions: [
+          {
+            original: db.resume?.text.split('\n')[0] ?? null,
+            suggested: 'Designed and shipped REST APIs in Java used by 3 internal teams',
+            skills: ['Java'],
+            reason: "Uses the post's wording for a skill you already show.",
+          },
+        ],
+      };
+    }
+    return HttpResponse.json(db.tailoring[params.id as string]);
+  }),
+  http.post('/api/jobs/:id/tailoring', ({ params }) => {
+    if (!db.resume) {
+      return HttpResponse.json(
+        { title: 'Cannot suggest yet', detail: 'Save your resume in Settings first.' },
+        { status: 409 },
+      );
+    }
+    const t: TailoringDto = {
+      status: 'PENDING',
+      stale: false,
+      model: null,
+      suggestions: [],
+      error: null,
+      requestedAt: new Date().toISOString(),
+      finishedAt: null,
+    };
+    db.tailoring[params.id as string] = t;
+    return HttpResponse.json(t, { status: 202 });
   }),
 
   http.get('/api/tokens', () => HttpResponse.json(db.tokens)),
