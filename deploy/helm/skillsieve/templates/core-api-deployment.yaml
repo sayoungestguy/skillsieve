@@ -42,6 +42,14 @@ spec:
                 name: {{ .Release.Name }}-core-api
             - secretRef:
                 name: {{ .Values.coreApi.secretName }}
+          {{- if .Values.keycloak.enabled }}
+          env:
+            - name: OIDC_CLIENT_SECRET     # same Secret Keycloak imports the client from
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.keycloak.secretName }}
+                  key: SKILLSIEVE_OIDC_CLIENT_SECRET
+          {{- end }}
           startupProbe:          # JVM + Flyway can take a while on 2 ARM cores
             httpGet: { path: /livez, port: http }
             periodSeconds: 5
