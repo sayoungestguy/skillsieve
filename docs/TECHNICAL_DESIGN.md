@@ -129,6 +129,15 @@ CREATE TABLE access_token (
   revoked_at    TIMESTAMPTZ
 );
 
+-- R2 (V5__resume.sql): one resume per user, encrypted by core-api (AES-256-GCM, RESUME_KEY).
+CREATE TABLE resume (
+  user_id       UUID PRIMARY KEY REFERENCES app_user(id) ON DELETE CASCADE,
+  ciphertext    BYTEA NOT NULL,            -- version (1) | nonce (12) | ciphertext + tag; AAD = user id
+  content_hmac  CHAR(64) NOT NULL,         -- HMAC-SHA256 of the text (derived key): cache key for tailoring
+  char_count    INTEGER NOT NULL,
+  updated_at    TIMESTAMPTZ NOT NULL
+);
+
 -- R2 (V2__outbox.sql): transactional outbox, drained to RabbitMQ by OutboxPublisher (§14).
 CREATE TABLE outbox (
   id            UUID PRIMARY KEY,          -- = message eventId
@@ -225,6 +234,9 @@ All errors use **RFC 7807 Problem Details** (`application/problem+json`):
 | GET | `/api/tokens` | — | `AccessTokenDto[]` `{id, name, prefix, createdAt, lastUsedAt}` | Active extension tokens (never the secret) |
 | POST | `/api/tokens` | `{name}` (≤ 60) | 201 `{info: AccessTokenDto, token}` · 409 at 10 active | `token` (`ssv_…`) is shown once; cookie session only, OWNER/USER |
 | DELETE | `/api/tokens/{id}` | — | 204 · 404 if not mine | Revoke |
+| GET | `/api/resume` | — | `ResumeDto` `{text, charCount, updatedAt}` · 404 if none · 503 if `RESUME_KEY` unset | My resume, decrypted; `Cache-Control: no-store`; extension tokens get 403 |
+| PUT | `/api/resume` | `{text}` (1–20,000 chars, trimmed) | 200 `ResumeDto` · 422 | Create or replace |
+| DELETE | `/api/resume` | — | 204 | Delete my resume |
 | POST | `/api/admin/reindex` | — | 202 `{indexed}` · 409 when ES is off | OWNER only |
 
 Key DTOs (Java `record`s, TypeScript types generated from OpenAPI with `openapi-typescript`):
@@ -358,6 +370,7 @@ Rules:
 | `SPRING_RABBITMQ_USERNAME` / `_PASSWORD` | core-api | same pair as `RABBITMQ_DEFAULT_USER` / `_PASS` in `rabbitmq-secrets` | yes |
 | `SKILLS_SVC_URL` | core-api | `http://skills-svc:8000` | no |
 | `INTERNAL_TOKEN` | both | random 32 bytes | yes |
+| `RESUME_KEY` | core-api | base64 of 32 random bytes (`openssl rand -base64 32`); AES-256-GCM key for resumes. Empty = resume storage off (503). **Never rotate without re-encrypting:** a new key makes stored resumes unreadable. | yes |
 | `MANAGEMENT_PORT` | core-api | `8081` (actuator + Prometheus, in-cluster only) | no |
 | `DEMO_MODE` | core-api | `true` → DEMO role read-only | no |
 | `DATABASE_URL` | skills-svc | `postgresql://…?sslmode=require` | yes |
@@ -439,7 +452,7 @@ Manual steps (VM creation, DuckDNS, GitHub secrets/vars, making GHCR packages pu
 |---|---|
 | R1 | Health probes (`/api/actuator/health/{liveness,readiness}`); JSON logs (Spring Boot structured logging, ECS format); Actuator `health` and `info` only. The `prometheus` endpoint moves to an in-cluster management port in R2; FastAPI `/metrics` via `prometheus-fastapi-instrumentator` |
 | R2 part 1 ☑ | **Metrics.** core-api: Micrometer Prometheus registry on the **management port 8081** (`/actuator/prometheus`; no Service port, no Ingress). Kubelet probes use `/livez` and `/readyz` on the app port; smoke tests through the Ingress use `GET /api/health` (status only). skills-svc: `GET /metrics` (`prometheus-client`; no Ingress) plus an HTTP latency middleware labelled by route template. Helm (`observability.enabled`): Prometheus (namespace-scoped pod discovery via `prometheus.io/*` annotations, Role on pods only, 7 d / 1.5 GB retention) and Grafana at `/grafana` (admin login from `grafana-secrets`, no anonymous access, no sign-up, no phoning home; datasource and the *SkillSieve overview* dashboard provisioned from `deploy/helm/skillsieve/dashboards/`). |
-| R2 part 2 (next) | **Logs:** Loki (single binary) + Grafana Alloy; JSON logs already structured. |
+| R2 part 2 ☑ | **Logs.** Loki 3.5 single binary (StatefulSet, filesystem TSDB, 2 Gi PVC, 7-day retention by the compactor, ClusterIP only, no auth). Grafana Alloy (one-replica Deployment) tails this release's pod logs **through the Kubernetes API** (`loki.source.kubernetes`; namespace Role on `pods` + `pods/log`, no hostPath, non-root) and pushes labels `namespace`, `component`, `pod`, `container` and a lowercased `level` parsed from the line. Grafana gets a `Loki` datasource and a **SkillSieve logs** dashboard (lines by level, errors by component, searchable log panel). `observability.loki.enabled` (default true when `observability.enabled`). |
 | Later | OpenTelemetry traces (Tempo) and alerts (Telegram) once the RAM budget allows. |
 
 Custom metrics (☑): core-api `skillsieve_jobs_saved_total`, `skillsieve_extractions_total{result=done|retry_later|failed}`; skills-svc `skillsieve_llm_calls_total{result=ok|error|quota}`, `skillsieve_llm_cache_hits_total`, `skillsieve_extraction_duration_seconds{cached}`, `skillsieve_llm_calls_today`, `skillsieve_llm_daily_limit`, `skillsieve_http_request_duration_seconds{method,route,status}`.
@@ -477,4 +490,4 @@ Custom metrics (☑): core-api `skillsieve_jobs_saved_total`, `skillsieve_extrac
 | Chrome extension | ☑ `extension/` (MV3, TypeScript, no bundler). Permissions: `activeTab` + `scripting` + `storage`; no standing access to job sites. The only host permission is the user's SkillSieve origin, requested at runtime from the options page. On click, `extractJob` runs in the tab (selection ≥ 200 chars → LinkedIn / MyCareersFuture selectors → `main`/`article`, capped at 30,000) and the popup sends `POST /api/jobs` with `Authorization: Bearer ssv_…` and `credentials: 'omit'`. 409 → "already saved" with a link; 401 → "create a new token". |
 | Extension tokens | ☑ `ssv_` + 32 random bytes (base64url), stored as SHA-256 (256-bit secret, so no slow hash needed). `AccessTokenFilter` runs before the cookie JWT and builds an in-memory JWT principal (`pat=true`), so `CurrentUser` and roles work unchanged. A token may only call `POST /api/jobs` and `GET /api/me`; anything else is 403, and `X-Requested-With` is still required. Max 10 active per user; `last_used_at` updated on use; revoke in Settings. |
 | Keycloak | Realm `skillsieve`, OIDC auth-code + PKCE for web; core-api becomes a resource server (JWT validation via JWKS). |
-| Resume tailoring | Resume stored encrypted (AES-GCM, key in Secret). Suggestions generated by Ollama on the developer laptop or a small local model; never sent to the free Gemini tier. |
+| Resume tailoring | Part 1 ☑ **storage:** pasted in Settings, stored in `resume` (V5) encrypted with AES-256-GCM (JDK only; random 12-byte nonce; the user id is the associated data, so a row copied to another user fails to decrypt). The text is never logged. `k3d-up.sh` adds `RESUME_KEY` once and never replaces it. Part 2 (next): skills-svc `/internal/tailor` calls a local Ollama model only. Part 3: suggestions panel on job detail, cached by (`content_hmac`, job `text_hash`). Never sent to the free Gemini tier (CLAUDE.md C5). |

@@ -3,6 +3,7 @@ package dev.skillsieve.core.common;
 import dev.skillsieve.core.auth.InvalidCredentialsException;
 import dev.skillsieve.core.auth.TooManyLoginAttemptsException;
 import dev.skillsieve.core.job.DuplicateJobException;
+import dev.skillsieve.core.resume.ResumeDisabledException;
 import dev.skillsieve.core.token.TooManyTokensException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
@@ -32,6 +33,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   ProblemDetail tooManyTokens(TooManyTokensException e) {
     return problem(
         HttpStatus.CONFLICT, "Too many tokens", "Revoke a token before creating another (max 10).");
+  }
+
+  @ExceptionHandler(ResumeDisabledException.class)
+  ProblemDetail resumeDisabled(ResumeDisabledException e) {
+    return problem(
+        HttpStatus.SERVICE_UNAVAILABLE, "Resume storage off", "The server has no RESUME_KEY set.");
   }
 
   @ExceptionHandler(DuplicateJobException.class)

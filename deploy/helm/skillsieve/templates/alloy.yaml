@@ -1,0 +1,101 @@
+{{- if and .Values.observability.enabled .Values.observability.loki.enabled }}
+{{- $ctx := dict "root" . "component" "alloy" "tag" "v1.10.2" }}
+{{- $a := .Values.observability.alloy }}
+# Grafana Alloy: one replica tails this namespace's pod logs via the API and ships them to Loki.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-alloy
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+---
+# Namespace-scoped: list pods and read their logs. No ClusterRole, no node access.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-alloy
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [get, list, watch]
+  - apiGroups: [""]
+    resources: [pods/log]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-alloy
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-alloy
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Release.Name }}-alloy
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-alloy
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  replicas: 1     # one tailer per namespace, or lines are shipped twice
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "skillsieve.selector" $ctx | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "skillsieve.labels" $ctx | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/alloy-config.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-alloy
+      securityContext:
+        runAsUser: 473       # the image's alloy user
+        runAsGroup: 473
+        fsGroup: 473
+      containers:
+        - name: alloy
+          image: {{ $a.image }}
+          args:
+            - run
+            - /etc/alloy/config.alloy
+            - --storage.path=/var/lib/alloy/data
+            - --server.http.listen-addr=0.0.0.0:12345
+            - --disable-reporting
+          ports:
+            - name: http
+              containerPort: 12345
+          readinessProbe:
+            httpGet: { path: /-/ready, port: http }
+            periodSeconds: 10
+          resources:
+            {{- toYaml $a.resources | nindent 12 }}
+          securityContext:
+            {{- include "skillsieve.containerSecurity" . | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alloy
+            - name: data
+              mountPath: /var/lib/alloy/data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-alloy
+        - name: data
+          emptyDir: { sizeLimit: 128Mi }
+        - name: tmp
+          emptyDir: { sizeLimit: 32Mi }
+{{- end }}

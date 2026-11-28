@@ -7,7 +7,7 @@
 #   PORT=8089 CLUSTER=skillsieve OWNER_EMAIL=me@example.com deploy/local/k3d-up.sh
 #   GEMINI_API_KEY=… deploy/local/k3d-up.sh  # turn on skill extraction (stored in the cluster only)
 #   ASYNC=true deploy/local/k3d-up.sh         # R2: RabbitMQ + queued extraction (ADR-006)
-#   OBSERVABILITY=true deploy/local/k3d-up.sh # R2: Prometheus + Grafana at /grafana
+#   OBSERVABILITY=true deploy/local/k3d-up.sh # R2: Prometheus + Loki/Alloy + Grafana at /grafana
 #   TAILOR=true deploy/local/k3d-up.sh        # R2: in-cluster Ollama for resume tailoring (~2.5 GB RAM)
 set -euo pipefail
 
@@ -76,6 +76,11 @@ if [ -z "$INTERNAL_TOKEN" ]; then INTERNAL_TOKEN="$(openssl rand -hex 32)"; fi
 # Older core-api secrets (before skills-svc) lack the token: add it.
 kubectl -n "$NAMESPACE" patch secret "$SECRET" --type merge \
   -p "{\"stringData\":{\"INTERNAL_TOKEN\":\"$INTERNAL_TOKEN\"}}" >/dev/null
+# Resume encryption key (R2). Added once and never replaced: a new key makes stored resumes unreadable.
+if [ -z "$(kubectl -n "$NAMESPACE" get secret "$SECRET" -o jsonpath='{.data.RESUME_KEY}')" ]; then
+  kubectl -n "$NAMESPACE" patch secret "$SECRET" --type merge \
+    -p "{\"stringData\":{\"RESUME_KEY\":\"$(openssl rand -base64 32)\"}}" >/dev/null
+fi
 
 EXISTING_KEY="$(kubectl -n "$NAMESPACE" get secret "$SKILLS_SECRET" \
   -o jsonpath='{.data.GEMINI_API_KEY}' 2>/dev/null | base64 -d 2>/dev/null || true)"
