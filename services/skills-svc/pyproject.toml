@@ -13,6 +13,7 @@ dependencies = [
   "rapidfuzz==3.14.6",
   "structlog==26.1.0",
   "aio-pika==9.6.2",
+  "prometheus-client==0.26.0",
 ]
 
 [dependency-groups]

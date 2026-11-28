@@ -76,6 +76,29 @@ rabbitmq:
   # pair as SPRING_RABBITMQ_USERNAME / SPRING_RABBITMQ_PASSWORD. Created by deploy/local/k3d-up.sh.
   secretName: rabbitmq-secrets
 
+observability:
+  # R2 metrics (TECHNICAL_DESIGN §11). Prometheus scrapes pods annotated prometheus.io/scrape.
+  enabled: false
+  prometheus:
+    image: prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
+    retention: 7d
+    retentionSize: 1500MB
+    scrapeInterval: 30s
+    resources:           # docs/ARCHITECTURE.md §6
+      requests: { cpu: 50m, memory: 256Mi }
+      limits: { cpu: 500m, memory: 512Mi }
+    storage: 2Gi
+    storageClass: local-path
+  grafana:
+    image: grafana/grafana:12.1.1@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
+    path: /grafana       # served under the app's host by the Ingress
+    rootUrl: ""          # full public URL incl. /grafana/ (k3d-up sets it); empty = derived from the request
+    resources:
+      requests: { cpu: 20m, memory: 96Mi }
+      limits: { cpu: 300m, memory: 256Mi }
+    # Secret with GF_SECURITY_ADMIN_USER / GF_SECURITY_ADMIN_PASSWORD. Created by deploy/local/k3d-up.sh.
+    secretName: grafana-secrets
+
 ingress:
   enabled: true
   className: traefik

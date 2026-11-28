@@ -164,7 +164,8 @@ flowchart TB
 | pg-backup CronJob (runs briefly) | 64 MB | 128 MB |
 | **R1 subtotal (limits)** | | **≈ 4.3 GB** |
 | RabbitMQ (R2) | 256 MB | 512 MB |
-| Prometheus + Grafana + Loki (R2) | 0.8 GB | 1.5 GB |
+| Prometheus + Grafana (R2, set in values.yaml) | 352 MB | 768 MB |
+| Loki + Alloy (R2, next) | ~0.4 GB | ~0.7 GB |
 | Keycloak (R2) | 512 MB | 1 GB |
 | **R2 total (limits)** | | **≈ 7.3 GB** |
 | Headroom for other portfolio apps | | ≈ 4.7 GB |
@@ -179,7 +180,7 @@ Postgres is on Supabase, so it uses no cluster RAM.
 | Service-to-service | ClusterIP only; skills-svc not exposed by ingress. Shared token header `X-Internal-Token` (R1), NetworkPolicy (R2). |
 | Config | 12-factor env vars from ConfigMap + Secret. |
 | Logging | JSON logs to stdout. No PII. `traceId` in every log line. |
-| Observability | `/actuator/health`, `/healthz` probes in R1. OpenTelemetry + Prometheus metrics in R2. |
+| Observability | Probes `/livez`, `/readyz` (core-api), `/healthz`/`/readyz` (skills-svc); public `/api/health`. R2: Prometheus metrics on internal ports + Grafana (`/grafana`); Loki next; traces later. |
 | Rate limiting | skills-svc: token bucket under Gemini free limits; core-api: 60 req/min per user. |
 | Backups | Nightly `pg_dump` CronJob → Oracle Object Storage, 7 copies. |
 

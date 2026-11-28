@@ -754,7 +754,7 @@ flowchart TD
   build --> scan[Trivy image scan · fail on fixable HIGH/CRITICAL]
   scan --> chart[helm package → push OCI chart to GHCR]
   chart --> ssh[SSH as restricted deploy user → helm upgrade --atomic]
-  ssh --> smoke[smoke test /healthz + /api/actuator/health]
+  ssh --> smoke[smoke test /healthz + /api/health]
 ```
 
 ---
@@ -780,7 +780,7 @@ flowchart TD
   s2 --> img[build web, core-api, skills-svc images<br/>tag sha-short, -dirty if uncommitted]
   img --> imp[k3d image import]
   imp --> up[helm upgrade --install --atomic · values-local.yaml]
-  up --> smoke{/healthz and /api/actuator/health OK?}
+  up --> smoke{/healthz and /api/health OK?}
   smoke -- no --> exit3([exit 1])
   smoke -- yes --> done([print localhost + LAN URLs])
 ```

@@ -36,6 +36,14 @@ spec:
                 name: {{ .Release.Name }}-core-api
                 port: { name: http }
           {{- end }}
+          {{- if .Values.observability.enabled }}
+          - path: {{ .Values.observability.grafana.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-grafana
+                port: { name: http }
+          {{- end }}
           - path: /
             pathType: Prefix
             backend:

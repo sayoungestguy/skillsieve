@@ -355,6 +355,7 @@ Rules:
 | `SPRING_RABBITMQ_USERNAME` / `_PASSWORD` | core-api | same pair as `RABBITMQ_DEFAULT_USER` / `_PASS` in `rabbitmq-secrets` | yes |
 | `SKILLS_SVC_URL` | core-api | `http://skills-svc:8000` | no |
 | `INTERNAL_TOKEN` | both | random 32 bytes | yes |
+| `MANAGEMENT_PORT` | core-api | `8081` (actuator + Prometheus, in-cluster only) | no |
 | `DEMO_MODE` | core-api | `true` → DEMO role read-only | no |
 | `DATABASE_URL` | skills-svc | `postgresql://…?sslmode=require` | yes |
 | `GEMINI_API_KEY` | skills-svc | from AI Studio | yes |
@@ -431,9 +432,11 @@ Manual steps (VM creation, DuckDNS, GitHub secrets/vars, making GHCR packages pu
 | Release | What |
 |---|---|
 | R1 | Health probes (`/api/actuator/health/{liveness,readiness}`); JSON logs (Spring Boot structured logging, ECS format); Actuator `health` and `info` only. The `prometheus` endpoint moves to an in-cluster management port in R2; FastAPI `/metrics` via `prometheus-fastapi-instrumentator` |
-| R2 | OpenTelemetry SDK in both services → OTel Collector → Prometheus (metrics), Loki (logs), Tempo/Jaeger (traces); Grafana dashboards: API latency p50/p95, error rate, LLM calls/day vs quota, extraction failures, ES heap; alerts to Telegram bot |
+| R2 part 1 ☑ | **Metrics.** core-api: Micrometer Prometheus registry on the **management port 8081** (`/actuator/prometheus`; no Service port, no Ingress). Kubelet probes use `/livez` and `/readyz` on the app port; smoke tests through the Ingress use `GET /api/health` (status only). skills-svc: `GET /metrics` (`prometheus-client`; no Ingress) plus an HTTP latency middleware labelled by route template. Helm (`observability.enabled`): Prometheus (namespace-scoped pod discovery via `prometheus.io/*` annotations, Role on pods only, 7 d / 1.5 GB retention) and Grafana at `/grafana` (admin login from `grafana-secrets`, no anonymous access, no sign-up, no phoning home; datasource and the *SkillSieve overview* dashboard provisioned from `deploy/helm/skillsieve/dashboards/`). |
+| R2 part 2 (next) | **Logs:** Loki (single binary) + Grafana Alloy; JSON logs already structured. |
+| Later | OpenTelemetry traces (Tempo) and alerts (Telegram) once the RAM budget allows. |
 
-Custom metrics: `skillsieve_llm_calls_total{result}`, `skillsieve_llm_cache_hits_total`, `skillsieve_extraction_duration_seconds`, `skillsieve_jobs_saved_total`.
+Custom metrics (☑): core-api `skillsieve_jobs_saved_total`, `skillsieve_extractions_total{result=done|retry_later|failed}`; skills-svc `skillsieve_llm_calls_total{result=ok|error|quota}`, `skillsieve_llm_cache_hits_total`, `skillsieve_extraction_duration_seconds{cached}`, `skillsieve_llm_calls_today`, `skillsieve_llm_daily_limit`, `skillsieve_http_request_duration_seconds{method,route,status}`.
 
 ## 12. Testing strategy
 

@@ -65,8 +65,10 @@ public class SecurityConfig {
             a ->
                 a.requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout")
                     .permitAll()
-                    .requestMatchers(
-                        "/api/actuator/health/**", "/api/actuator/info", "/v3/api-docs")
+                    .requestMatchers("/api/health", "/livez", "/readyz", "/v3/api-docs")
+                    .permitAll()
+                    // Management port (8081) only: not routed by the Service or Ingress.
+                    .requestMatchers("/actuator/**")
                     .permitAll()
                     .requestMatchers("/api/admin/**")
                     .hasRole("OWNER")
