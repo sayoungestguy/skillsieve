@@ -70,6 +70,12 @@ class OidcLoginIT extends IntegrationTest {
         .andReturn();
   }
 
+  /** Changes the last signature character (always a different one, so never a no-op). */
+  private static String flipLast(String value) {
+    char last = value.charAt(value.length() - 1);
+    return value.substring(0, value.length() - 1) + (last == 'A' ? 'B' : 'A');
+  }
+
   private static String location(MvcResult r) {
     return r.getResponse().getHeader("Location");
   }
@@ -108,6 +114,7 @@ class OidcLoginIT extends IntegrationTest {
         body(mvc.perform(get("/api/me").cookie(session)).andExpect(status().isOk()).andReturn());
     assertThat(me.get("email").asText()).isEqualTo(email);
     assertThat(me.get("role").asText()).isEqualTo("USER");
+    assertThat(me.get("viaKeycloak").asBoolean()).isTrue();
 
     // PKCE verifier and client_secret_basic (form-encoded secret) reach the token endpoint.
     assertThat(IDP.lastTokenRequest()).contains("code_verifier=").contains("code=code-123");
@@ -152,8 +159,7 @@ class OidcLoginIT extends IntegrationTest {
     Started s = start();
     assertThat(location(callback(s, "not-the-state"))).isEqualTo("/login?oidc=expired");
 
-    Cookie tampered =
-        new Cookie(OidcFlowCookie.NAME, s.cookie().getValue().replaceFirst(".$", "A"));
+    Cookie tampered = new Cookie(OidcFlowCookie.NAME, flipLast(s.cookie().getValue()));
     MvcResult res =
         mvc.perform(
                 get("/api/auth/oidc/callback")

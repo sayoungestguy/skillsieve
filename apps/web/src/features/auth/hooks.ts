@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiError } from '@/api/client';
 import { authApi } from '@/api/endpoints';
-import type { LoginRequest, MeDto } from '@/api/types';
+import type { AuthConfigDto, LoginRequest, MeDto } from '@/api/types';
 
 export const meKey = ['me'] as const;
 
@@ -19,6 +19,21 @@ export function useMe() {
     },
     staleTime: Infinity,
     retry: false,
+  });
+}
+
+/** Sign-in methods; if the call fails, offer password sign-in only. */
+export function useAuthConfig() {
+  return useQuery<AuthConfigDto>({
+    queryKey: ['auth-config'],
+    queryFn: async () => {
+      try {
+        return await authApi.config();
+      } catch {
+        return { oidcEnabled: false, oidcLogoutUrl: null };
+      }
+    },
+    staleTime: Infinity,
   });
 }
 

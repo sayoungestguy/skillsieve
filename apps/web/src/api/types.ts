@@ -12,6 +12,14 @@ export interface MeDto {
   id: string;
   email: string;
   role: Role;
+  /** Signed in through Keycloak: signing out also ends the Keycloak session (ADR-009). */
+  viaKeycloak: boolean;
+}
+
+/** Which sign-in methods the login page offers. */
+export interface AuthConfigDto {
+  oidcEnabled: boolean;
+  oidcLogoutUrl: string | null;
 }
 
 export interface LoginRequest {

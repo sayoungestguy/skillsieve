@@ -33,7 +33,8 @@ class AuthApiIT extends IntegrationTest {
     mvc.perform(get("/api/me").cookie(cookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.email").value(OWNER))
-        .andExpect(jsonPath("$.role").value("OWNER"));
+        .andExpect(jsonPath("$.role").value("OWNER"))
+        .andExpect(jsonPath("$.viaKeycloak").value(false));
   }
 
   @Test
