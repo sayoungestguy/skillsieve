@@ -65,6 +65,13 @@ public class SecurityConfig {
             a ->
                 a.requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout")
                     .permitAll()
+                    // Keycloak sign-in: browser redirects, no session yet (ADR-009).
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/auth/config",
+                        "/api/auth/oidc/login",
+                        "/api/auth/oidc/callback")
+                    .permitAll()
                     .requestMatchers("/api/health", "/livez", "/readyz", "/v3/api-docs")
                     .permitAll()
                     // Management port (8081) only: not routed by the Service or Ingress.

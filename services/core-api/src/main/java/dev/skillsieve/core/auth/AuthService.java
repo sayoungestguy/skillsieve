@@ -46,6 +46,7 @@ public class AuthService {
     AppUser user =
         users
             .findByEmailIgnoreCase(email.strip())
+            .filter(u -> u.getPasswordHash() != null)
             .filter(u -> passwordEncoder.matches(password, u.getPasswordHash()))
             .orElseThrow(InvalidCredentialsException::new);
     log.info("auth.login userId={}", user.getId());
