@@ -16,6 +16,14 @@ data:
   SPRING_RABBITMQ_HOST: {{ printf "%s-rabbitmq" .Release.Name | quote }}
   EXTRACTION_MODE: "async"
   {{- end }}
+  {{- if .Values.keycloak.enabled }}
+  {{- $app := trimSuffix "/" .Values.keycloak.appUrl }}
+  # Keycloak sign-in (ADR-009): public issuer for browsers and the iss check, Service URL for calls.
+  OIDC_ISSUER: {{ printf "%s%s/realms/skillsieve" $app .Values.keycloak.path | quote }}
+  OIDC_INTERNAL_URL: {{ printf "http://%s-keycloak:8080%s/realms/skillsieve" .Release.Name .Values.keycloak.path | quote }}
+  OIDC_CLIENT_ID: "skillsieve-web"
+  APP_URL: {{ $app | quote }}
+  {{- end }}
   {{- if .Values.skillsSvc.enabled }}
   SKILLS_SVC_URL: {{ printf "http://%s-skills-svc:8000" .Release.Name | quote }}
   {{- end }}

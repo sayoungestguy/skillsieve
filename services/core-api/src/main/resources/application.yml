@@ -94,6 +94,12 @@ skillsieve:
   internal-token: ${INTERNAL_TOKEN:}
   extraction-mode: ${EXTRACTION_MODE:sync}   # async = outbox → RabbitMQ (R2)
   es-url: ${ES_URL:}
+  oidc:                            # Keycloak sign-in (R2, ADR-009); empty issuer = off
+    issuer: ${OIDC_ISSUER:}
+    internal-url: ${OIDC_INTERNAL_URL:}
+    client-id: ${OIDC_CLIENT_ID:skillsieve-web}
+    client-secret: ${OIDC_CLIENT_SECRET:}
+    app-url: ${APP_URL:}
   tailor:
     timeout: ${TAILOR_TIMEOUT:5m}   # one skills-svc /v1/tailor call (local CPU model)
   resume:

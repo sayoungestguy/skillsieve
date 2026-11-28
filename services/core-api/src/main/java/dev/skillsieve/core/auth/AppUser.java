@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
+import org.springframework.lang.Nullable;
 
 @Entity
 @Table(name = "app_user")
@@ -18,8 +19,18 @@ public class AppUser {
   @Column(nullable = false, unique = true)
   private String email;
 
-  @Column(name = "password_hash", nullable = false)
+  /** Null for users who only sign in with Keycloak. */
+  @Nullable
+  @Column(name = "password_hash")
   private String passwordHash;
+
+  @Nullable
+  @Column(name = "oidc_issuer")
+  private String oidcIssuer;
+
+  @Nullable
+  @Column(name = "oidc_subject")
+  private String oidcSubject;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -30,12 +41,24 @@ public class AppUser {
 
   protected AppUser() {}
 
-  public AppUser(String email, String passwordHash, Role role, Instant now) {
+  public AppUser(String email, @Nullable String passwordHash, Role role, Instant now) {
     this.id = UUID.randomUUID();
     this.email = email;
     this.passwordHash = passwordHash;
     this.role = role;
     this.createdAt = now;
+  }
+
+  /** A new USER who signs in with Keycloak only. */
+  static AppUser fromOidc(String email, String issuer, String subject, Instant now) {
+    AppUser user = new AppUser(email, null, Role.USER, now);
+    user.linkOidc(issuer, subject);
+    return user;
+  }
+
+  void linkOidc(String issuer, String subject) {
+    this.oidcIssuer = issuer;
+    this.oidcSubject = subject;
   }
 
   public UUID getId() {
@@ -46,6 +69,7 @@ public class AppUser {
     return email;
   }
 
+  @Nullable
   public String getPasswordHash() {
     return passwordHash;
   }
