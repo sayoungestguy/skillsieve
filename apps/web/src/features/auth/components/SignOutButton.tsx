@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/components/ui/Icon';
-import { useLogout, useMe } from '../hooks';
+import { useAuthConfig, useLogout, useMe } from '../hooks';
 
 interface SignOutButtonProps {
   showEmail?: boolean;
@@ -8,12 +8,20 @@ interface SignOutButtonProps {
 
 export function SignOutButton({ showEmail = false }: SignOutButtonProps) {
   const { data: me } = useMe();
+  const { data: config } = useAuthConfig();
   const logout = useLogout();
   const navigate = useNavigate();
   if (!me) return null;
 
+  // A Keycloak session would sign the user straight back in, so end it too (ADR-009).
+  const keycloakLogout = me.viaKeycloak ? config?.oidcLogoutUrl : null;
   const signOut = () =>
-    logout.mutate(undefined, { onSettled: () => navigate('/login', { replace: true }) });
+    logout.mutate(undefined, {
+      onSettled: () =>
+        keycloakLogout
+          ? window.location.assign(keycloakLogout)
+          : navigate('/login', { replace: true }),
+    });
 
   return (
     <div className="flex flex-col gap-2">

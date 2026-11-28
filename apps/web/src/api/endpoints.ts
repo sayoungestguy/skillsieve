@@ -12,6 +12,7 @@ import type {
   Level,
   LoginRequest,
   MeDto,
+  AuthConfigDto,
   Page,
   SearchHitDto,
   SkillDto,
@@ -29,6 +30,7 @@ export const authApi = {
     api<undefined>('/api/auth/login', { method: 'POST', body: json(body) }),
   logout: () => api<undefined>('/api/auth/logout', { method: 'POST' }),
   me: () => api<MeDto>('/api/me'),
+  config: () => api<AuthConfigDto>('/api/auth/config'),
 };
 
 export const jobsApi = {

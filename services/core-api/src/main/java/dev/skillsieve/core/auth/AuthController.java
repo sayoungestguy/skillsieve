@@ -48,6 +48,14 @@ public class AuthController {
 
   @GetMapping("/me")
   MeDto me(Authentication auth) {
-    return authService.me(CurrentUser.id(auth));
+    boolean viaKeycloak =
+        auth
+                instanceof
+                org.springframework.security.oauth2.server.resource.authentication
+                        .JwtAuthenticationToken
+                    jwt
+            && jwt.getToken().getClaimAsStringList(AuthService.AMR) != null
+            && jwt.getToken().getClaimAsStringList(AuthService.AMR).contains(AuthService.AMR_OIDC);
+    return authService.me(CurrentUser.id(auth), viaKeycloak);
   }
 }
