@@ -37,7 +37,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push web (arm64 + amd64)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: apps/web
           platforms: linux/arm64,linux/amd64
@@ -50,7 +50,7 @@ jobs:
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
       - name: Build and push core-api (arm64 + amd64)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: services/core-api
           platforms: linux/arm64,linux/amd64
@@ -61,7 +61,7 @@ jobs:
           cache-from: type=gha,scope=core-api
           cache-to: type=gha,scope=core-api,mode=max
       - name: Build and push skills-svc (arm64 + amd64)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: services/skills-svc
           platforms: linux/arm64,linux/amd64
