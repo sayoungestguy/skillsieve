@@ -93,6 +93,7 @@ deploy/local/k3d-up.sh
 ASYNC=true deploy/local/k3d-up.sh   # R2: RabbitMQ + queued extraction
 OBSERVABILITY=true deploy/local/k3d-up.sh   # R2: Prometheus + Loki + Grafana at /grafana
 TAILOR=true deploy/local/k3d-up.sh          # R2: in-cluster Ollama for resume tailoring (~2.5 GB)
+KEYCLOAK=true deploy/local/k3d-up.sh        # R2: Keycloak at /auth (admin login in .owner-credentials)
 
 # Helm
 helm lint deploy/helm/skillsieve

@@ -1,0 +1,100 @@
+{{- if .Values.keycloak.enabled }}
+{{- $ctx := dict "root" . "component" "keycloak" "tag" "26.4.5" }}
+{{- $k := .Values.keycloak }}
+# Keycloak for multi-user sign-in (FR-13, ADR-009). core-api is its only OIDC client; browsers
+# reach it at {{ $k.path }} for the login page. Data lives in Postgres (schema keycloak).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-keycloak
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "skillsieve.selector" $ctx | nindent 4 }}
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-keycloak
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate     # one node, no cache cluster
+  selector:
+    matchLabels:
+      {{- include "skillsieve.selector" $ctx | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "skillsieve.labels" $ctx | nindent 8 }}
+      annotations:
+        checksum/realm: {{ include (print $.Template.BasePath "/keycloak-config.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 0     # the image's files are group 0
+      containers:
+        - name: keycloak
+          image: {{ $k.image }}
+          args: ["start", "--import-realm"]
+          envFrom:
+            - secretRef:
+                name: {{ $k.secretName }}   # KC_DB_USERNAME/PASSWORD, KC_BOOTSTRAP_ADMIN_*, SKILLSIEVE_OIDC_CLIENT_SECRET
+          env:
+            - { name: KC_DB, value: postgres }
+            - { name: KC_DB_URL, value: {{ $k.dbUrl | quote }} }
+            - { name: KC_DB_SCHEMA, value: keycloak }
+            - { name: KC_DB_POOL_MAX_SIZE, value: "5" }   # Supabase free plan: few connections
+            - { name: KC_HTTP_ENABLED, value: "true" }     # TLS ends at Traefik
+            - { name: KC_HTTP_RELATIVE_PATH, value: {{ $k.path | quote }} }
+            - { name: KC_HOSTNAME, value: {{ printf "%s%s" (trimSuffix "/" $k.appUrl) $k.path | quote }} }
+            - { name: KC_HOSTNAME_BACKCHANNEL_DYNAMIC, value: "true" }   # core-api calls the Service URL
+            - { name: KC_PROXY_HEADERS, value: xforwarded }
+            - { name: KC_HEALTH_ENABLED, value: "true" }
+            - { name: KC_CACHE, value: local }
+            - { name: KC_LOG_CONSOLE_OUTPUT, value: json }   # structured, for Loki
+            - { name: JAVA_OPTS_KC_HEAP, value: "-XX:MaxRAMPercentage=65 -XX:InitialRAMPercentage=30" }
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: mgmt
+              containerPort: 9000
+          startupProbe:           # first start builds and migrates the schema: slow on 2 ARM cores
+            httpGet: { path: {{ printf "%s/health/started" $k.path }}, port: mgmt }
+            periodSeconds: 10
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: { path: {{ printf "%s/health/ready" $k.path }}, port: mgmt }
+            periodSeconds: 15
+          livenessProbe:
+            httpGet: { path: {{ printf "%s/health/live" $k.path }}, port: mgmt }
+            periodSeconds: 30
+          resources:
+            {{- toYaml $k.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            # Keycloak rebuilds its Quarkus app into /opt/keycloak on "start"; the root FS stays writable.
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: [ALL]
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: realm
+              mountPath: /opt/keycloak/data/import
+              readOnly: true
+      volumes:
+        - name: realm
+          configMap:
+            name: {{ .Release.Name }}-keycloak-realm
+{{- end }}

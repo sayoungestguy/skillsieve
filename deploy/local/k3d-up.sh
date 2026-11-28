@@ -9,6 +9,7 @@
 #   ASYNC=true deploy/local/k3d-up.sh         # R2: RabbitMQ + queued extraction (ADR-006)
 #   OBSERVABILITY=true deploy/local/k3d-up.sh # R2: Prometheus + Loki/Alloy + Grafana at /grafana
 #   TAILOR=true deploy/local/k3d-up.sh        # R2: in-cluster Ollama for resume tailoring (~2.5 GB RAM)
+#   KEYCLOAK=true deploy/local/k3d-up.sh      # R2: Keycloak at /auth for multi-user sign-in (ADR-009)
 set -euo pipefail
 
 CLUSTER="${CLUSTER:-skillsieve}"
@@ -18,6 +19,8 @@ USE_MOCKS="${USE_MOCKS:-false}"
 ASYNC="${ASYNC:-false}"
 OBSERVABILITY="${OBSERVABILITY:-false}"
 TAILOR="${TAILOR:-false}"
+KEYCLOAK="${KEYCLOAK:-false}"
+KC_SECRET="keycloak-secrets"
 GRAFANA_SECRET="grafana-secrets"
 MQ_SECRET="rabbitmq-secrets"
 OWNER_EMAIL="${OWNER_EMAIL:-owner@skillsieve.local}"
@@ -115,6 +118,34 @@ if [ -z "$GEMINI_KEY" ]; then
   echo "Note: no GEMINI_API_KEY set, so skill extraction is off (jobs stay 'pending')."
 fi
 
+if [ "$KEYCLOAK" = "true" ]; then
+  # Own role and schema in the shared Postgres (Supabase in prod). Passwords made once, reused.
+  kc_get() { kubectl -n "$NAMESPACE" get secret "$KC_SECRET" -o jsonpath="{.data.$1}" 2>/dev/null | base64 -d 2>/dev/null || true; }
+  KC_DB_PASS="$(kc_get KC_DB_PASSWORD)"; [ -n "$KC_DB_PASS" ] || KC_DB_PASS="$(openssl rand -hex 24)"
+  KC_ADMIN_PASS="$(kc_get KC_BOOTSTRAP_ADMIN_PASSWORD)"
+  KC_CLIENT_SECRET="$(kc_get SKILLSIEVE_OIDC_CLIENT_SECRET)"; [ -n "$KC_CLIENT_SECRET" ] || KC_CLIENT_SECRET="$(openssl rand -hex 32)"
+  docker compose -f "$ROOT/deploy/local/docker-compose.yml" exec -T postgres \
+    psql -q -v ON_ERROR_STOP=1 -U skillsieve_api -d skillsieve -v pw="$KC_DB_PASS" >/dev/null <<'SQL'
+SELECT format('CREATE ROLE keycloak LOGIN PASSWORD %L', :'pw')
+  WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'keycloak') \gexec
+SELECT format('ALTER ROLE keycloak PASSWORD %L', :'pw') \gexec
+CREATE SCHEMA IF NOT EXISTS keycloak AUTHORIZATION keycloak;
+ALTER ROLE keycloak SET search_path = keycloak;
+SQL
+  if [ -z "$KC_ADMIN_PASS" ]; then
+    KC_ADMIN_PASS="$(openssl rand -base64 18 | tr -d '/+=')"
+    (umask 077; printf 'keycloak_admin=admin\nkeycloak_admin_password=%s\n' "$KC_ADMIN_PASS" >> "$CREDS")
+    echo "Keycloak admin login added to deploy/local/.owner-credentials (git-ignored)."
+  fi
+  kubectl -n "$NAMESPACE" create secret generic "$KC_SECRET" \
+    --from-literal=KC_DB_USERNAME=keycloak \
+    --from-literal=KC_DB_PASSWORD="$KC_DB_PASS" \
+    --from-literal=KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+    --from-literal=KC_BOOTSTRAP_ADMIN_PASSWORD="$KC_ADMIN_PASS" \
+    --from-literal=SKILLSIEVE_OIDC_CLIENT_SECRET="$KC_CLIENT_SECRET" \
+    --dry-run=client -o yaml | kubectl apply -f - >/dev/null
+fi
+
 if [ "$OBSERVABILITY" = "true" ] && ! kubectl -n "$NAMESPACE" get secret "$GRAFANA_SECRET" >/dev/null 2>&1; then
   GRAFANA_PASSWORD="$(openssl rand -base64 18 | tr -d '/+=')"
   kubectl -n "$NAMESPACE" create secret generic "$GRAFANA_SECRET" \
@@ -137,6 +168,9 @@ helm upgrade --install skillsieve "$CHART" -n "$NAMESPACE" \
   --set rabbitmq.enabled="$ASYNC" \
   --set observability.enabled="$OBSERVABILITY" \
   --set ollama.enabled="$TAILOR" \
+  --set keycloak.enabled="$KEYCLOAK" \
+  --set keycloak.appUrl="http://localhost:${PORT}" \
+  --set keycloak.dbUrl="jdbc:postgresql://host.k3d.internal:${PG_PORT}/skillsieve" \
   --set observability.grafana.rootUrl="http://localhost:${PORT}/grafana/"
 
 log "Smoke test"
@@ -155,5 +189,6 @@ case "$(uname -s)" in
   Darwin) LAN_IP="$(ipconfig getifaddr en0 2>/dev/null || true)" ;;
   *)      LAN_IP="$(hostname -I 2>/dev/null | awk '{print $1}')" ;;
 esac
+[ "$KEYCLOAK" = "true" ] && echo "Keycloak admin: http://localhost:${PORT}/auth/admin (login in deploy/local/.owner-credentials)"
 [ "$OBSERVABILITY" = "true" ] && echo "Grafana: http://localhost:${PORT}/grafana (login in deploy/local/.owner-credentials)"
 log "Up: http://localhost:${PORT}   LAN: http://${LAN_IP:-<this-machine-ip>}:${PORT}   API: /api"

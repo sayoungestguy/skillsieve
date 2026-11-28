@@ -177,7 +177,7 @@ Postgres is on Supabase, so it uses no cluster RAM.
 
 | Concern | Approach |
 |---|---|
-| Auth | R1: core-api issues a JWT (HS256, 1 h) after password login; HttpOnly, Secure, SameSite=Strict cookie. R2: Keycloak OIDC. |
+| Auth | R1: core-api issues a JWT (HS256, 1 h) after password login; HttpOnly, Secure, SameSite=Strict cookie. R2: Keycloak sign-in handled by core-api, which sets the same cookie (ADR-009); password login remains as a fallback. |
 | Service-to-service | ClusterIP only; skills-svc not exposed by ingress. Shared token header `X-Internal-Token` (R1), NetworkPolicy (R2). |
 | Config | 12-factor env vars from ConfigMap + Secret. |
 | Logging | JSON logs to stdout. No PII. `traceId` in every log line. |
@@ -197,3 +197,4 @@ Postgres is on Supabase, so it uses no cluster RAM.
 | ADR-006 | **Sync extraction in R1, async (RabbitMQ) in R2** | Ship fast first; then show event-driven design as an upgrade | R1 request can take up to 10 s |
 | ADR-007 | **Monorepo** | One PR can change API + UI + Helm; simpler CI | CI needs path filters to stay fast |
 | ADR-008 | **Sealed Secrets** instead of Vault | Tiny footprint, GitOps-friendly | Less powerful than Vault (no dynamic secrets) |
+| ADR-009 | **Keycloak sign-in runs server-side in core-api** (confidential OIDC client, auth code + PKCE), which then sets the same HttpOnly session cookie as password login. Replaces the earlier plan of browser PKCE + core-api as a resource server. Password login stays as a fallback. | No tokens in browser JS; the web app, `CurrentUser`, extension tokens and tests barely change; Keycloak stays optional | core-api owns the OIDC flow code (state, nonce, PKCE, ID-token checks); Keycloak sessions and the app cookie expire separately |

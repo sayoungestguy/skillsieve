@@ -1,0 +1,53 @@
+{{- if .Values.keycloak.enabled }}
+{{- $ctx := dict "root" . "component" "keycloak" "tag" "26.4.5" }}
+{{- $k := .Values.keycloak }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-keycloak-realm
+  labels:
+    {{- include "skillsieve.labels" $ctx | nindent 4 }}
+data:
+  # Imported once on first start (--import-realm skips a realm that exists). ${…} values come
+  # from the keycloak Secret at import time, so no secret is in this ConfigMap.
+  skillsieve-realm.json: |
+    {
+      "realm": "skillsieve",
+      "enabled": true,
+      "displayName": "SkillSieve",
+      "registrationAllowed": {{ $k.registrationAllowed }},
+      "registrationEmailAsUsername": true,
+      "loginWithEmailAllowed": true,
+      "duplicateEmailsAllowed": false,
+      "resetPasswordAllowed": false,
+      "verifyEmail": false,
+      "bruteForceProtected": true,
+      "failureFactor": 5,
+      "passwordPolicy": "length(12) and notUsername",
+      "sslRequired": "{{ $k.sslRequired }}",
+      "accessTokenLifespan": 300,
+      "ssoSessionIdleTimeout": 3600,
+      "clients": [
+        {
+          "clientId": "skillsieve-web",
+          "name": "SkillSieve",
+          "protocol": "openid-connect",
+          "enabled": true,
+          "publicClient": false,
+          "clientAuthenticatorType": "client-secret",
+          "secret": "${SKILLSIEVE_OIDC_CLIENT_SECRET}",
+          "standardFlowEnabled": true,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "serviceAccountsEnabled": false,
+          "redirectUris": ["{{ trimSuffix "/" $k.appUrl }}/api/auth/oidc/callback"],
+          "webOrigins": ["{{ trimSuffix "/" $k.appUrl }}"],
+          "attributes": {
+            "pkce.code.challenge.method": "S256",
+            "post.logout.redirect.uris": "{{ trimSuffix "/" $k.appUrl }}/login"
+          },
+          "defaultClientScopes": ["openid", "profile", "email"]
+        }
+      ]
+    }
+{{- end }}
