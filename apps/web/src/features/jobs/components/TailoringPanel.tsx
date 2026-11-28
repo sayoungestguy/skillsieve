@@ -64,7 +64,7 @@ export function TailoringPanel({ job }: { job: JobDto }) {
       {running && (
         <p role="status" className="m-0 flex items-center gap-3 text-sm text-muted">
           <span className="spinner" aria-hidden="true" />
-          Writing suggestions… this takes a minute or two.
+          Writing suggestions… this can take a few minutes.
         </p>
       )}
 

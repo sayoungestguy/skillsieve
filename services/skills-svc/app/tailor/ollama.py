@@ -69,7 +69,8 @@ class OllamaClient:
             "model": self.model,
             "stream": False,
             "format": LlmTailoring.model_json_schema(),
-            "options": {"temperature": 0.2, "num_ctx": 4096, "num_predict": 700},
+            # 450 output tokens fit 5 bullets; fewer tokens = less time on a slow CPU.
+            "options": {"temperature": 0.2, "num_ctx": 4096, "num_predict": 450},
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},

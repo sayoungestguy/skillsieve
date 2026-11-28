@@ -1,9 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { tailoringApi } from '@/api/endpoints';
 
-/** The local model takes 1-2 minutes (up to ~4 with a retry), so poll for about 6 minutes. */
+/**
+ * The local model takes 1-5 minutes on a slow CPU (up to ~10 with a retry), so poll for about 15
+ * minutes, matching core-api's 15-minute expiry for a stuck request.
+ */
 export const TAILOR_POLL_MS = 5_000;
-const MAX_POLLS = 72;
+const MAX_POLLS = 180;
 
 export const tailoringKey = (jobId: string) => ['tailoring', jobId] as const;
 

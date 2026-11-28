@@ -35,6 +35,7 @@ public class TailoringService {
 
   private static final Logger log = LoggerFactory.getLogger(TailoringService.class);
   static final String BUSY = "The suggestion model is busy or off. Try again in a few minutes.";
+  static final String INTERRUPTED = "The server restarted while writing these. Try again.";
 
   private final TailoringRepository tailorings;
   private final ResumeRepository resumes;
@@ -147,6 +148,19 @@ public class TailoringService {
       finish(userId, jobId, null, "Something went wrong. Try again.");
       log.warn("tailor.failed jobId={} error={}", jobId, e.getClass().getSimpleName());
     }
+  }
+
+  /**
+   * Fails every PENDING row. Runs happen in this process only (one core-api replica), so after a
+   * restart nothing will finish them; without this they would block a retry until they expire.
+   */
+  @Transactional
+  public int failInterrupted() {
+    int n = tailorings.failAllPending(INTERRUPTED, clock.instant());
+    if (n > 0) {
+      log.info("tailor.interrupted count={}", n);
+    }
+    return n;
   }
 
   /** Marks a request failed when it could not be queued. */
