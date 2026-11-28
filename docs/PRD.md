@@ -159,5 +159,5 @@ RabbitMQ async pipeline · Chrome extension · Prometheus/Grafana/Loki · resume
 | 12 GB RAM too tight | Pods OOM-killed | Resource limits, ES heap 1 GB, RAM budget review each release |
 
 ## 10. Open questions
-- Which job sites to support first in the extension? (Proposed: LinkedIn, MyCareersFuture.)
+- ~~Which job sites to support first in the extension?~~ Decided: LinkedIn and MyCareersFuture get site selectors; any other site works by selecting the job text first.
 - Keep demo data public, or protect the whole site behind login? (Proposed: public read-only demo.)

@@ -3,6 +3,7 @@ package dev.skillsieve.core.common;
 import dev.skillsieve.core.auth.InvalidCredentialsException;
 import dev.skillsieve.core.auth.TooManyLoginAttemptsException;
 import dev.skillsieve.core.job.DuplicateJobException;
+import dev.skillsieve.core.token.TooManyTokensException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(NotFoundException.class)
   ProblemDetail notFound(NotFoundException e) {
     return problem(HttpStatus.NOT_FOUND, "Not found", e.getMessage());
+  }
+
+  @ExceptionHandler(TooManyTokensException.class)
+  ProblemDetail tooManyTokens(TooManyTokensException e) {
+    return problem(
+        HttpStatus.CONFLICT, "Too many tokens", "Revoke a token before creating another (max 10).");
   }
 
   @ExceptionHandler(DuplicateJobException.class)

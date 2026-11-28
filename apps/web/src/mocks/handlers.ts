@@ -125,6 +125,25 @@ export const handlers = [
 
   http.post('/api/jobs/:id/extract', () => new HttpResponse(null, { status: 202 })),
 
+  http.get('/api/tokens', () => HttpResponse.json(db.tokens)),
+  http.post('/api/tokens', async ({ request }) => {
+    const { name } = (await request.json()) as { name: string };
+    const token = `ssv_mock${crypto.randomUUID().replaceAll('-', '')}`;
+    const info = {
+      id: crypto.randomUUID(),
+      name,
+      prefix: token.slice(0, 12),
+      createdAt: new Date().toISOString(),
+      lastUsedAt: null,
+    };
+    db.tokens.unshift(info);
+    return HttpResponse.json({ info, token }, { status: 201 });
+  }),
+  http.delete('/api/tokens/:id', ({ params }) => {
+    db.tokens = db.tokens.filter((t) => t.id !== params.id);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
   http.patch('/api/applications/:id', async ({ params, request }) => {
     const body = (await request.json()) as UpdateApplicationRequest;
     const job = db.jobs.find((j) => j.application.id === params.id);

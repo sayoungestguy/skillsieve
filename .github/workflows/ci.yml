@@ -20,6 +20,7 @@ jobs:
       core-api: ${{ steps.filter.outputs.core-api }}
       skills-svc: ${{ steps.filter.outputs.skills-svc }}
       helm: ${{ steps.filter.outputs.helm }}
+      extension: ${{ steps.filter.outputs.extension }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -40,6 +41,9 @@ jobs:
               - '.github/workflows/ci.yml'
             helm:
               - 'deploy/helm/**'
+              - '.github/workflows/ci.yml'
+            extension:
+              - 'extension/**'
               - '.github/workflows/ci.yml'
 
   web:
@@ -62,6 +66,31 @@ jobs:
       - run: npm run typecheck
       - run: npm run coverage
       - run: npm run build
+
+  extension:
+    needs: changes
+    if: needs.changes.outputs.extension == 'true'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: extension
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: extension/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: skillsieve-extension
+          path: extension/dist
+          retention-days: 14
 
   core-api:
     needs: changes

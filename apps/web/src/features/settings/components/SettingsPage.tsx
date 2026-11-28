@@ -2,6 +2,7 @@ import { Icon } from '@/components/ui/Icon';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { SignOutButton } from '@/features/auth/components/SignOutButton';
 import { useMe } from '@/features/auth/hooks';
+import { ExtensionTokens } from './ExtensionTokens';
 
 /** Settings screen. Account, demo mode and export are wired up once core-api has the endpoints. */
 export function SettingsPage() {
@@ -53,6 +54,7 @@ export function SettingsPage() {
             <SignOutButton />
           </div>
         </section>
+        <ExtensionTokens />
         <section className="panel flex flex-wrap items-center gap-4" aria-labelledby="dm">
           <div className="flex-[1_1_320px]">
             <h2 id="dm" className="text-lg">

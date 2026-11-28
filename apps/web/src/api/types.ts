@@ -132,3 +132,18 @@ export interface UpdateApplicationRequest {
   position?: number;
   version: number;
 }
+
+/** Chrome extension token as listed in Settings (the secret is never returned again). */
+export interface AccessTokenDto {
+  id: string;
+  name: string;
+  prefix: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+}
+
+export interface CreatedTokenDto {
+  info: AccessTokenDto;
+  /** Plain token, shown once. */
+  token: string;
+}

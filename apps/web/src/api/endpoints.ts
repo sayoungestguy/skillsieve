@@ -1,6 +1,8 @@
 import { api, toQuery } from './client';
 import type {
+  AccessTokenDto,
   ApplicationDto,
+  CreatedTokenDto,
   CreateJobRequest,
   InsightSummaryDto,
   JobDto,
@@ -56,4 +58,11 @@ export const insightsApi = {
 
 export const searchApi = {
   search: (q: string) => api<Page<SearchHitDto>>(`/api/search${toQuery({ q, page: 0, size: 20 })}`),
+};
+
+export const tokensApi = {
+  list: () => api<AccessTokenDto[]>('/api/tokens'),
+  create: (name: string) =>
+    api<CreatedTokenDto>('/api/tokens', { method: 'POST', body: json({ name }) }),
+  revoke: (id: string) => api<undefined>(`/api/tokens/${id}`, { method: 'DELETE' }),
 };
